@@ -1,0 +1,36 @@
+---
+// src/components/MiscCard.astro
+interface Props {
+  title: string;
+  category: string;
+  href: string;
+}
+
+const { title, category, href } = Astro.props;
+---
+
+<a href={href} class="misc-card card">
+  <span class="misc-category small-caps">{category}</span>
+  <h3 class="misc-title">{title}</h3>
+</a>
+
+<style>
+  .misc-card {
+    text-decoration: none;
+    color: var(--c-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+  }
+
+  .misc-category {
+    font-size: 0.6rem;
+    color: var(--c-accent);
+    font-family: var(--font-body);
+  }
+
+  .misc-title {
+    font-size: 1rem;
+  }
+</style>
