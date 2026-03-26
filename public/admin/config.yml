@@ -96,49 +96,146 @@ collections:
       - { label: Draft, name: draft, widget: boolean, default: false }
       - { label: Body, name: body, widget: markdown, modes: [rich_text, raw] }
 
-  # ── CV (public, data) ─────────────────────────────
+  # ── Data (public, structured YAML) ─────────────────
 
-  - name: cv
-    label: "CV"
-    file: src/data/cv.yaml
-    fields:
-      - { label: Section, name: section, widget: select, options: [education, clinical, research, skills] }
-      - { label: Year, name: year, widget: string }
-      - { label: Title, name: title, widget: string }
-      - { label: Institution, name: institution, widget: string }
-      - { label: Description, name: description, widget: text }
+  - name: data
+    label: "Data"
+    files:
+      - name: phd-progress
+        label: "PhD Progress"
+        file: src/data/phd-progress.yaml
+        fields:
+          - label: Overall
+            name: overall
+            widget: object
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: "Value (%)", name: value, widget: number, value_type: int, min: 0, max: 100 }
+          - label: Biology
+            name: biology
+            widget: object
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: "Value (%)", name: value, widget: number, value_type: int, min: 0, max: 100 }
+              - { label: Color, name: color, widget: color, required: false }
+          - label: Biomechanics
+            name: biomechanics
+            widget: object
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: "Value (%)", name: value, widget: number, value_type: int, min: 0, max: 100 }
+              - { label: Color, name: color, widget: color, required: false }
+          - label: Human Data
+            name: human-data
+            widget: object
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: "Value (%)", name: value, widget: number, value_type: int, min: 0, max: 100 }
+              - { label: Color, name: color, widget: color, required: false }
 
-  # ── Stack (public, data) ──────────────────────────
+      - name: cv
+        label: "CV"
+        file: src/data/cv.yaml
+        fields:
+          - label: PhD Arts et Métiers
+            name: phd-arts-metiers
+            widget: object
+            fields:
+              - { label: Section, name: section, widget: select, options: [education, clinical, research, skills] }
+              - { label: Year, name: year, widget: string }
+              - { label: Title, name: title, widget: string }
+              - { label: Institution, name: institution, widget: string }
+              - { label: Description, name: description, widget: text }
+          - label: Medical Degree
+            name: medical-degree
+            widget: object
+            fields:
+              - { label: Section, name: section, widget: select, options: [education, clinical, research, skills] }
+              - { label: Year, name: year, widget: string }
+              - { label: Title, name: title, widget: string }
+              - { label: Institution, name: institution, widget: string }
+              - { label: Description, name: description, widget: text }
+          - label: CMF Necker
+            name: cmf-necker
+            widget: object
+            fields:
+              - { label: Section, name: section, widget: select, options: [education, clinical, research, skills] }
+              - { label: Year, name: year, widget: string }
+              - { label: Title, name: title, widget: string }
+              - { label: Institution, name: institution, widget: string }
+              - { label: Description, name: description, widget: text }
+          - label: Skull Base PhD
+            name: skull-base-phd
+            widget: object
+            fields:
+              - { label: Section, name: section, widget: select, options: [education, clinical, research, skills] }
+              - { label: Year, name: year, widget: string }
+              - { label: Title, name: title, widget: string }
+              - { label: Institution, name: institution, widget: string }
+              - { label: Description, name: description, widget: text }
 
-  - name: stack
-    label: "Stack"
-    file: src/data/stack.yaml
-    fields:
-      - { label: Layer, name: layer, widget: string }
-      - { label: Methods, name: methods, widget: string }
-      - { label: Tools, name: tools, widget: string }
-      - { label: Description, name: description, widget: text }
-      - { label: Order, name: order, widget: number, value_type: int }
+      - name: stack
+        label: "Stack"
+        file: src/data/stack.yaml
+        fields:
+          - label: Molecular
+            name: molecular
+            widget: object
+            fields:
+              - { label: Layer, name: layer, widget: string }
+              - { label: Methods, name: methods, widget: string }
+              - { label: Tools, name: tools, widget: string }
+              - { label: Description, name: description, widget: text }
+              - { label: Order, name: order, widget: number, value_type: int }
+          - label: 3D Imaging
+            name: imaging-3d
+            widget: object
+            fields:
+              - { label: Layer, name: layer, widget: string }
+              - { label: Methods, name: methods, widget: string }
+              - { label: Tools, name: tools, widget: string }
+              - { label: Description, name: description, widget: text }
+              - { label: Order, name: order, widget: number, value_type: int }
+          - label: Biomechanics
+            name: biomechanics
+            widget: object
+            fields:
+              - { label: Layer, name: layer, widget: string }
+              - { label: Methods, name: methods, widget: string }
+              - { label: Tools, name: tools, widget: string }
+              - { label: Description, name: description, widget: text }
+              - { label: Order, name: order, widget: number, value_type: int }
+          - label: Clinical Atlas
+            name: clinical
+            widget: object
+            fields:
+              - { label: Layer, name: layer, widget: string }
+              - { label: Methods, name: methods, widget: string }
+              - { label: Tools, name: tools, widget: string }
+              - { label: Description, name: description, widget: text }
+              - { label: Order, name: order, widget: number, value_type: int }
 
-  # ── Labs (public, data) ───────────────────────────
-
-  - name: labs
-    label: "Labs"
-    file: src/data/labs.yaml
-    fields:
-      - { label: Name, name: name, widget: string }
-      - { label: PI, name: pi, widget: string }
-      - { label: Institution, name: institution, widget: string }
-      - { label: Role, name: role, widget: string }
-      - { label: Work, name: work, widget: text }
-      - { label: URL, name: url, widget: string, required: false }
-
-  # ── PhD Progress (public, data) ───────────────────
-
-  - name: phd-progress
-    label: "PhD Progress"
-    file: src/data/phd-progress.yaml
-    fields:
-      - { label: Label, name: label, widget: string }
-      - { label: Value, name: value, widget: number, value_type: int, min: 0, max: 100 }
-      - { label: Color, name: color, widget: color, required: false }
+      - name: labs
+        label: "Labs"
+        file: src/data/labs.yaml
+        fields:
+          - label: Lab 1
+            name: lab-placeholder-1
+            widget: object
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: PI, name: pi, widget: string }
+              - { label: Institution, name: institution, widget: string }
+              - { label: Role, name: role, widget: string }
+              - { label: Work, name: work, widget: text }
+              - { label: URL, name: url, widget: string, required: false }
+          - label: Lab 2
+            name: lab-placeholder-2
+            widget: object
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: PI, name: pi, widget: string }
+              - { label: Institution, name: institution, widget: string }
+              - { label: Role, name: role, widget: string }
+              - { label: Work, name: work, widget: text }
+              - { label: URL, name: url, widget: string, required: false }
