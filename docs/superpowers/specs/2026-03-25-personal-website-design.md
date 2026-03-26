@@ -214,7 +214,8 @@ Astro content collections with typed schemas for:
 - **Profile photo**: Add real headshot to the hero or about section
 
 ### Editing & Private Sections
-- **Web-based editor**: Headless CMS integration (Decap CMS or similar git-based editor) for adding/editing private markdown content from a browser — especially lab notebook and meeting notes
+- **Web-based editor**: ~~Headless CMS integration~~ — DONE (Sveltia CMS, March 2026)
+- **Dynamic YAML entries via CMS**: Allow adding/removing YAML data entries (CV, Stack, Labs, PhD Progress) through the CMS without editing config.yml — requires switching from keyed-map + object widgets to a list-based approach
 - **Private section auth**: Add authentication or simple password gate beyond `noindex` for lab notebook and meetings
 - **Populate private sections**: Fill lab notebook and meetings pages with real entries
 
