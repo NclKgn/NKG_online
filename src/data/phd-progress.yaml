@@ -5,7 +5,7 @@ overall:
 biology:
   label: Biology
   value: 0
-  color: "#2d8a4e"
+  color: "#6080a0"
 
 biomechanics:
   label: Biomechanics
