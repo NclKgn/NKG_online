@@ -1,0 +1,56 @@
+---
+// src/components/SectionPreview.astro
+interface Props {
+  title: string;
+  description: string;
+  href: string;
+  linkText?: string;
+}
+
+const { title, description, href, linkText = 'Explore' } = Astro.props;
+---
+
+<div class="section-preview">
+  <h3 class="section-preview-title">{title}</h3>
+  <p class="section-preview-desc">{description}</p>
+  <a href={href} class="section-preview-link">
+    {linkText} <span aria-hidden="true">&rarr;</span>
+  </a>
+</div>
+
+<style>
+  .section-preview {
+    padding: var(--space-lg) 0;
+    border-left: 2px solid var(--c-border-light);
+    padding-left: var(--space-lg);
+    transition: border-color 0.2s;
+  }
+
+  .section-preview:hover {
+    border-left-color: var(--c-accent);
+  }
+
+  .section-preview-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .section-preview-desc {
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    line-height: 1.6;
+    margin-bottom: var(--space-md);
+  }
+
+  .section-preview-link {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--c-accent);
+    text-decoration: none;
+  }
+
+  .section-preview-link:hover {
+    opacity: 0.8;
+  }
+</style>

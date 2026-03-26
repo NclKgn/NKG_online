@@ -1,11 +1,70 @@
 ---
 // src/pages/index.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionPreview from '../components/SectionPreview.astro';
+
+const sections = [
+  {
+    title: 'PhD',
+    description: 'Exploring how skull base synchondroses shape craniofacial development through a multimodal, multiscale approach.',
+    href: '/phd',
+  },
+  {
+    title: 'Projects',
+    description: 'Research and clinical projects in craniofacial surgery and development.',
+    href: '/projects',
+  },
+  {
+    title: 'CV',
+    description: 'Education, clinical experience, and research milestones.',
+    href: '/cv',
+  },
+  {
+    title: 'Stack',
+    description: 'Methods and tools — from molecular biology to clinical imaging.',
+    href: '/stack',
+  },
+  {
+    title: 'Labs',
+    description: 'Affiliations, collaborations, and the teams behind the research.',
+    href: '/labs',
+  },
+  {
+    title: 'Misc',
+    description: 'Teaching, talks, and everything else.',
+    href: '/misc',
+  },
+];
 ---
 
 <BaseLayout title="Home">
-  <div class="container section">
-    <h1>Nicolas Kogane</h1>
-    <p>Site under construction.</p>
+  <Hero />
+
+  <div class="container">
+    <div class="sections-grid">
+      {sections.map((s) => (
+        <SectionPreview
+          title={s.title}
+          description={s.description}
+          href={s.href}
+        />
+      ))}
+    </div>
   </div>
 </BaseLayout>
+
+<style>
+  .sections-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+    padding: var(--space-2xl) 0;
+  }
+
+  @media (max-width: 768px) {
+    .sections-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
