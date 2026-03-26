@@ -1,0 +1,112 @@
+---
+// src/components/StackLayer.astro
+interface Props {
+  layer: string;
+  methods: string;
+  tools: string;
+  description: string;
+  isLast?: boolean;
+}
+
+const { layer, methods, tools, description, isLast = false } = Astro.props;
+---
+
+<div class="stack-layer">
+  <div class="stack-connector" aria-hidden="true">
+    <div class="stack-dot"></div>
+    {!isLast && <div class="stack-line"></div>}
+  </div>
+
+  <div class="stack-content card">
+    <div class="stack-header">
+      <h3 class="stack-layer-name">{layer}</h3>
+    </div>
+    <div class="stack-body">
+      <div class="stack-col">
+        <div class="stack-col-label small-caps">Methods</div>
+        <div class="stack-col-value">{methods}</div>
+      </div>
+      <div class="stack-col">
+        <div class="stack-col-label small-caps">Tools</div>
+        <div class="stack-col-value mono">{tools}</div>
+      </div>
+    </div>
+    <p class="stack-desc">{description}</p>
+  </div>
+</div>
+
+<style>
+  .stack-layer {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: var(--space-md);
+  }
+
+  .stack-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: var(--space-lg);
+  }
+
+  .stack-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--c-accent);
+    flex-shrink: 0;
+  }
+
+  .stack-line {
+    width: 1.5px;
+    flex: 1;
+    background: var(--c-border);
+    margin-top: var(--space-sm);
+  }
+
+  .stack-content {
+    margin-bottom: var(--space-md);
+  }
+
+  .stack-header {
+    margin-bottom: var(--space-md);
+  }
+
+  .stack-layer-name {
+    font-size: 1.15rem;
+  }
+
+  .stack-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
+  }
+
+  .stack-col-label {
+    color: var(--c-text-3);
+    margin-bottom: var(--space-xs);
+    font-family: var(--font-body);
+  }
+
+  .stack-col-value {
+    font-size: 0.88rem;
+    color: var(--c-text-2);
+    line-height: 1.5;
+  }
+
+  .stack-desc {
+    font-size: 0.85rem;
+    color: var(--c-text-3);
+    line-height: 1.6;
+    border-top: 1px solid var(--c-border-light);
+    padding-top: var(--space-md);
+  }
+
+  @media (max-width: 768px) {
+    .stack-body {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+  }
+</style>

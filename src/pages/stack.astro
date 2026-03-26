@@ -1,0 +1,41 @@
+---
+// src/pages/stack.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import StackLayer from '../components/StackLayer.astro';
+import { getCollection } from 'astro:content';
+
+const layers = (await getCollection('stack'))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Stack" description="Research methods and tools pipeline">
+  <div class="container section">
+    <h1>Stack</h1>
+    <p class="stack-subtitle">Methods and tools — from molecular biology to clinical imaging.</p>
+
+    <div class="stack-pipeline">
+      {layers.map((layer, i) => (
+        <StackLayer
+          layer={layer.data.layer}
+          methods={layer.data.methods}
+          tools={layer.data.tools}
+          description={layer.data.description}
+          isLast={i === layers.length - 1}
+        />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .stack-subtitle {
+    font-size: 0.95rem;
+    color: var(--c-text-2);
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-xl);
+  }
+
+  .stack-pipeline {
+    max-width: 700px;
+  }
+</style>
