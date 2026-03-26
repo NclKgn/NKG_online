@@ -1,5 +1,7 @@
 ---
 // src/layouts/BaseLayout.astro
+import Nav from '../components/Nav.astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -26,9 +28,9 @@ const {
   <link rel="stylesheet" href="/src/styles/global.css" />
 </head>
 <body>
-  <slot name="nav" />
+  <Nav />
 
-  <main>
+  <main style="padding-top: var(--nav-h);">
     <slot />
   </main>
 
