@@ -2,7 +2,7 @@
 // src/pages/phd/newsletter/index.astro
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { t, getLocale } from '../../../i18n';
+import { t, getLocale, base } from '../../../i18n';
 
 const ui = t(getLocale());
 const posts = (await getCollection('newsletter'))
@@ -22,7 +22,7 @@ const posts = (await getCollection('newsletter'))
           day: 'numeric',
         });
         return (
-          <a href={`/phd/newsletter/${post.id}`} class="newsletter-item">
+          <a href={base(`/phd/newsletter/${post.id}`)} class="newsletter-item">
             <time class="mono">{formattedDate}</time>
             <div class="newsletter-item-body">
               <h3>{post.data.title}</h3>
@@ -34,7 +34,7 @@ const posts = (await getCollection('newsletter'))
     </div>
 
     <div class="newsletter-rss">
-      <a href="/rss.xml" class="mono">{ui.common.rssFeed} &rarr;</a>
+      <a href={base('/rss.xml')} class="mono">{ui.common.rssFeed} &rarr;</a>
     </div>
   </div>
 </BaseLayout>

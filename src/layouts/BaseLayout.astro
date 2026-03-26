@@ -2,7 +2,7 @@
 // src/layouts/BaseLayout.astro
 import Nav from '../components/Nav.astro';
 import '../styles/global.css';
-import { t, getLocale } from '../i18n';
+import { t, getLocale, base } from '../i18n';
 
 interface Props {
   title: string;
@@ -29,8 +29,8 @@ const {
   <title>{title} — Nicolas Kogane</title>
   <meta name="description" content={description} />
   {noindex && <meta name="robots" content="noindex, nofollow" />}
-  <link rel="sitemap" href="/sitemap-index.xml" />
-  <link rel="alternate" type="application/rss+xml" title="PhD Newsletter" href="/rss.xml" />
+  <link rel="sitemap" href={base('/sitemap-index.xml')} />
+  <link rel="alternate" type="application/rss+xml" title="PhD Newsletter" href={base('/rss.xml')} />
 </head>
 <body>
   <Nav />

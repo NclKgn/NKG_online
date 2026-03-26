@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://nclkgn.github.io',
+  base: '/works',
   integrations: [
     sitemap({
       filter: (page) => !page.includes('/phd/lab') && !page.includes('/phd/meetings'),

@@ -2,6 +2,7 @@
 // src/pages/projects/[...slug].astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
+import { base } from '../../i18n';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -23,7 +24,7 @@ const statusColors = {
 
 <BaseLayout title={project.data.title} description={project.data.summary}>
   <div class="container section">
-    <a href="/projects" class="back-link mono">&larr; Projects</a>
+    <a href={base('/projects')} class="back-link mono">&larr; Projects</a>
 
     <header class="project-header">
       <span class="small-caps" style={`color: ${statusColors[project.data.status]}`}>

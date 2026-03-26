@@ -3,6 +3,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
+import { base } from '../../i18n';
 
 const projects = (await getCollection('projects'))
   .sort((a, b) => a.data.order - b.data.order);
@@ -20,7 +21,7 @@ const projects = (await getCollection('projects'))
           summary={project.data.summary}
           status={project.data.status}
           domain={project.data.domain}
-          href={`/projects/${project.id}`}
+          href={base(`/projects/${project.id}`)}
         />
       ))}
     </div>

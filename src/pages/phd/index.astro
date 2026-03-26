@@ -3,7 +3,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProgressBar from '../../components/ProgressBar.astro';
 import { getCollection } from 'astro:content';
-import { t, getLocale } from '../../i18n';
+import { t, getLocale, base } from '../../i18n';
 
 const ui = t(getLocale());
 const progressEntries = await getCollection('phd-progress');
@@ -67,7 +67,7 @@ const metrics = progressEntries.filter((e) => e.data.id !== 'overall');
       <p>
         Weekly digests of research progress, distilled from the lab notebook.
       </p>
-      <a href="/phd/newsletter" class="mono">Read the newsletter &rarr;</a>
+      <a href={base('/phd/newsletter')} class="mono">Read the newsletter &rarr;</a>
     </section>
   </div>
 </BaseLayout>

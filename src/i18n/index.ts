@@ -12,3 +12,9 @@ export function t(locale: Locale = 'en') {
 export function getLocale(): Locale {
   return 'en'; // For now, always English. Will use Astro.currentLocale in bilingual phase.
 }
+
+/** Prefix a path with the Astro base URL. */
+export function base(path: string): string {
+  const b = import.meta.env.BASE_URL.replace(/\/$/, '');
+  return `${b}${path}`;
+}

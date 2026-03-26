@@ -1,6 +1,7 @@
 ---
 // src/layouts/PostLayout.astro
 import BaseLayout from './BaseLayout.astro';
+import { base } from '../i18n';
 
 interface Props {
   title: string;
@@ -19,7 +20,7 @@ const formattedDate = date.toLocaleDateString('en-GB', {
 <BaseLayout title={title}>
   <article class="container section">
     <header class="post-header">
-      <a href="/phd/newsletter" class="post-back mono">&larr; Newsletter</a>
+      <a href={base('/phd/newsletter')} class="post-back mono">&larr; Newsletter</a>
       <h1>{title}</h1>
       <div class="post-meta">
         <time datetime={date.toISOString()}>{formattedDate}</time>

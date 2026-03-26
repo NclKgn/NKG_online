@@ -3,13 +3,13 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import SectionPreview from '../components/SectionPreview.astro';
-import { t, getLocale } from '../i18n';
+import { t, getLocale, base } from '../i18n';
 
 const ui = t(getLocale());
 const sectionKeys = ['phd', 'projects', 'cv', 'stack', 'labs', 'misc'] as const;
 const sectionHrefs: Record<string, string> = {
-  phd: '/phd', projects: '/projects', cv: '/cv',
-  stack: '/stack', labs: '/labs', misc: '/misc',
+  phd: base('/phd'), projects: base('/projects'), cv: base('/cv'),
+  stack: base('/stack'), labs: base('/labs'), misc: base('/misc'),
 };
 const sections = sectionKeys.map((key) => ({
   title: ui.sections[key].title,

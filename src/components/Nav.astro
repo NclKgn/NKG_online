@@ -1,15 +1,15 @@
 ---
 // src/components/Nav.astro
-import { t, getLocale } from '../i18n';
+import { t, getLocale, base } from '../i18n';
 
 const ui = t(getLocale());
 const navLinks = [
-  { href: '/phd', label: ui.nav.phd },
-  { href: '/projects', label: ui.nav.projects },
-  { href: '/cv', label: ui.nav.cv },
-  { href: '/stack', label: ui.nav.stack },
-  { href: '/labs', label: ui.nav.labs },
-  { href: '/misc', label: ui.nav.misc },
+  { href: base('/phd'), label: ui.nav.phd },
+  { href: base('/projects'), label: ui.nav.projects },
+  { href: base('/cv'), label: ui.nav.cv },
+  { href: base('/stack'), label: ui.nav.stack },
+  { href: base('/labs'), label: ui.nav.labs },
+  { href: base('/misc'), label: ui.nav.misc },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -17,7 +17,7 @@ const currentPath = Astro.url.pathname;
 
 <nav class="site-nav" id="site-nav">
   <div class="container nav-inner">
-    <a href="/" class="nav-wordmark">Nicolas Kogane</a>
+    <a href={base('/')} class="nav-wordmark">Nicolas Kogane</a>
 
     <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
       <span></span>

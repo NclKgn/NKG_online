@@ -14,7 +14,7 @@ export async function GET(context) {
         title: post.data.title,
         pubDate: post.data.date,
         description: post.data.summary,
-        link: `/phd/newsletter/${post.id}/`,
+        link: `${import.meta.env.BASE_URL}phd/newsletter/${post.id}/`,
       })),
   });
 }
