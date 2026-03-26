@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: nclkgn/works
+  repo: NclKgn/works
   branch: main
   base_url: https://PLACEHOLDER.workers.dev
 
