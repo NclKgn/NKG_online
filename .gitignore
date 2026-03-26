@@ -8,3 +8,8 @@ node_modules/
 *.swp
 *~
 Gemfile.lock
+
+# Astro
+dist/
+node_modules/
+.astro/
