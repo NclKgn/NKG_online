@@ -1,27 +1,24 @@
 phd-arts-metiers:
   section: education
-  year: "2024–present"
+  year: 2023–present
   title: PhD in Biomechanics
   institution: Arts et Métiers Institute of Technology
   description: Role of skull base synchondroses in craniofacial development — multimodal, multiscale approach.
-
 medical-degree:
   section: education
-  year: "2015–2022"
+  year: 2011–2022
   title: Medical Degree (MD)
-  institution: "[Your University]"
-  description: "[Update with your medical school details]"
-
+  institution: '[Your University]'
+  description: '[Update with your medical school details]'
 cmf-necker:
   section: clinical
-  year: "2023–present"
+  year: 2023–present
   title: CMF Surgery Fellow
   institution: Necker Hospital — Maxillo-Facial & Plastic Surgery
   description: Craniofacial surgery, pediatric maxillofacial surgery.
-
 skull-base-phd:
   section: research
-  year: "2024–present"
+  year: 2024–present
   title: Skull Base Synchondroses Project
   institution: Arts et Métiers / Necker Hospital
   description: Multimodal investigation from molecular patterns to clinical atlas.
