@@ -1,0 +1,61 @@
+---
+// src/layouts/BaseLayout.astro
+interface Props {
+  title: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'Nicolas Kogane — Surgeon · Scientist · Engineer',
+  noindex = false,
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — Nicolas Kogane</title>
+  <meta name="description" content={description} />
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link rel="alternate" type="application/rss+xml" title="PhD Newsletter" href="/rss.xml" />
+  <link rel="stylesheet" href="/src/styles/global.css" />
+</head>
+<body>
+  <slot name="nav" />
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Nicolas Kogane</span>
+      <span class="footer-sep">&middot;</span>
+      <span>Surgeon &middot; Scientist &middot; Engineer</span>
+    </div>
+  </footer>
+
+  <style>
+    .site-footer {
+      border-top: 1px solid var(--c-border);
+      margin-top: var(--space-2xl);
+    }
+
+    .footer-inner {
+      padding: var(--space-lg) 0;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--c-text-3);
+    }
+
+    .footer-sep {
+      margin: 0 6px;
+    }
+  </style>
+</body>
+</html>
