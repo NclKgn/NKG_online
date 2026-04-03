@@ -443,3 +443,106 @@ CMS.registerEditorComponent({
     </div>`;
   },
 });
+
+// ── Mice Breeding — Quick Check ──
+CMS.registerEditorComponent({
+  id: 'mice-breeding-quick',
+  label: 'Mice Breeding — Quick Check',
+  icon: 'pets',
+  fields: [
+    { name: 'cageId', label: 'Cage ID' },
+    { name: 'date', label: 'Date (YYYY-MM-DD)' },
+    { name: 'healthMother', label: 'Mother (health/nursing)' },
+    { name: 'healthPups', label: 'Pups (health/count)' },
+    { name: 'cageCondition', label: 'Cage condition' },
+    { name: 'actions', label: 'Actions taken (one per line)', widget: 'text' },
+    { name: 'notes', label: 'Notes', widget: 'text' },
+  ],
+  pattern: /^## Mice Breeding — Quick Check\n\n\*\*Cage:\*\* (?<cageId>[\s\S]+?) \| \*\*Date:\*\* (?<date>[\s\S]+?)\n\n\*\*Status:\*\*\n- Mother: (?<healthMother>[\s\S]+?)\n- Pups: (?<healthPups>[\s\S]+?)\n- Cage: (?<cageCondition>[\s\S]+?)\n\n\*\*Actions Taken:\*\*\n(?<actions>[\s\S]+?)\n\n\*\*Notes:\*\* (?<notes>[\s\S]*?)$/m,
+  toBlock: ({
+    cageId = '',
+    date = '',
+    healthMother = '',
+    healthPups = '',
+    cageCondition = '',
+    actions = '',
+    notes = '',
+  }) => {
+    const actionsList = actions
+      .split('\n')
+      .filter(Boolean)
+      .map((a) => `- ${a}`)
+      .join('\n');
+
+    return `## Mice Breeding — Quick Check
+
+**Cage:** ${cageId} | **Date:** ${date}
+
+**Status:**
+- Mother: ${healthMother || '[Not specified]'}
+- Pups: ${healthPups || '[Not specified]'}
+- Cage: ${cageCondition || '[Not specified]'}
+
+**Actions Taken:**
+${actionsList || '- [None]'}
+
+**Notes:** ${notes || '[None]'}`;
+  },
+  toPreview: (data) => {
+    return `<div style="padding:0.75em 1em;border-left:4px solid #c084fc;background:#faf5ff;border-radius:0 4px 4px 0">
+      <strong>🐭 Quick Check: Cage ${data.cageId}</strong>
+      <p style="margin:0.25em 0 0;color:#666">${data.date}</p>
+    </div>`;
+  },
+});
+
+// ── Mice Breeding Registration ──
+CMS.registerEditorComponent({
+  id: 'mice-breeding-registration',
+  label: 'Mice Breeding Registration',
+  icon: 'pets',
+  fields: [
+    { name: 'breedingNumber', label: 'Breeding Number' },
+    { name: 'date', label: 'Date (YYYY-MM-DD)' },
+    { name: 'maleId', label: '♂ Male Number' },
+    { name: 'maleGenotype', label: '♂ Male Genotype' },
+    { name: 'maleDob', label: '♂ Male DOB' },
+    { name: 'f1Id', label: '♀ Female 1 Number' },
+    { name: 'f1Genotype', label: '♀ Female 1 Genotype' },
+    { name: 'f1Dob', label: '♀ Female 1 DOB' },
+    { name: 'f2Id', label: '♀ Female 2 Number' },
+    { name: 'f2Genotype', label: '♀ Female 2 Genotype' },
+    { name: 'f2Dob', label: '♀ Female 2 DOB' },
+  ],
+  pattern: /^## Breeding #(?<breedingNumber>\d+) — (?<date>[\s\S]+?)\n\n\| ♂ \| ♀ \|\n\|---\|---\|\n\| \*\*#:\*\* (?<maleId>[\s\S]+?) \| \*\*F1 #:\*\* (?<f1Id>[\s\S]+?) \|\n\| \*\*Gt:\*\* (?<maleGenotype>[\s\S]+?) \| \*\*Gt:\*\* (?<f1Genotype>[\s\S]+?) \|\n\| \*\*DOB:\*\* (?<maleDob>[\s\S]+?) \| \*\*DOB:\*\* (?<f1Dob>[\s\S]+?) \|\n\| \| \*\*F2 #:\*\* (?<f2Id>[\s\S]+?) \|\n\| \| \*\*Gt:\*\* (?<f2Genotype>[\s\S]+?) \|\n\| \| \*\*DOB:\*\* (?<f2Dob>[\s\S]*?) \|$/m,
+  toBlock: ({
+    breedingNumber = '',
+    date = '',
+    maleId = '',
+    maleGenotype = '',
+    maleDob = '',
+    f1Id = '',
+    f1Genotype = '',
+    f1Dob = '',
+    f2Id = '',
+    f2Genotype = '',
+    f2Dob = '',
+  }) => {
+    return `## Breeding #${breedingNumber} — ${date}
+
+| ♂ | ♀ |
+|---|---|
+| **#:** ${maleId} | **F1 #:** ${f1Id} |
+| **Gt:** ${maleGenotype} | **Gt:** ${f1Genotype} |
+| **DOB:** ${maleDob} | **DOB:** ${f1Dob} |
+| | **F2 #:** ${f2Id} |
+| | **Gt:** ${f2Genotype} |
+| | **DOB:** ${f2Dob} |`;
+  },
+  toPreview: (data) => {
+    return `<div style="padding:0.75em 1em;border-left:4px solid #6366f1;background:#faf5ff;border-radius:0 4px 4px 0">
+      <strong>♂ ${data.maleId} × ♀ ${data.f1Id} + ${data.f2Id}</strong>
+      <p style="margin:0.25em 0 0;color:#666">Breeding #${data.breedingNumber} — ${data.date}</p>
+    </div>`;
+  },
+});
