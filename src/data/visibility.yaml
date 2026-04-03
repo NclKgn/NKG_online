@@ -3,4 +3,4 @@ projects: true
 cv: false
 stack: false
 labs: true
-misc: true
+misc: false
