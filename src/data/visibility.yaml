@@ -7,6 +7,6 @@ cv:
 stack:
   value: false
 labs:
-  value: false
+  value: true
 misc:
-  value: false
+  value: true
