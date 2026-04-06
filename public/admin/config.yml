@@ -1,11 +1,11 @@
 backend:
   name: github
-  repo: NclKgn/works
+  repo: NclKgn/NKG_online
   branch: main
   base_url: https://sveltia-cms-auth.nikogane.workers.dev
 
 media_folder: public/uploads
-public_folder: /works/uploads
+public_folder: /NKG_online/uploads
 
 collections:
   # ── Lab Entries (private) ──────────────────────────
