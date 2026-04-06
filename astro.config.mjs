@@ -22,7 +22,7 @@ const hiddenPaths = [
 
 export default defineConfig({
   site: 'https://nclkgn.github.io',
-  base: '/works',
+  base: '/NKG_online',
   integrations: [
     sitemap({
       filter: (page) => !hiddenPaths.some((p) => page.includes(p)),
