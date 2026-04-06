@@ -1,9 +1,18 @@
 ---
-title: "Skull Base Synchondroses in Craniofacial Development"
+title: Skull Base Synchondroses in Craniofacial Development
 status: ongoing
-domain: [research, clinical, engineering]
-summary: "Multimodal, multiscale investigation of the role of skull base synchondroses — from molecular patterns to clinical atlas."
-collaborators: []
+domain:
+  - research
+  - clinical
+  - engineering
+summary: |-
+  PhD Project
+  Multimodal, multiscale investigation of the role of skull base synchondroses — from molecular patterns to clinical atlas.
+collaborators:
+  - RHK
+  - SL
+  - ED
+  - MT
 order: 1
 ---
 
