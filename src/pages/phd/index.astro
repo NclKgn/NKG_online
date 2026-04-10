@@ -67,12 +67,25 @@ const metrics = progressEntries.filter((e) => e.id !== 'overall');
       </div>
     </section>
 
-    <section class="phd-newsletter-link">
-      <h2>{ui.common.newsletter}</h2>
-      <p>
-        Weekly digests of research progress, distilled from the lab notebook.
-      </p>
-      <a href={base('/phd/newsletter')} class="mono">Read the newsletter &rarr;</a>
+    <section class="phd-private-links">
+      <h2>Lab tools</h2>
+      <div class="private-links-grid">
+        <div class="private-link-card">
+          <div class="private-link-label">Newsletter</div>
+          <p>Weekly digests of research progress, distilled from the lab notebook.</p>
+          <a href={base('/phd/newsletter')} class="mono">Read &rarr;</a>
+        </div>
+        <div class="private-link-card">
+          <div class="private-link-label">Expériences</div>
+          <p>Registre structuré des expériences avec hypothèses, protocoles et analyses.</p>
+          <a href={base('/phd/experiments')} class="mono">Ouvrir &rarr;</a>
+        </div>
+        <div class="private-link-card">
+          <div class="private-link-label">Lab Notebook</div>
+          <p>Daily observations, raw notes and intermediate results.</p>
+          <a href={base('/phd/lab')} class="mono">Open &rarr;</a>
+        </div>
+      </div>
     </section>
   </div>
 </BaseLayout>
@@ -134,17 +147,49 @@ const metrics = progressEntries.filter((e) => e.id !== 'overall');
     color: var(--c-text-3);
   }
 
-  .phd-newsletter-link {
+  .phd-private-links {
     margin-top: var(--space-xl);
   }
 
-  .phd-newsletter-link h2 {
+  .phd-private-links h2 {
+    margin-bottom: var(--space-lg);
+  }
+
+  .private-links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+  }
+
+  .private-link-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border-light);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+  }
+
+  .private-link-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--c-text-3);
     margin-bottom: var(--space-sm);
   }
 
-  .phd-newsletter-link p {
-    font-size: 0.9rem;
+  .private-link-card p {
+    font-size: 0.82rem;
     color: var(--c-text-2);
+    line-height: 1.5;
     margin-bottom: var(--space-md);
+  }
+
+  .private-link-card a {
+    font-size: 0.8rem;
+    color: var(--c-accent);
+  }
+
+  @media (max-width: 640px) {
+    .private-links-grid { grid-template-columns: 1fr; }
   }
 </style>

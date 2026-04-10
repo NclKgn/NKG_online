@@ -98,6 +98,43 @@ const visibility = defineCollection({
   schema: z.boolean(),
 });
 
+// ── Experiments (structured PhD experiments) ──
+
+const experiments = defineCollection({
+  loader: glob({ base: './src/content/experiments', pattern: '**/*.md' }),
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    status: z.enum(['planned', 'ongoing', 'completed']).default('planned'),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+    // Identification
+    context: z.string().optional(),
+    // Planification
+    objective: z.string().optional(),
+    hypothesis_main: z.string().optional(),
+    hypothesis_null: z.string().optional(),
+    independent_vars: z.string().optional(),
+    dependent_vars: z.string().optional(),
+    controlled_vars: z.string().optional(),
+    protocol: z.string().optional(),
+    vigilance_points: z.string().optional(),
+    // Exécution
+    logbook: z.string().optional(),
+    raw_data: z.string().optional(),
+    problems: z.string().optional(),
+    // Analyse
+    if_h1: z.string().optional(),
+    if_h0: z.string().optional(),
+    if_mixed: z.string().optional(),
+    interpretation: z.string().optional(),
+    literature: z.string().optional(),
+    // Suites & méta
+    next_actions: z.string().optional(),
+    links: z.string().optional(),
+  }),
+});
+
 // ── Private collections (lab notebook, meetings) ──
 
 const labEntries = defineCollection({
@@ -133,5 +170,6 @@ export const collections = {
   'phd-progress': phdProgress,
   'lab-entries': labEntries,
   meetings,
+  experiments,
   visibility,
 };

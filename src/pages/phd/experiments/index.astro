@@ -1,0 +1,123 @@
+---
+// src/pages/phd/experiments/index.astro
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { base } from '../../../i18n';
+
+const isDev = import.meta.env.DEV;
+const experiments = (await getCollection('experiments'))
+  .filter((e) => isDev || !e.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const statusLabel = { planned: 'Planifiée', ongoing: 'En cours', completed: 'Terminée' } as const;
+const statusClass = { planned: 'status-planned', ongoing: 'status-ongoing', completed: 'status-completed' } as const;
+---
+
+<BaseLayout title="Experiments (Private)" noindex={true}>
+  <div class="container section">
+    <div class="private-banner">Private — not indexed</div>
+    <a href={base('/phd')} class="back-link mono">&larr; PhD</a>
+    <h1>Expériences</h1>
+
+    <div class="exp-list">
+      {experiments.map((exp) => {
+        const formattedDate = exp.data.date.toLocaleDateString('fr-FR', {
+          year: 'numeric', month: 'short', day: 'numeric',
+        });
+        return (
+          <a href={base(`/phd/experiments/${exp.id}`)} class="exp-item">
+            <time class="mono">{formattedDate}</time>
+            <div class="exp-body">
+              <div class="exp-top">
+                <h3>{exp.data.title}</h3>
+                <span class:list={['status-badge', statusClass[exp.data.status]]}>
+                  {statusLabel[exp.data.status]}
+                </span>
+              </div>
+              {exp.data.objective && (
+                <p class="exp-objective">{exp.data.objective}</p>
+              )}
+              {exp.data.tags.length > 0 && (
+                <div class="exp-tags">
+                  {exp.data.tags.map((tag) => (
+                    <span class="exp-tag small-caps">#{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .back-link {
+    font-size: 0.8rem;
+    color: var(--c-text-3);
+    display: inline-block;
+    margin-bottom: var(--space-lg);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--c-accent); }
+
+  h1 { margin-bottom: var(--space-xl); }
+
+  .exp-list { display: flex; flex-direction: column; }
+
+  .exp-item {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: var(--space-lg);
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid var(--c-border-light);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.1s;
+  }
+  .exp-item:hover { background: var(--c-border-light); border-radius: var(--radius-sm); padding-left: 8px; }
+
+  .exp-item time {
+    font-size: 0.78rem;
+    color: var(--c-text-3);
+    padding-top: 2px;
+  }
+
+  .exp-top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: 4px;
+  }
+
+  .exp-top h3 { font-size: 0.95rem; }
+
+  .status-badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .status-planned  { background: var(--c-border-light); color: var(--c-text-3); }
+  .status-ongoing  { background: #E6F1FB; color: #0C447C; }
+  .status-completed { background: #EAF3DE; color: #27500A; }
+
+  .exp-objective {
+    font-size: 0.82rem;
+    color: var(--c-text-2);
+    font-style: italic;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+
+  .exp-tags { display: flex; gap: var(--space-xs); flex-wrap: wrap; }
+  .exp-tag {
+    font-size: 0.6rem;
+    padding: 1px 6px;
+    background: var(--c-border-light);
+    border-radius: 99px;
+    color: var(--c-text-3);
+  }
+</style>

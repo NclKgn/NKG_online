@@ -1,0 +1,402 @@
+---
+// src/layouts/ExperimentLayout.astro
+import BaseLayout from './BaseLayout.astro';
+import { base } from '../i18n';
+
+interface Props {
+  title: string;
+  date: Date;
+  status: 'planned' | 'ongoing' | 'completed';
+  tags?: string[];
+  context?: string;
+  objective?: string;
+  hypothesis_main?: string;
+  hypothesis_null?: string;
+  independent_vars?: string;
+  dependent_vars?: string;
+  controlled_vars?: string;
+  protocol?: string;
+  vigilance_points?: string;
+  logbook?: string;
+  raw_data?: string;
+  problems?: string;
+  if_h1?: string;
+  if_h0?: string;
+  if_mixed?: string;
+  interpretation?: string;
+  literature?: string;
+  next_actions?: string;
+  links?: string;
+}
+
+const p = Astro.props;
+const formattedDate = p.date.toLocaleDateString('fr-FR', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+
+const statusLabel = { planned: 'Planifiée', ongoing: 'En cours', completed: 'Terminée' }[p.status];
+
+const hasPlanning = p.objective || p.hypothesis_main || p.hypothesis_null
+  || p.independent_vars || p.dependent_vars || p.controlled_vars
+  || p.protocol || p.vigilance_points;
+
+const hasExecution = p.logbook || p.raw_data || p.problems;
+
+const hasAnalysis = p.if_h1 || p.if_h0 || p.if_mixed || p.interpretation || p.literature;
+
+const hasMeta = p.next_actions || p.links || (p.tags && p.tags.length > 0);
+---
+
+<BaseLayout title={p.title} noindex={true}>
+  <div class="container section">
+    <div class="private-banner">Private — not indexed</div>
+    <a href={base('/phd/experiments')} class="back-link mono">&larr; Expériences</a>
+
+    <div class="tmpl">
+
+      <!-- Identification -->
+      <div class="exp-section">
+        <div class="section-header">
+          <span class="badge badge-meta">Identification</span>
+        </div>
+        <div class="grid3">
+          <div class="field">
+            <div class="field-label">Titre</div>
+            <div class="field-value">{p.title}</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Date</div>
+            <div class="field-value">{formattedDate}</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Statut</div>
+            <div class:list={['field-value', 'status-value', `status-${p.status}`]}>{statusLabel}</div>
+          </div>
+        </div>
+        {p.context && (
+          <div class="field">
+            <div class="field-label">Contexte & motivation</div>
+            <div class="field-value">{p.context}</div>
+          </div>
+        )}
+      </div>
+
+      <!-- Planification -->
+      {hasPlanning && (
+        <div class="exp-section">
+          <div class="section-header">
+            <span class="badge badge-plan">Planification</span>
+          </div>
+          {p.objective && (
+            <div class="field">
+              <div class="field-label">Objectif principal</div>
+              <div class="field-value">{p.objective}</div>
+            </div>
+          )}
+          {(p.hypothesis_main || p.hypothesis_null) && (
+            <Fragment>
+              <div class="divider"></div>
+              <div class="field"><div class="field-label">Hypothèses</div></div>
+              <div class="hyp-row">
+                {p.hypothesis_main && (
+                  <div class="hyp-box h1">
+                    <div class="field-label">H1 — Hypothèse principale</div>
+                    <div class="field-value hyp-border-blue">{p.hypothesis_main}</div>
+                  </div>
+                )}
+                {p.hypothesis_null && (
+                  <div class="hyp-box h2">
+                    <div class="field-label">H0 — Hypothèse nulle</div>
+                    <div class="field-value hyp-border-red">{p.hypothesis_null}</div>
+                  </div>
+                )}
+              </div>
+            </Fragment>
+          )}
+          {(p.independent_vars || p.dependent_vars) && (
+            <Fragment>
+              <div class="divider"></div>
+              <div class="grid2">
+                {p.independent_vars && (
+                  <div class="field">
+                    <div class="field-label">Variables indépendantes</div>
+                    <div class="field-value">{p.independent_vars}</div>
+                  </div>
+                )}
+                {p.dependent_vars && (
+                  <div class="field">
+                    <div class="field-label">Variables dépendantes</div>
+                    <div class="field-value">{p.dependent_vars}</div>
+                  </div>
+                )}
+              </div>
+            </Fragment>
+          )}
+          {p.controlled_vars && (
+            <div class="field">
+              <div class="field-label">Variables contrôlées / confondantes</div>
+              <div class="field-value">{p.controlled_vars}</div>
+            </div>
+          )}
+          {(p.protocol || p.vigilance_points) && <div class="divider"></div>}
+          {p.protocol && (
+            <div class="field">
+              <div class="field-label">Protocole</div>
+              <div class="field-value">{p.protocol}</div>
+            </div>
+          )}
+          {p.vigilance_points && (
+            <div class="field">
+              <div class="field-label">Points de vigilance</div>
+              <div class="field-value">{p.vigilance_points}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <!-- Exécution -->
+      {hasExecution && (
+        <div class="exp-section">
+          <div class="section-header">
+            <span class="badge badge-exec">Exécution</span>
+          </div>
+          {p.logbook && (
+            <div class="field">
+              <div class="field-label">Journal de bord</div>
+              <div class="field-value">{p.logbook}</div>
+            </div>
+          )}
+          {(p.raw_data || p.problems) && (
+            <div class="grid2">
+              {p.raw_data && (
+                <div class="field">
+                  <div class="field-label">Données brutes / résultats</div>
+                  <div class="field-value">{p.raw_data}</div>
+                </div>
+              )}
+              {p.problems && (
+                <div class="field">
+                  <div class="field-label">Problèmes rencontrés</div>
+                  <div class="field-value">{p.problems}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      <!-- Analyse & conclusions -->
+      {hasAnalysis && (
+        <div class="exp-section">
+          <div class="section-header">
+            <span class="badge badge-analyse">Analyse & conclusions</span>
+          </div>
+          {(p.if_h1 || p.if_h0 || p.if_mixed) && (
+            <div class="concl-grid">
+              {p.if_h1 && (
+                <div class="concl-box concl-yes">
+                  <div class="field-label">Si H1 confirmée</div>
+                  <div class="field-value concl-border-green">{p.if_h1}</div>
+                </div>
+              )}
+              {p.if_h0 && (
+                <div class="concl-box concl-no">
+                  <div class="field-label">Si H0 confirmée</div>
+                  <div class="field-value concl-border-red">{p.if_h0}</div>
+                </div>
+              )}
+              {p.if_mixed && (
+                <div class="concl-box concl-meh">
+                  <div class="field-label">Si résultats mixtes</div>
+                  <div class="field-value concl-border-orange">{p.if_mixed}</div>
+                </div>
+              )}
+            </div>
+          )}
+          {(p.interpretation || p.literature) && <div class="divider"></div>}
+          {p.interpretation && (
+            <div class="field">
+              <div class="field-label">Interprétation</div>
+              <div class="field-value">{p.interpretation}</div>
+            </div>
+          )}
+          {p.literature && (
+            <div class="field">
+              <div class="field-label">Lien avec la littérature</div>
+              <div class="field-value">{p.literature}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <!-- Suites & méta -->
+      {hasMeta && (
+        <div class="exp-section">
+          <div class="section-header">
+            <span class="badge badge-meta">Suites & méta</span>
+          </div>
+          {(p.next_actions || p.links) && (
+            <div class="grid2">
+              {p.next_actions && (
+                <div class="field">
+                  <div class="field-label">Actions suivantes</div>
+                  <div class="field-value">{p.next_actions}</div>
+                </div>
+              )}
+              {p.links && (
+                <div class="field">
+                  <div class="field-label">Liens & références</div>
+                  <div class="field-value">{p.links}</div>
+                </div>
+              )}
+            </div>
+          )}
+          {p.tags && p.tags.length > 0 && (
+            <div class="field">
+              <div class="field-label">Tags</div>
+              <div class="meta-row">
+                {p.tags.map((tag) => (
+                  <span class="meta-chip">#{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <!-- Markdown body (notes supplémentaires) -->
+      <slot />
+
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .back-link {
+    font-size: 0.8rem;
+    color: var(--c-text-3);
+    display: inline-block;
+    margin-bottom: var(--space-lg);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--c-accent); }
+
+  .tmpl {
+    font-family: var(--font-body);
+    max-width: 720px;
+    padding: 1rem 0;
+  }
+
+  .exp-section {
+    background: var(--c-surface);
+    border: 0.5px solid var(--c-border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 12px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge-plan    { background: #E6F1FB; color: #0C447C; }
+  .badge-exec    { background: #EAF3DE; color: #27500A; }
+  .badge-analyse { background: #FAEEDA; color: #633806; }
+  .badge-meta    { background: var(--c-border-light); color: var(--c-text-3); }
+
+  .field { margin-bottom: 10px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .field-value {
+    font-size: 13px;
+    color: var(--c-text-2);
+    border-left: 2px solid var(--c-border);
+    padding-left: 10px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .status-value {
+    font-style: normal;
+    font-weight: 500;
+    border-left: none;
+    padding-left: 0;
+  }
+  .status-planned  { color: var(--c-text-3); }
+  .status-ongoing  { color: #0C447C; }
+  .status-completed { color: #27500A; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .hyp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .hyp-box { background: var(--c-bg); border-radius: var(--radius-sm); padding: 8px 12px; }
+  .hyp-box .field-label { margin-bottom: 4px; }
+  .h1 { background: #E6F1FB; }
+  .h1 .field-label { color: #0C447C; }
+  .h2 { background: #FCEBEB; }
+  .h2 .field-label { color: #A32D2D; }
+
+  .hyp-border-blue  { border-color: #B5D4F4; }
+  .hyp-border-red   { border-color: #F7C1C1; }
+
+  .concl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .concl-box { border-radius: var(--radius-sm); padding: 8px 12px; }
+  .concl-yes { background: #EAF3DE; }
+  .concl-yes .field-label { color: #27500A; }
+  .concl-no  { background: #FCEBEB; }
+  .concl-no  .field-label { color: #A32D2D; }
+  .concl-meh { background: #FAEEDA; }
+  .concl-meh .field-label { color: #633806; }
+
+  .concl-border-green  { border-color: #C0DD97; }
+  .concl-border-red    { border-color: #F7C1C1; }
+  .concl-border-orange { border-color: #FAC775; }
+
+  .divider { height: 0.5px; background: var(--c-border); margin: 10px 0; }
+
+  .meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .meta-chip {
+    background: var(--c-bg);
+    border: 0.5px solid var(--c-border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--c-text-2);
+    padding: 4px 12px;
+  }
+
+  /* Extra notes from markdown body */
+  .tmpl :global(.exp-notes) {
+    margin-top: var(--space-lg);
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--c-text-2);
+  }
+
+  @media (max-width: 600px) {
+    .grid2, .grid3, .hyp-row, .concl-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
