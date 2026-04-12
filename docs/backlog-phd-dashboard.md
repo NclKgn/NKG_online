@@ -1,9 +1,74 @@
 # PhD Dashboard — Backlog de features
 
-> **Repo :** NclKgn/NKG_online (Astro 5 + GitHub Pages)
-> **Scope :** Réimplémentation complète du PhD Dashboard + nouveaux modules
+> **Repos :**
+> - `NclKgn/NKG_online` — Site Astro 5 + GitHub Pages (dashboard, vitrine)
+> - `PhD_Notebook` — App FastAPI + SQLite locale (saisie labo)
+>
+> **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
 > **Date :** 12 avril 2026
 > **Statut :** Planification
+
+---
+
+## Architecture à deux repos
+
+```
+PhD_Notebook (local, quotidien)          NKG_online (GitHub Pages, partagé)
+┌──────────────────────────┐              ┌──────────────────────────┐
+│ FastAPI + SQLite + Alembic│   export    │ Astro 5 + YAML           │
+│                           │────────────▶│                          │
+│ SAISIE & CRUD             │  script     │ VISUALISATION & PARTAGE  │
+│ • Samples / Litters       │  Python     │ • PhD Dashboard          │
+│ • Expériences (CRUD)      │  (auto ou   │ • Mode présentation      │
+│ • Protocoles ex vivo      │   manuel)   │ • Mode guest             │
+│ • RNAscope / IF / LS      │             │ • Scoping review tracker │
+│ • Réactifs / anticorps    │             │ • Figures / pipelines    │
+│ • Quick log               │             │ • Timeline / PRISMA      │
+│ localhost:8000             │             │ • Newsletter auto        │
+└──────────────────────────┘              └──────────────────────────┘
+         ▲                                            ▲
+         │                                            │
+   Saisie quotidienne                          Consultation / partage
+   au labo (Nicolas)                           (directeur thèse, jury,
+                                                collaborateurs via guest)
+```
+
+**Principe :** PhD_Notebook est la **source de vérité** pour les données
+de labo. NKG_online est la **couche de présentation**. Le pont est un
+script d'export `scripts/notebook-export.py` qui lit la base SQLite et
+génère les fichiers YAML pour Astro.
+
+**Tags dans le backlog :**
+- 🔬 = PhD_Notebook (FastAPI)
+- 🌐 = NKG_online (Astro)
+- 🔗 = Bridge (script d'export)
+
+---
+
+## PhD_Notebook — État actuel
+
+L'app locale existe déjà avec :
+
+**Modèles (SQLAlchemy 2.0 + Alembic) :**
+- `litters` — portées (code, date sacrifice, mère, notes)
+- `samples` — échantillons (code, stade, génotype, sexe, portée, statut)
+- `experiments` — expériences (code, type, titre, dates, statut, params JSON)
+- `sample_experiments` — junction table (sample ↔ experiment, ordre pipeline)
+
+**Enums :**
+- Stades : E14.5, E16.5, P0, P1, P14, Autre
+- Types expérience : Culture ex vivo, IF, RNAscope wholemount,
+  Lightsheet, Analyse, RNAseq
+- Statuts : Planifiée, En cours, Terminée, Abandonnée
+
+**UI existante :**
+- Module Échantillons complet (CRUD, filtres, stats, timeline)
+- Design system propre (base.css)
+- Templates Jinja2
+
+**À construire :**
+- Module Expériences (CRUD par type) — en cours (session 3)
+- Modules supplémentaires (réactifs, protocoles, etc.)
 
 ---
 
@@ -25,7 +90,112 @@
 
 ---
 
-## EPIC 1 — Fondations du dashboard
+## EPIC 0 — Bridge : PhD_Notebook → NKG_online 🔗
+
+> Script d'export qui lit la base SQLite de PhD_Notebook et
+> génère les fichiers YAML pour le site Astro. C'est le pont
+> central entre les deux repos.
+
+### 0.1 Script d'export `scripts/notebook-export.py`
+- **Priorité :** P0 | **Complexité :** L
+- **Repo :** 🌐 NKG_online (mais lit la DB de 🔬 PhD_Notebook)
+- **Description :** Script Python qui se connecte à la base SQLite
+  de PhD_Notebook et génère les fichiers YAML suivants :
+  - `src/data/specimens.yaml` ← litters + samples
+  - `src/data/experiments-live.yaml` ← expériences + statuts
+  - `src/data/collecte.yaml` ← progression calculée par axe
+  Le script est idempotent : il peut être relancé à tout moment.
+- **Input :** Chemin vers `PhD_Notebook/data/notebook.db`
+  (configurable via variable d'environnement ou argument CLI)
+- **Output :** Fichiers YAML dans `src/data/`
+- **Usage :**
+  ```bash
+  # Manuel
+  python scripts/notebook-export.py --db ~/Code/PhD_Notebook/data/notebook.db
+
+  # Ou avec variable d'env
+  export NOTEBOOK_DB=~/Code/PhD_Notebook/data/notebook.db
+  python scripts/notebook-export.py
+  ```
+- **Fichiers :** `scripts/notebook-export.py`
+- **Dépendances :** `sqlalchemy`, `pyyaml`
+
+### 0.2 Mapping des données exportées
+- **Priorité :** P0 | **Complexité :** S
+- **Description :** Documentation du mapping entre les tables
+  SQLite et les fichiers YAML :
+  ```
+  PhD_Notebook (SQLite)          NKG_online (YAML)
+  ─────────────────────          ──────────────────
+  litters + samples         →    specimens.yaml
+  experiments               →    experiments-live.yaml
+  sample_experiments        →    (inclus dans les deux ci-dessus)
+  Calcul par axe (bio/      →    collecte.yaml (progression %)
+    bioméca/humain)
+  experiments.params JSON   →    protocols-log.yaml (optionnel)
+  ```
+  Le schéma Zod correspondant doit être ajouté dans
+  `content.config.ts` pour chaque nouveau fichier YAML.
+- **Fichiers :** `docs/data-mapping.md`
+
+### 0.3 GitHub Action notebook-sync
+- **Priorité :** P2 | **Complexité :** M
+- **Description :** Automatisation de l'export. Deux options :
+  - **Option A (simple)** : script lancé manuellement avant un push,
+    commit des YAML générés.
+  - **Option B (avancé)** : PhD_Notebook pousse sa DB (ou un export
+    JSON) vers un artifact GitHub / branche dédiée, et une Action
+    dans NKG_online la récupère et régénère les YAML.
+  Option A recommandée pour commencer.
+- **Fichiers :** `.github/workflows/notebook-sync.yml` (si option B)
+
+### 0.4 Export des modules futurs
+- **Priorité :** P2 | **Complexité :** M
+- **Description :** Au fur et à mesure que des modules sont ajoutés
+  à PhD_Notebook (réactifs, protocoles versionnés, etc.), étendre
+  le script d'export pour générer les YAML correspondants :
+  ```
+  reagents (table future)   →    reagents.yaml
+  protocols (table future)  →    protocols.yaml (avec versions)
+  pipelines (table future)  →    pipelines.yaml
+  ```
+- **Fichiers :** Extension de `scripts/notebook-export.py`
+
+---
+
+## Répartition des features par repo
+
+> Chaque feature est taggée pour savoir où elle s'implémente.
+
+| EPIC | Feature | 🔬 Notebook | 🔗 Bridge | 🌐 Site |
+|------|---------|:-----------:|:---------:|:-------:|
+| 0 | Export script | | ● | |
+| 1 | Fondations dashboard | | | ● |
+| 2 | Dashboard collecte | | ● calcul | ● visu |
+| 3 | Tracker rédaction | | | ● |
+| 4 | Scoping Review (Rayyan) | | ● fetch | ● visu |
+| 5 | Timeline | | | ● |
+| 6 | Expériences enrichies | | | ● lecture |
+| 7 | Alertes | | | ● |
+| 8 | i18n | | | ● |
+| 9 | Accès 3 niveaux | | | ● |
+| 10 | Mode présentation | | | ● |
+| 11 | Newsletter auto | | ● compile | ● |
+| 12 | Smoke tests | | | ● |
+| 13 | Planificateur expériences | ● modèle | | ● UI planning |
+| 14 | Tracker spécimens | ● CRUD existe | ● export | ● visu |
+| 15 | Intégration Zotero | | ● fetch | ● visu |
+| 16 | Productivité | ● quick log | | ● widgets |
+| 17 | Versionning protocoles | ● modèle | ● export | ● affichage |
+| 18 | Tracker pipelines | ● modèle | ● export | ● visu |
+| 19 | Tracker figures | | | ● |
+| 20 | Radar PubMed | | ● fetch | ● widget |
+| 21 | FAIR / datasets | ● modèle | ● export | ● visu |
+| 22 | Réactifs + soutenance | ● CRUD | ● export | ● visu + widget |
+
+---
+
+## EPIC 1 — Fondations du dashboard 🌐
 
 > Remettre en place la structure de base du PhD Dashboard
 > dans l'architecture Astro actuelle.
@@ -36,14 +206,17 @@
   les sous-sections (collecte, rédaction, scoping review, timeline).
   Breadcrumb, lien depuis `/phd/index.astro`.
 - **Fichiers :** `src/pages/phd/dashboard.astro`
-- **Statut :** ✅ Prototype livré (package scoping review)
+- **Statut :** ✅ Terminé (2026-04-12)
 
-### 1.2 Données collecte — migration Excel → YAML
+### 1.2 Données collecte — migration vers YAML 🌐🔗
 - **Priorité :** P0 | **Complexité :** M
-- **Description :** Recréer `src/data/collecte.yaml` à partir de la
-  structure de l'ancien Excel `données_phd.xlsx` (3 axes, 15 sous-parties).
-  Format : statut (non démarré / en cours / terminé) + pourcentage +
-  deadline + notes. Script Python de migration optionnel.
+- **Description :** Créer `src/data/collecte.yaml` avec les 3 axes
+  et 15 sous-parties. Deux sources possibles :
+  - **Via PhD_Notebook** (recommandé) : le script bridge (EPIC 0.1)
+    calcule la progression par axe à partir des expériences et
+    spécimens dans la base SQLite.
+  - **Manuel** : YAML édité à la main si PhD_Notebook pas encore prêt.
+  L'ancien Excel `données_phd.xlsx` est perdu — on recrée les données.
 - **Fichiers :** `src/data/collecte.yaml`, `scripts/migrate-excel.py`
 - **Dépendances :** L'Excel original ou les données manuellement saisies
 - **Notes :** L'Excel avait les colonnes : Partie, Sous-partie, Statut,
@@ -53,6 +226,7 @@
   Données Humaines (Acquisition, Contrôle & aplasie post-natal,
   Contrôle & aplasie anté-natal, Validation landmarks, Stats croissance,
   Caractérisation paternes fermeture).
+- **Statut :** ✅ Terminé (2026-04-12) — recréé manuellement, Excel perdu
 
 ### 1.3 Collection Astro `collecte`
 - **Priorité :** P0 | **Complexité :** S
@@ -60,6 +234,7 @@
   avec schéma Zod (partie, sous-partie, statut enum, value number,
   deadline date optional, notes string optional, color string optional).
 - **Fichiers :** `src/content.config.ts`, `src/data/collecte.yaml`
+- **Statut :** ✅ Terminé (2026-04-12)
 
 ---
 
@@ -269,6 +444,7 @@
   `src/pages/phd/index.astro` et potentiellement dans la sous-nav
   de la section PhD.
 - **Fichiers :** `src/pages/phd/index.astro`
+- **Statut :** ✅ Terminé (2026-04-12)
 
 ### 8.3 Visibilité conditionnelle du dashboard
 - **Remplacé par EPIC 9** (système d'accès 3 niveaux)
@@ -305,6 +481,7 @@
   phd/newsletter: public
   ```
 - **Fichiers :** `src/data/visibility.yaml`
+- **Statut :** ✅ Terminé (2026-04-12)
 
 ### 9.2 Refactor de `visibility.ts` — logique 3 niveaux
 - **Priorité :** P0 | **Complexité :** M
@@ -323,6 +500,7 @@
   - Gestion hiérarchique : `phd/dashboard` hérite de `phd` si
     pas de clé spécifique.
 - **Fichiers :** `src/lib/visibility.ts`
+- **Statut :** ✅ Terminé (2026-04-12)
 
 ### 9.3 Collection Astro — schema étendu
 - **Priorité :** P0 | **Complexité :** S
@@ -338,6 +516,7 @@
   });
   ```
 - **Fichiers :** `src/content.config.ts`
+- **Statut :** ✅ Terminé (2026-04-12)
 
 ### 9.4 Page de login invité `/guest`
 - **Priorité :** P1 | **Complexité :** M
@@ -350,6 +529,7 @@
 - **Fichiers :** `src/pages/guest.astro`
 - **UX :** Champ code + bouton → validation JS côté client →
   redirect vers la page demandée ou `/phd/dashboard`.
+- **Statut :** ✅ Terminé (2026-04-12)
 
 ### 9.5 Composant `GuestGate.astro` — protection des pages guest
 - **Priorité :** P1 | **Complexité :** M
@@ -370,6 +550,7 @@
   un rideau côté client suffisant pour un site personnel/académique.
   Les données restent dans le HTML buildé. Si besoin de vraie
   protection, envisager Cloudflare Access ou Netlify Identity.
+- **Statut :** ✅ Terminé (2026-04-12) — appliqué sur `phd/experiments`
 
 ### 9.6 Filtrage de la navigation
 - **Priorité :** P1 | **Complexité :** S
@@ -378,6 +559,7 @@
   `guest` restent dans la nav (le GuestGate gère l'accès).
   Optionnel : badge "invité" discret à côté des liens guest.
 - **Fichiers :** `src/components/Nav.astro`
+- **Statut :** ✅ Terminé (2026-04-12) — déjà assuré par `getVisibleSections()`, aucun changement nécessaire
 
 ### 9.7 Indicateur de mode invité
 - **Priorité :** P2 | **Complexité :** S
@@ -385,6 +567,7 @@
   quand le visiteur est en mode invité, avec un lien pour se
   déconnecter (supprime le flag sessionStorage).
 - **Fichiers :** `src/components/GuestBadge.astro`
+- **Statut :** ✅ Terminé (2026-04-12) — intégré dans `BaseLayout.astro`
 
 ---
 
@@ -515,17 +698,26 @@
 
 ---
 
-## EPIC 13 — Planificateur d'expériences
+## EPIC 13 — Planificateur d'expériences 🔬🌐
 
 > Outil de planification rétro-chronologique pour les expériences
 > de wet lab. L'utilisateur entre une date cible (ex: "RNA-scope
 > le 15 mai"), l'outil calcule automatiquement toutes les dates
 > en amont et en aval selon le protocole.
+>
+> **Architecture :** Le modèle de données des expériences existe
+> déjà dans PhD_Notebook (table `experiments`, types enum, params
+> JSON). Le planificateur est une UI sur le site Astro (🌐) qui,
+> à la création, génère l'expérience dans PhD_Notebook (🔬) via
+> le bridge ou un export Markdown.
 
-### 13.1 Données protocoles `src/data/protocols.yaml`
+### 13.1 Données protocoles `src/data/protocols.yaml` 🌐
 - **Priorité :** P1 | **Complexité :** M
 - **Description :** Définition des protocoles avec leurs étapes
-  et délais relatifs. Chaque protocole est une séquence d'étapes
+  et délais relatifs. Utilisé par l'UI du planificateur (Astro).
+  À terme, pourra aussi être stocké dans PhD_Notebook comme
+  table dédiée (EPIC 17).
+  Chaque protocole est une séquence d'étapes
   avec un offset en jours par rapport à une date pivot.
   ```yaml
   rna-scope:
@@ -737,15 +929,22 @@
 
 ---
 
-## EPIC 14 — Tracker de spécimens / souris
+## EPIC 14 — Tracker de spécimens / souris 🔬🔗🌐
 
 > Suivi des accouplements, portées, génotypages et disponibilité
 > des animaux. Connecté au planificateur d'expériences.
+>
+> **Architecture :** Le CRUD des samples et litters **existe déjà**
+> dans PhD_Notebook (tables `samples`, `litters`, avec filtres,
+> stats, et timeline). Pas besoin de recréer le modèle.
+> Le bridge (EPIC 0.1) exporte vers `specimens.yaml` pour la
+> visualisation sur le site Astro.
 
-### 14.1 Données spécimens `src/data/specimens.yaml`
-- **Priorité :** P2 | **Complexité :** M
-- **Description :** Base de données YAML des accouplements
-  et portées :
+### 14.1 Données spécimens `src/data/specimens.yaml` 🔗🌐
+- **Priorité :** P2 | **Complexité :** M → S (grâce au bridge)
+- **Description :** Généré automatiquement par le script d'export
+  (EPIC 0.1) depuis la base SQLite de PhD_Notebook. Le YAML
+  reflète l'état actuel des accouplements et portées.
   ```yaml
   matings:
     - id: M2026-042
@@ -902,12 +1101,17 @@
 
 ---
 
-## EPIC 17 — Versionning de protocoles
+## EPIC 17 — Versionning de protocoles 🔬🔗🌐
 
 > Chaque protocole évolue au fil de la thèse. Tracer les
 > modifications, les raisons, et lier chaque expérience à la
 > version exacte du protocole utilisé. Critique pour la
 > reproductibilité et la rédaction du Matériel & Méthodes.
+>
+> **Architecture :** À terme, les protocoles et versions seront
+> stockés dans PhD_Notebook (nouvelle table `protocols`). Pour
+> commencer, le YAML dans NKG_online est suffisant — le bridge
+> prendra le relais quand la table existera.
 
 ### 17.1 Système de versions dans `protocols.yaml`
 - **Priorité :** P1 | **Complexité :** M
@@ -956,10 +1160,14 @@
 
 ---
 
-## EPIC 18 — Tracker de pipelines d'analyse
+## EPIC 18 — Tracker de pipelines d'analyse 🔬🔗🌐
 
 > Suivi de l'état des analyses bioinformatiques et morphométriques.
 > Quel dataset est passé par quel pipeline, à quel stade.
+>
+> **Architecture :** Les pipelines d'analyse pourraient devenir
+> un module de PhD_Notebook (nouvelle table `pipelines`) avec
+> export via bridge. En attendant, YAML dans NKG_online est ok.
 
 ### 18.1 Données pipelines `src/data/pipelines.yaml`
 - **Priorité :** P2 | **Complexité :** M
@@ -1159,9 +1367,14 @@
 
 ---
 
-## EPIC 22 — Base de réactifs et checklist soutenance
+## EPIC 22 — Base de réactifs et checklist soutenance 🔬🌐
 
 > Outils pratiques pour la fin de thèse.
+>
+> **Architecture :** La base de réactifs est un candidat naturel
+> pour un nouveau module dans PhD_Notebook (table `reagents` liée
+> aux expériences et protocoles), avec export via bridge.
+> La checklist soutenance reste dans un YAML simple côté NKG_online.
 
 ### 22.1 Base de réactifs `src/data/reagents.yaml`
 - **Priorité :** P2 | **Complexité :** M
@@ -1256,112 +1469,144 @@
 ## Ordre d'implémentation recommandé
 
 ```
-Phase 1 — Fondations (P0)                               ~1-2 sessions
-  9.1  Extension visibility.yaml (3 niveaux)
-  9.2  Refactor visibility.ts
-  9.3  Collection Astro schema étendu
-  1.1  Page hub /phd/dashboard
-  1.2  Migration Excel → collecte.yaml
-  1.3  Collection Astro collecte
-  8.2  Lien dans la navigation
+═══════════════════════════════════════════════════════════════
+  🌐 = NKG_online (Astro)   🔬 = PhD_Notebook (FastAPI)
+  🔗 = Bridge (export script)
+  ⏸️  = Différé (en attente Rayyan API)
+═══════════════════════════════════════════════════════════════
 
-Phase 2 — Dashboard core + accès invité (P1)            ~2-3 sessions
-  9.4  Page de login invité /guest
-  9.5  Composant GuestGate
-  9.6  Filtrage de la navigation
-  2.1  Composant CollecteDashboard
-  2.2  Enrichissement phd-progress
-  3.1  Données thesis.yaml
-  3.2  Composant ThesisTracker
-  3.3  Collection thesis
-  4.1  Script rayyan-fetch.py                    ✅
-  4.2  Composant ScopingDashboard                ✅
+Phase 1 — Fondations site 🌐                            ~1-2 sessions
+  9.1  Extension visibility.yaml (3 niveaux)     🌐
+  9.2  Refactor visibility.ts                    🌐
+  9.3  Collection Astro schema étendu            🌐
+  1.1  Page hub /phd/dashboard                   🌐
+  1.2  Collecte.yaml (manuel pour l'instant)     🌐
+  1.3  Collection Astro collecte                 🌐
+  8.2  Lien dans la navigation                   🌐
 
-Phase 3 — Présentation, planning, protocoles (P1)       ~3-4 sessions
-  10.1 Toggle mode présentation
-  17.1 Système de versions protocols.yaml
-  17.3 Lien expérience → version protocole
-  13.1 Données protocols.yaml
-  13.2 Composant ExperimentPlanner
-  13.3 Paramétrage stades embryonnaires
-  13.4 Création d'expérience depuis planificateur
-  19.1 Données figures.yaml
-  19.2 Composant FigureTracker
-  11.1 Script newsletter auto-générée
-  12.1 Smoke tests post-build
+Phase 2 — Dashboard core + accès invité 🌐              ~2-3 sessions
+  9.4  Page de login invité /guest               🌐
+  9.5  Composant GuestGate                       🌐
+  9.6  Filtrage de la navigation                 🌐
+  2.1  Composant CollecteDashboard               🌐
+  2.2  Enrichissement phd-progress               🌐
+  3.1  Données thesis.yaml                       🌐
+  3.2  Composant ThesisTracker                   🌐
+  3.3  Collection thesis                         🌐
+  4.1  Script rayyan-fetch.py                    ⏸️ (attente API)
+  4.2  Composant ScopingDashboard                🌐 ✅ prototype
 
-Phase 4 — Tracking avancé (P2)                           ~4-5 sessions
-  4.3  GitHub Action rayyan-sync                 ✅
-  4.4  PRISMA auto-généré
-  5.1  Données timeline.yaml
-  5.2  Composant PhDTimeline
-  6.1  Composant ExperimentCard
-  6.2  Vue galerie expériences
-  14.1 Données specimens.yaml
-  14.2 Composant SpecimenTracker
-  14.3 Lien planificateur → tracker
-  18.1 Données pipelines.yaml
-  18.2 Composant PipelineTracker
-  18.3 Lien pipeline → figures → expériences
-  19.3 Détection auto "à refaire" figures
-  20.1 Script veille PubMed
-  20.2 Widget radar dashboard
-  21.1 Données datasets.yaml (FAIR)
-  21.2 Composant DataSharingStatus
-  22.3 Checklist soutenance defense.yaml
-  22.4 Widget soutenance dashboard
-  22.5 Statut des sauvegardes
-  15.1 Export Zotero → YAML
+Phase 3 — Bridge + planning 🔗🌐🔬                      ~3-4 sessions
+  0.1  Script notebook-export.py                 🔗 ← PRIORITAIRE
+  0.2  Documentation mapping données             🔗
+  10.1 Toggle mode présentation                  🌐
+  17.1 Système de versions protocols.yaml        🌐 (puis 🔬)
+  17.3 Lien expérience → version protocole       🌐🔬
+  13.1 Données protocols.yaml                    🌐
+  13.2 Composant ExperimentPlanner               🌐
+  13.3 Paramétrage stades embryonnaires          🌐
+  13.4 Création d'expérience → PhD_Notebook      🌐🔬
+  12.1 Smoke tests post-build                    🌐
 
-Phase 5 — Productivité et UX (P2)                       ~2-3 sessions
-  8.1  Traductions i18n
-  9.7  Indicateur mode invité
-  10.2 URL directe mode présentation
-  16.1 Vue "Blocages" dashboard
-  16.2 Actions items réunions → dashboard
-  16.3 Export PDF du dashboard
-  16.4 Quick log mobile
-  17.2 Affichage changelog protocoles
-  22.1 Base de réactifs reagents.yaml
-  22.2 Composant ReagentDatabase
+Phase 4 — Tracking avancé 🌐🔗                          ~4-5 sessions
+  19.1 Données figures.yaml                      🌐
+  19.2 Composant FigureTracker                   🌐
+  11.1 Script newsletter auto-générée            🔗🌐
+  4.3  GitHub Action rayyan-sync                 ⏸️ (attente API)
+  4.4  PRISMA auto-généré                        🌐
+  5.1  Données timeline.yaml                     🌐
+  5.2  Composant PhDTimeline                     🌐
+  6.1  Composant ExperimentCard                  🌐
+  6.2  Vue galerie expériences                   🌐
+  14.1 Specimens.yaml (via bridge)               🔗
+  14.2 Composant SpecimenTracker                 🌐
+  14.3 Lien planificateur → tracker              🌐🔬
+  18.1 Données pipelines.yaml                    🌐 (puis 🔬🔗)
+  18.2 Composant PipelineTracker                 🌐
+  18.3 Lien pipeline → figures → expériences     🌐
+  19.3 Détection auto "à refaire" figures        🌐
+  20.1 Script veille PubMed                      🔗
+  20.2 Widget radar dashboard                    🌐
+  21.1 Données datasets.yaml (FAIR)              🌐 (puis 🔬🔗)
+  21.2 Composant DataSharingStatus               🌐
+  22.3 Checklist soutenance defense.yaml         🌐
+  22.4 Widget soutenance dashboard               🌐
+  22.5 Statut des sauvegardes                    🌐
+  15.1 Export Zotero → YAML                      🔗
+
+Phase 5 — Productivité et UX 🌐🔬                       ~2-3 sessions
+  8.1  Traductions i18n                          🌐
+  9.7  Indicateur mode invité                    🌐
+  10.2 URL directe mode présentation             🌐
+  16.1 Vue "Blocages" dashboard                  🌐
+  16.2 Actions items réunions → dashboard        🌐
+  16.3 Export PDF du dashboard                   🌐
+  16.4 Quick log mobile                          🌐 (ou 🔬)
+  17.2 Affichage changelog protocoles            🌐
+  22.1 Base de réactifs                          🔬🔗
+  22.2 Composant ReagentDatabase                 🌐
+  0.3  GitHub Action notebook-sync               🔗
+  0.4  Export des modules futurs                 🔗
 
 Phase 6 — Extras et polish (P3)                          ~2-3 sessions
-  4.5  Script pré-dédoublonnage
-  7.1  Alertes scoping review
-  11.2 GitHub Action newsletter hebdo
-  11.3 Page brouillons CMS
-  12.2 Notification échec deploy
-  13.5 Export iCal planificateur
-  14.4 Alertes spécimens
-  15.2 Composant bibliographie
-  15.3 GitHub Action Zotero sync
-  16.5 Vue calendrier expériences
-  16.6 Notification Slack deploy
-  20.3 GitHub Action PubMed hebdo
+  4.5  Script pré-dédoublonnage                  🔗
+  7.1  Alertes scoping review                    🌐
+  11.2 GitHub Action newsletter hebdo            🌐
+  11.3 Page brouillons CMS                       🌐
+  12.2 Notification échec deploy                 🌐
+  13.5 Export iCal planificateur                 🌐
+  14.4 Alertes spécimens                         🌐
+  15.2 Composant bibliographie                   🌐
+  15.3 GitHub Action Zotero sync                 🔗
+  16.5 Vue calendrier expériences                🌐
+  16.6 Notification Slack deploy                 🌐
+  20.3 GitHub Action PubMed hebdo                🔗
 ```
 
-**Total estimé : 14–20 sessions de 2-3h avec Claude Code**
-**soit ~5-7 semaines à 3 sessions/semaine.**
+**Deux pistes en parallèle :**
+Les phases ci-dessus concernent principalement NKG_online.
+En parallèle, PhD_Notebook continue d'évoluer (modules
+expériences, réactifs, protocoles) — ces développements se
+font dans des sessions Claude Code séparées sur ce repo.
+
+**Total estimé : 15–22 sessions de 2-3h avec Claude Code**
+**soit ~5-8 semaines à 3 sessions/semaine.**
+**(dont ~80% sur NKG_online, ~20% sur PhD_Notebook)**
 
 ---
 
 ## Notes techniques
 
+### Architecture deux repos
+| | NKG_online | PhD_Notebook |
+|---|---|---|
+| **Stack** | Astro 5 + TS | FastAPI + SQLAlchemy 2.0 + SQLite |
+| **Hébergement** | GitHub Pages (statique) | Local (localhost:8000) |
+| **Usage** | Dashboard, vitrine, partage | Saisie quotidienne labo |
+| **Données** | YAML (lecture) | SQLite (CRUD) |
+| **Pont** | ← `scripts/notebook-export.py` ← | |
+| **Claude Code** | Sessions 🌐 | Sessions 🔬 séparées |
+
+### NKG_online
 - **Stack :** Astro 5, TypeScript, CSS vanilla (design tokens)
 - **Données :** YAML dans `src/data/`, collections Astro
-- **CI/CD :** GitHub Actions (deploy.yml existant + rayyan-sync.yml + newsletter-draft.yml)
-- **Outil recommandé :** Claude Code pour l'implémentation dans le repo
-- **Excel original :** `données_phd.xlsx` à fournir ou recréer les
-  données manuellement dans `collecte.yaml`
+- **CI/CD :** GitHub Actions (deploy.yml + rayyan-sync.yml + newsletter-draft.yml)
 
-### Dépendances Python (scripts/)
-- `rayyan-sdk` + `pyyaml` — Rayyan sync
+### PhD_Notebook
+- **Stack :** FastAPI, SQLAlchemy 2.0, Alembic, Jinja2, SQLite
+- **DB :** `data/notebook.db`
+- **Migrations :** `python db.py new "desc"` → `python db.py upgrade`
+- **Serveur :** `bash start.sh` → http://127.0.0.1:8000
+- **Python :** 3.13 (conda base)
+
+### Dépendances Python (scripts/ dans NKG_online)
+- `sqlalchemy` + `pyyaml` — Bridge export (EPIC 0)
+- `rayyan-sdk` + `pyyaml` — Rayyan sync (EPIC 4, en attente API)
 - `pyzotero` — Zotero sync (EPIC 15)
 - `biopython` — PubMed radar (EPIC 20)
-- `openpyxl` — migration Excel (optionnel)
 
-### Secrets GitHub requis
-- `RAYYAN_ACCESS_TOKEN` / `RAYYAN_REFRESH_TOKEN` — API Rayyan
+### Secrets GitHub requis (NKG_online)
+- `RAYYAN_ACCESS_TOKEN` / `RAYYAN_REFRESH_TOKEN` — API Rayyan (⏸️)
 - `GUEST_CODE` — code d'accès invité
 - `ZOTERO_API_KEY` — API Zotero (EPIC 15, optionnel)
 - `SLACK_WEBHOOK_URL` — notifications (EPIC 16.6, optionnel)
@@ -1369,28 +1614,41 @@ Phase 6 — Extras et polish (P3)                          ~2-3 sessions
 ### Variables GitHub
 - `RAYYAN_REVIEW_ID` — ID numérique de la review
 
-### Fichiers YAML clés (src/data/)
-| Fichier | EPIC | Description |
-|---------|------|-------------|
-| `visibility.yaml` | 9 | Contrôle d'accès 3 niveaux |
-| `collecte.yaml` | 1-2 | Avancement collecte (3 axes, 15 sous-parties) |
-| `phd-progress.yaml` | 2 | Barres de progression globales (existant) |
-| `thesis.yaml` | 3 | Chapitres, publications, jalons |
-| `scoping-review.yaml` | 4 | Données Rayyan (auto-généré) |
-| `timeline.yaml` | 5 | Jalons chronologiques du PhD |
-| `protocols.yaml` | 13+17 | Protocoles wet lab versionnés |
-| `specimens.yaml` | 14 | Accouplements, portées, stock souris |
-| `bibliography.yaml` | 15 | Export Zotero (auto-généré) |
-| `figures.yaml` | 19 | Registre des figures (statut, source) |
-| `pipelines.yaml` | 18 | Pipelines d'analyse (RNA-seq, morpho) |
-| `pubmed-alerts.yaml` | 20 | Veille PubMed (auto-généré) |
-| `datasets.yaml` | 21 | Datasets + statut FAIR / backup |
-| `reagents.yaml` | 22 | Anticorps, sondes, primers validés |
-| `defense.yaml` | 22 | Checklist soutenance |
+### Fichiers YAML clés (NKG_online src/data/)
+| Fichier | EPIC | Source | Description |
+|---------|------|--------|-------------|
+| `visibility.yaml` | 9 | Manuel | Contrôle d'accès 3 niveaux |
+| `collecte.yaml` | 1-2 | 🔗 Bridge ou manuel | Progression collecte (3 axes) |
+| `phd-progress.yaml` | 2 | Manuel (existant) | Barres progression globales |
+| `thesis.yaml` | 3 | Manuel | Chapitres, publications, jalons |
+| `scoping-review.yaml` | 4 | 🔗 Rayyan fetch | Données screening (⏸️) |
+| `timeline.yaml` | 5 | Manuel | Jalons chronologiques |
+| `protocols.yaml` | 13+17 | Manuel puis 🔗 | Protocoles wet lab versionnés |
+| `specimens.yaml` | 14 | 🔗 Bridge | Export depuis PhD_Notebook |
+| `experiments-live.yaml` | 0 | 🔗 Bridge | Export depuis PhD_Notebook |
+| `bibliography.yaml` | 15 | 🔗 Zotero fetch | Publications / lectures |
+| `figures.yaml` | 19 | Manuel | Registre figures (statut, source) |
+| `pipelines.yaml` | 18 | Manuel puis 🔗 | Pipelines d'analyse |
+| `pubmed-alerts.yaml` | 20 | 🔗 PubMed fetch | Veille littérature |
+| `datasets.yaml` | 21 | Manuel puis 🔗 | Datasets + FAIR + backup |
+| `reagents.yaml` | 22 | 🔗 Bridge | Export depuis PhD_Notebook |
+| `defense.yaml` | 22 | Manuel | Checklist soutenance |
+
+### Tables SQLite clés (PhD_Notebook data/notebook.db)
+| Table | EPIC | Statut | Description |
+|-------|------|--------|-------------|
+| `litters` | 14 | ✅ Existe | Portées (code, date sacrifice, mère) |
+| `samples` | 14 | ✅ Existe | Échantillons (stade, génotype, statut) |
+| `experiments` | 13 | ✅ Existe | Expériences (type, dates, params JSON) |
+| `sample_experiments` | 13 | ✅ Existe | Junction sample ↔ experiment |
+| `reagents` | 22 | 🔲 À créer | Anticorps, sondes, primers |
+| `protocols` | 17 | 🔲 À créer | Protocoles versionnés |
+| `pipelines` | 18 | 🔲 À créer | Pipelines d'analyse |
 
 ### Compteur total
-- **22 EPICs**
-- **~75 features**
+- **23 EPICs** (0–22)
+- **~80 features**
 - **6 phases**
-- **~14–20 sessions Claude Code estimées**
+- **~15–22 sessions Claude Code estimées**
+- **2 repos** (NKG_online + PhD_Notebook)
 

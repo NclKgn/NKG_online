@@ -1,0 +1,121 @@
+# ─── Biologie ───────────────────────────────────────────────────────────────
+coloration:
+  partie: biologie
+  label: Coloration
+  statut: en-cours
+  value: 60
+  deadline: 2026-07-01
+  notes: Colorations Safranine O + alcian bleu en cours sur séries souris
+
+rnascope-if:
+  partie: biologie
+  label: RNAscope / IF
+  statut: en-cours
+  value: 40
+  deadline: 2026-09-01
+  notes: Panels IF en optimisation sur coupes cryostat
+
+light-sheet:
+  partie: biologie
+  label: Light Sheet
+  statut: en-cours
+  value: 55
+  deadline: 2026-08-01
+  notes: Acquisition iDISCO+ en cours, traitement VVD pipeline
+
+analyse-ls-rat:
+  partie: biologie
+  label: Analyse LS rat
+  statut: non-demarre
+  value: 0
+  deadline: 2026-10-01
+  notes: Dépend de la finalisation du protocole light sheet
+
+# ─── Biomécanique ────────────────────────────────────────────────────────────
+conception-systeme:
+  partie: biomecanique
+  label: Conception système
+  statut: termine
+  value: 100
+  notes: Système de stimulation ex vivo conçu et validé mécaniquement
+
+validation:
+  partie: biomecanique
+  label: Validation
+  statut: en-cours
+  value: 70
+  deadline: 2026-06-15
+  notes: Tests de reproductibilité en cours sur spécimens contrôle
+
+culture-ex-vivo:
+  partie: biomecanique
+  label: Culture ex vivo
+  statut: en-cours
+  value: 45
+  deadline: 2026-08-15
+  notes: Premières expériences sur synchondroses de souris adultes
+
+mesures-morpho:
+  partie: biomecanique
+  label: Mesures morphocentriques
+  statut: non-demarre
+  value: 0
+  deadline: 2026-10-15
+  notes: Attente données LightSheet pour registration
+
+rnaseq:
+  partie: biomecanique
+  label: RNA-seq
+  statut: non-demarre
+  value: 0
+  deadline: 2026-12-01
+  notes: Prévu en phase finale, dépend culture ex vivo
+
+# ─── Données Humaines ────────────────────────────────────────────────────────
+acquisition:
+  partie: donnees-humaines
+  label: Acquisition
+  statut: en-cours
+  value: 80
+  deadline: 2026-05-01
+  notes: Cohorte principale quasi complète, quelques cas manquants
+
+controle-postnatal:
+  partie: donnees-humaines
+  label: Contrôle & aplasie post-natal
+  statut: en-cours
+  value: 75
+  deadline: 2026-06-01
+  notes: Landmarking en cours sur scanner post-natal
+
+controle-antenatal:
+  partie: donnees-humaines
+  label: Contrôle & aplasie anté-natal
+  statut: en-cours
+  value: 50
+  deadline: 2026-07-01
+  notes: Echographies 3D à compléter
+
+validation-landmarks:
+  partie: donnees-humaines
+  label: Validation landmarks
+  statut: non-demarre
+  value: 0
+  deadline: 2026-08-01
+  notes: ICC à calculer après validation de la grille de landmarks
+
+stats-croissance:
+  partie: donnees-humaines
+  label: Stats croissance
+  statut: non-demarre
+  value: 0
+  deadline: 2026-09-01
+  notes: Modèles mixtes longitudinaux prévus (R/lme4)
+
+patterns-fermeture:
+  partie: donnees-humaines
+  label: Caractérisation patterns fermeture
+  statut: non-demarre
+  value: 0
+  deadline: 2026-11-01
+  notes: Analyse séquentielle à partir des données de croissance

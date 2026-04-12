@@ -93,9 +93,25 @@ const hero = defineCollection({
   }),
 });
 
+const collecte = defineCollection({
+  loader: file('./src/data/collecte.yaml'),
+  schema: z.object({
+    partie: z.enum(['biologie', 'biomecanique', 'donnees-humaines']),
+    label: z.string(),
+    statut: z.enum(['non-demarre', 'en-cours', 'termine']),
+    value: z.number().min(0).max(100),
+    deadline: z.coerce.date().optional(),
+    notes: z.string().optional(),
+    color: z.string().optional(),
+  }),
+});
+
 const visibility = defineCollection({
   loader: file('./src/data/visibility.yaml'),
-  schema: z.boolean(),
+  schema: z.union([
+    z.boolean(),                                   // rétrocompat
+    z.enum(['public', 'guest', 'private']),        // nouveau
+  ]),
 });
 
 // ── Experiments (structured PhD experiments) ──
@@ -171,5 +187,6 @@ export const collections = {
   'lab-entries': labEntries,
   meetings,
   experiments,
+  collecte,
   visibility,
 };

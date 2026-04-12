@@ -4,8 +4,13 @@
 
 Site personnel et PhD dashboard de Nicolas Kogane — chirurgien maxillo-facial, doctorant en sciences biomédicales (3e année+, phase rédaction). Sujet : rôle des synchondroses de la base du crâne dans le développement craniofacial.
 
-**URL :** https://nclkgn.github.io/NKG_online/
-**Repo :** NclKgn/NKG_online
+**Ce repo (NKG_online) :** Dashboard + vitrine web (statique, partageable)
+**Repo compagnon (PhD_Notebook) :** App labo locale (FastAPI + SQLite, saisie quotidienne)
+**Pont :** `scripts/notebook-export.py` — exporte SQLite → YAML pour Astro
+
+**URL site :** https://nclkgn.github.io/NKG_online/
+**Repo site :** NclKgn/NKG_online
+**Repo labo :** PhD_Notebook (local, pas sur GitHub public)
 
 ## Stack
 
@@ -135,6 +140,34 @@ Chaque collection a un schéma Zod strict — le respecter.
 - Contenu visible, labels UI : français prioritaire (via i18n)
 - Commits : anglais, format conventionnel (`feat:`, `fix:`, `chore:`)
 
+## PhD_Notebook (repo compagnon)
+
+App locale FastAPI pour la saisie quotidienne au labo.
+
+### Stack
+- FastAPI + SQLAlchemy 2.0 + Alembic + Jinja2
+- SQLite (`data/notebook.db`)
+- Python 3.13 (conda base)
+
+### Modèle de données existant
+- `litters` — portées (code, date sacrifice, mère)
+- `samples` — échantillons (code, stade [E14.5/E16.5/P0/P1/P14], génotype [WT/Het/Homo], statut)
+- `experiments` — expériences (type [ex vivo/IF/RNAscope/Lightsheet/Analyse/RNAseq], dates, params JSON)
+- `sample_experiments` — junction table avec ordre pipeline
+
+### Ce qui existe
+- Module Échantillons complet (CRUD, filtres, stats, fiche détail + timeline)
+- Module Expériences en cours de développement
+
+### Ce qui reste à créer (dans PhD_Notebook)
+- Tables : `reagents`, `protocols` (versionnés), `pipelines`
+- Modules UI correspondants
+
+### Pont vers NKG_online
+Le script `scripts/notebook-export.py` (dans NKG_online) lit
+`PhD_Notebook/data/notebook.db` et génère les YAML pour Astro.
+Variable d'env : `NOTEBOOK_DB=~/Code/PhD_Notebook/data/notebook.db`
+
 ## Backlog et specs
 
 Les documents de planification sont dans `docs/` :
@@ -143,31 +176,32 @@ Les documents de planification sont dans `docs/` :
 - `docs/spec-epic9-access-system.md` — Spec détaillé du système d'accès
 
 ### EPICs en bref
-1. Fondations dashboard
-2. Dashboard collecte de données
-3. Tracker de rédaction
-4. Scoping Review (Rayyan)
-5. Timeline de thèse
-6. Expériences enrichies
-7. Alertes et notifications
-8. i18n et finitions
-9. Système d'accès 3 niveaux (public/guest/private) — **spec détaillé dispo**
-10. Mode présentation du dashboard
-11. Newsletter auto-générée
-12. Smoke tests CI
-13. Planificateur d'expériences (wet lab)
-14. Tracker de spécimens / souris
-15. Intégration Zotero
-16. Productivité et outils (blocages, actions, export PDF, quick log, calendrier)
-17. Versionning de protocoles
-18. Tracker de pipelines d'analyse (RNA-seq, morphométrie)
-19. Tracker de figures (statut, source, détection auto "à refaire")
-20. Radar littérature PubMed
-21. Statut de partage des données (FAIR)
-22. Base de réactifs + checklist soutenance
+0. **Bridge : PhD_Notebook → NKG_online** (script export SQLite → YAML) 🔗
+1. Fondations dashboard 🌐
+2. Dashboard collecte de données 🌐
+3. Tracker de rédaction 🌐
+4. Scoping Review (Rayyan) — ⏸️ en attente accès API
+5. Timeline de thèse 🌐
+6. Expériences enrichies 🌐
+7. Alertes et notifications 🌐
+8. i18n et finitions 🌐
+9. Système d'accès 3 niveaux — **spec détaillé dispo** 🌐
+10. Mode présentation du dashboard 🌐
+11. Newsletter auto-générée 🔗🌐
+12. Smoke tests CI 🌐
+13. Planificateur d'expériences 🔬🌐
+14. Tracker de spécimens (CRUD existe dans PhD_Notebook) 🔬🔗🌐
+15. Intégration Zotero 🔗🌐
+16. Productivité (blocages, actions, export PDF, quick log, calendrier) 🌐🔬
+17. Versionning de protocoles 🔬🌐
+18. Tracker de pipelines d'analyse 🔬🔗🌐
+19. Tracker de figures 🌐
+20. Radar littérature PubMed 🔗🌐
+21. Statut de partage des données (FAIR) 🔬🌐
+22. Base de réactifs + checklist soutenance 🔬🔗🌐
 
 Ordre d'implémentation : **Phase 1 d'abord** (fondations + EPIC 9), puis Phase 2 (dashboard core), etc.
-Total : 22 EPICs, ~75 features, 6 phases, ~14-20 sessions Claude Code.
+Total : 23 EPICs (0–22), ~80 features, 6 phases, ~15-22 sessions Claude Code.
 
 ## Commandes utiles
 

@@ -1,0 +1,156 @@
+---
+// src/pages/guest.astro
+// Page de login pour les visiteurs invités.
+// Le code est injecté au build via PUBLIC_GUEST_CODE (variable d'env Astro).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { base } from '../i18n';
+
+const guestCode = import.meta.env.PUBLIC_GUEST_CODE || 'phd2026';
+---
+
+<BaseLayout title="Accès invité" noindex={true}>
+  <div class="container section">
+    <div class="guest-login-card card">
+      <h1>Accès invité</h1>
+      <p>
+        Cette section est réservée aux collaborateurs et invités.
+        Entrez le code d'accès qui vous a été communiqué.
+      </p>
+
+      <div class="guest-form">
+        <input
+          type="password"
+          id="guest-code-input"
+          placeholder="Code d'accès"
+          autocomplete="off"
+          aria-label="Code d'accès invité"
+        />
+        <button id="guest-submit" type="button">Accéder</button>
+        <p class="guest-error" id="guest-error" role="alert">Code incorrect.</p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ guestCode }}>
+  async function hashCode(str) {
+    const buf = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(str)
+    );
+    return Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  const expectedHash = await hashCode(guestCode);
+
+  const input = document.getElementById('guest-code-input');
+  const btn = document.getElementById('guest-submit');
+  const error = document.getElementById('guest-error');
+
+  async function tryLogin() {
+    const value = input.value.trim();
+    if (!value) return;
+
+    const hash = await hashCode(value);
+
+    if (hash === expectedHash) {
+      sessionStorage.setItem('nkg-guest', hash);
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo') || '/NKG_online/phd/dashboard';
+      window.location.href = returnTo;
+    } else {
+      error.style.display = 'block';
+      input.classList.add('shake');
+      setTimeout(() => input.classList.remove('shake'), 500);
+    }
+  }
+
+  btn.addEventListener('click', tryLogin);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tryLogin();
+    error.style.display = 'none';
+  });
+</script>
+
+<style>
+  .guest-login-card {
+    max-width: 400px;
+    margin: var(--space-2xl) auto;
+    text-align: center;
+    padding: var(--space-xl);
+  }
+
+  .guest-login-card h1 {
+    font-size: 1.6rem;
+    margin-bottom: var(--space-md);
+  }
+
+  .guest-login-card > p {
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    margin-bottom: var(--space-lg);
+    line-height: 1.6;
+  }
+
+  .guest-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  #guest-code-input {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 10px 16px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    background: var(--c-bg);
+    color: var(--c-text);
+    text-align: center;
+    width: 100%;
+    max-width: 240px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  #guest-code-input:focus {
+    border-color: var(--c-accent);
+  }
+
+  #guest-submit {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 32px;
+    background: var(--c-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  #guest-submit:hover {
+    opacity: 0.85;
+  }
+
+  .guest-error {
+    display: none;
+    font-size: 0.82rem;
+    color: #c0392b;
+    margin: 0;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .shake {
+    animation: shake 0.4s ease;
+  }
+</style>

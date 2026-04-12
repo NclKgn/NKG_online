@@ -1,8 +1,19 @@
 ---
 // src/pages/phd/experiments/index.astro
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GuestGate from '../../../components/GuestGate.astro';
 import { getCollection } from 'astro:content';
 import { base } from '../../../i18n';
+import { shouldBuild, isGuestOnly, shouldNoIndex } from '../../../lib/visibility';
+
+const pageKey = 'phd/experiments';
+
+if (!(await shouldBuild(pageKey))) {
+  return Astro.redirect('/');
+}
+
+const needsGate = await isGuestOnly(pageKey);
+const noindex = await shouldNoIndex(pageKey);
 
 const isDev = import.meta.env.DEV;
 const experiments = (await getCollection('experiments'))
@@ -13,43 +24,80 @@ const statusLabel = { planned: 'Planifiée', ongoing: 'En cours', completed: 'Te
 const statusClass = { planned: 'status-planned', ongoing: 'status-ongoing', completed: 'status-completed' } as const;
 ---
 
-<BaseLayout title="Experiments (Private)" noindex={true}>
-  <div class="container section">
-    <div class="private-banner">Private — not indexed</div>
-    <a href={base('/phd')} class="back-link mono">&larr; PhD</a>
-    <h1>Expériences</h1>
-
-    <div class="exp-list">
-      {experiments.map((exp) => {
-        const formattedDate = exp.data.date.toLocaleDateString('fr-FR', {
-          year: 'numeric', month: 'short', day: 'numeric',
-        });
-        return (
-          <a href={base(`/phd/experiments/${exp.id}`)} class="exp-item">
-            <time class="mono">{formattedDate}</time>
-            <div class="exp-body">
-              <div class="exp-top">
-                <h3>{exp.data.title}</h3>
-                <span class:list={['status-badge', statusClass[exp.data.status]]}>
-                  {statusLabel[exp.data.status]}
-                </span>
-              </div>
-              {exp.data.objective && (
-                <p class="exp-objective">{exp.data.objective}</p>
-              )}
-              {exp.data.tags.length > 0 && (
-                <div class="exp-tags">
-                  {exp.data.tags.map((tag) => (
-                    <span class="exp-tag small-caps">#{tag}</span>
-                  ))}
+<BaseLayout title="Expériences" noindex={noindex}>
+  {needsGate ? (
+    <GuestGate>
+      <div class="container section">
+        <a href={base('/phd')} class="back-link mono">&larr; PhD</a>
+        <h1>Expériences</h1>
+        <div class="exp-list">
+          {experiments.map((exp) => {
+            const formattedDate = exp.data.date.toLocaleDateString('fr-FR', {
+              year: 'numeric', month: 'short', day: 'numeric',
+            });
+            return (
+              <a href={base(`/phd/experiments/${exp.id}`)} class="exp-item">
+                <time class="mono">{formattedDate}</time>
+                <div class="exp-body">
+                  <div class="exp-top">
+                    <h3>{exp.data.title}</h3>
+                    <span class:list={['status-badge', statusClass[exp.data.status]]}>
+                      {statusLabel[exp.data.status]}
+                    </span>
+                  </div>
+                  {exp.data.objective && (
+                    <p class="exp-objective">{exp.data.objective}</p>
+                  )}
+                  {exp.data.tags.length > 0 && (
+                    <div class="exp-tags">
+                      {exp.data.tags.map((tag) => (
+                        <span class="exp-tag small-caps">#{tag}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </a>
-        );
-      })}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </GuestGate>
+  ) : (
+    <div class="container section">
+      <a href={base('/phd')} class="back-link mono">&larr; PhD</a>
+      <h1>Expériences</h1>
+      <div class="exp-list">
+        {experiments.map((exp) => {
+          const formattedDate = exp.data.date.toLocaleDateString('fr-FR', {
+            year: 'numeric', month: 'short', day: 'numeric',
+          });
+          return (
+            <a href={base(`/phd/experiments/${exp.id}`)} class="exp-item">
+              <time class="mono">{formattedDate}</time>
+              <div class="exp-body">
+                <div class="exp-top">
+                  <h3>{exp.data.title}</h3>
+                  <span class:list={['status-badge', statusClass[exp.data.status]]}>
+                    {statusLabel[exp.data.status]}
+                  </span>
+                </div>
+                {exp.data.objective && (
+                  <p class="exp-objective">{exp.data.objective}</p>
+                )}
+                {exp.data.tags.length > 0 && (
+                  <div class="exp-tags">
+                    {exp.data.tags.map((tag) => (
+                      <span class="exp-tag small-caps">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </a>
+          );
+        })}
+      </div>
     </div>
-  </div>
+  )}
 </BaseLayout>
 
 <style>

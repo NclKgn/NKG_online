@@ -1,6 +1,7 @@
 ---
 // src/layouts/BaseLayout.astro
 import Nav from '../components/Nav.astro';
+import GuestBadge from '../components/GuestBadge.astro';
 import '../styles/global.css';
 import { t, getLocale, base } from '../i18n';
 
@@ -50,6 +51,8 @@ const {
   <main style={fullbleed ? undefined : 'padding-top: var(--nav-h);'}>
     <slot />
   </main>
+
+  <GuestBadge />
 
   <footer class="site-footer">
     <div class="container footer-inner">

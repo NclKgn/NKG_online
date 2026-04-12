@@ -67,6 +67,15 @@ const metrics = progressEntries.filter((e) => e.id !== 'overall');
       </div>
     </section>
 
+    <section class="phd-dashboard-link">
+      <h2>Dashboard</h2>
+      <p>
+        Suivi de la collecte de données, avancement par axe,
+        expériences et notes de rédaction.
+      </p>
+      <a href={base('/phd/dashboard')} class="mono">Ouvrir le dashboard &rarr;</a>
+    </section>
+
     <section class="phd-newsletter-link">
       <h2>{ui.common.newsletter}</h2>
       <p>
@@ -132,6 +141,21 @@ const metrics = progressEntries.filter((e) => e.id !== 'overall');
   .progress-overall-label {
     font-size: 0.85rem;
     color: var(--c-text-3);
+  }
+
+  .phd-dashboard-link {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-xl);
+  }
+
+  .phd-dashboard-link h2 {
+    margin-bottom: var(--space-sm);
+  }
+
+  .phd-dashboard-link p {
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    margin-bottom: var(--space-md);
   }
 
   .phd-newsletter-link {

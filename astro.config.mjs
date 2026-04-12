@@ -4,21 +4,22 @@ import sitemap from '@astrojs/sitemap';
 import { readFileSync } from 'fs';
 import { parse } from 'yaml';
 
+// ── Lecture de visibility.yaml ──
 const visibilityPath = new URL('./src/data/visibility.yaml', import.meta.url);
-let hiddenSections = [];
+let hiddenPaths = [];
 try {
   const raw = readFileSync(visibilityPath, 'utf-8');
   const data = parse(raw);
-  hiddenSections = Object.entries(data)
-    .filter(([, v]) => !v)
-    .map(([k]) => k);
+  hiddenPaths = Object.entries(data)
+    .filter(([, v]) => {
+      // Masquer tout ce qui n'est pas "public" (ou true)
+      if (typeof v === 'boolean') return !v;
+      return v !== 'public';
+    })
+    .map(([k]) => `/${k}`);
 } catch {}
 
-const alwaysHidden = ['/phd/lab', '/phd/meetings', '/admin'];
-const hiddenPaths = [
-  ...alwaysHidden,
-  ...hiddenSections.map((s) => `/${s}`),
-];
+// NOTE : plus besoin de alwaysHidden — tout est dans visibility.yaml
 
 export default defineConfig({
   site: 'https://nclkgn.github.io',

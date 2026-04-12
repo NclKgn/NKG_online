@@ -1,6 +1,18 @@
-phd: true
-projects: true
-cv: true
-stack: true
-labs: true
-misc: true
+# ─── Sections principales ───
+phd: public
+projects: public
+cv: public
+stack: public
+labs: public
+misc: public
+
+# ─── Sous-pages PhD ───
+# Si une sous-page n'est pas listée, elle hérite du niveau de sa section parente.
+phd/dashboard: guest
+phd/experiments: guest
+phd/lab: private
+phd/meetings: private
+phd/newsletter: public
+
+# ─── Pages spéciales ───
+admin: private
