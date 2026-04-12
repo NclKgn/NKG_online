@@ -1,0 +1,190 @@
+
+<style>
+  .tmpl { font-family: var(--font-sans); max-width: 720px; margin: 0 auto; padding: 1rem 0; }
+  .section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .badge-plan { background: #E6F1FB; color: #0C447C; }
+  .badge-exec { background: #EAF3DE; color: #27500A; }
+  .badge-analyse { background: #FAEEDA; color: #633806; }
+  .badge-meta { background: #F1EFE8; color: #444441; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .field { margin-bottom: 10px; }
+  .field-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .field-value { font-size: 13px; color: var(--color-text-secondary); border-left: 2px solid var(--color-border-tertiary); padding-left: 10px; line-height: 1.6; font-style: italic; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .hyp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .hyp-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; }
+  .hyp-box .field-label { margin-bottom: 4px; }
+  .h1 { background: #E6F1FB; }
+  .h1 .field-label { color: #0C447C; }
+  .h2 { background: #FCEBEB; }
+  .h2 .field-label { color: #A32D2D; }
+  .concl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .concl-box { border-radius: var(--border-radius-md); padding: 8px 12px; }
+  .concl-yes { background: #EAF3DE; }
+  .concl-yes .field-label { color: #27500A; }
+  .concl-no { background: #FCEBEB; }
+  .concl-no .field-label { color: #A32D2D; }
+  .concl-meh { background: #FAEEDA; }
+  .concl-meh .field-label { color: #633806; }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 10px 0; }
+  .meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .meta-chip { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 20px; font-size: 12px; color: var(--color-text-secondary); padding: 4px 12px; }
+  .section-num { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); min-width: 16px; }
+  .copy-btn { margin-top: 16px; display: block; width: 100%; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px; font-size: 13px; color: var(--color-text-primary); cursor: pointer; text-align: center; }
+  .copy-btn:hover { background: var(--color-background-tertiary); }
+</style>
+
+<div class="tmpl">
+
+  <div class="section">
+    <div class="section-header">
+      <span class="badge badge-meta">Identification</span>
+    </div>
+    <div class="grid3">
+      <div class="field">
+        <div class="field-label">Titre</div>
+        <div class="field-value">Nom court et descriptif</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Date</div>
+        <div class="field-value">AAAA-MM-JJ</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Statut</div>
+        <div class="field-value">Planifiée / En cours / Terminée</div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Contexte & motivation</div>
+      <div class="field-value">Pourquoi cette expérience maintenant ? Quel problème ou gap cherche-t-on à combler ?</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="badge badge-plan">Planification</span>
+    </div>
+    <div class="field">
+      <div class="field-label">Objectif principal</div>
+      <div class="field-value">En une phrase : que veut-on mesurer, tester ou observer ?</div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <div class="field-label">Hypothèses</div>
+    </div>
+    <div class="hyp-row">
+      <div class="hyp-box h1">
+        <div class="field-label">H1 — Hypothèse principale</div>
+        <div class="field-value" style="border-color: #B5D4F4;">Si [condition], alors [résultat attendu], car [mécanisme].</div>
+      </div>
+      <div class="hyp-box h2">
+        <div class="field-label">H0 — Hypothèse nulle</div>
+        <div class="field-value" style="border-color: #F7C1C1;">Ce que l'on cherche à réfuter / l'alternative.</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="grid2">
+      <div class="field">
+        <div class="field-label">Variables indépendantes</div>
+        <div class="field-value">Ce que l'on fait varier, et comment.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Variables dépendantes</div>
+        <div class="field-value">Ce que l'on mesure (métriques, unités).</div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Variables contrôlées / confondantes à surveiller</div>
+      <div class="field-value">Facteurs qui pourraient biaiser les résultats si non maîtrisés.</div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <div class="field-label">Protocole</div>
+      <div class="field-value">Étapes numérotées. Matériel, données ou modèles utilisés. Durée estimée.</div>
+    </div>
+    <div class="field">
+      <div class="field-label">Points de vigilance</div>
+      <div class="field-value">Précautions à prendre, erreurs classiques à éviter, limites connues dès le départ.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="badge badge-exec">Exécution</span>
+    </div>
+    <div class="field">
+      <div class="field-label">Journal de bord</div>
+      <div class="field-value">Notes en temps réel : déviations du protocole, observations inattendues, décisions prises.</div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <div class="field-label">Données brutes / résultats</div>
+        <div class="field-value">Chiffres, tableaux, graphiques ou lien vers le fichier.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Problèmes rencontrés</div>
+        <div class="field-value">Bugs, imprévus, ajustements effectués en cours de route.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="badge badge-analyse">Analyse & conclusions</span>
+    </div>
+    <div class="concl-grid">
+      <div class="concl-box concl-yes">
+        <div class="field-label">Si H1 confirmée</div>
+        <div class="field-value" style="border-color: #C0DD97;">Implications, prochaines étapes logiques.</div>
+      </div>
+      <div class="concl-box concl-no">
+        <div class="field-label">Si H0 confirmée</div>
+        <div class="field-value" style="border-color: #F7C1C1;">Ce que cela invalide, alternatives à explorer.</div>
+      </div>
+      <div class="concl-box concl-meh">
+        <div class="field-label">Si résultats mixtes</div>
+        <div class="field-value" style="border-color: #FAC775;">Questions ouvertes, hypothèses révisées.</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <div class="field-label">Interprétation</div>
+      <div class="field-value">Que signifient les résultats ? Sont-ils généralisables ? Quelles limites ?</div>
+    </div>
+    <div class="field">
+      <div class="field-label">Lien avec la littérature</div>
+      <div class="field-value">Convergences ou divergences avec des travaux existants.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <span class="badge badge-meta">Suites & méta</span>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <div class="field-label">Actions suivantes</div>
+        <div class="field-value">Expériences de suivi, analyses complémentaires, questions ouvertes.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Liens & références</div>
+        <div class="field-value">Papiers, notebooks, datasets, issues GitHub associés.</div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Tags</div>
+      <div class="meta-row">
+        <span class="meta-chip">#méthode</span>
+        <span class="meta-chip">#dataset</span>
+        <span class="meta-chip">#modèle</span>
+        <span class="meta-chip">+ thème du chapitre</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="copy-btn" onclick="sendPrompt('Génère-moi ce template en format Markdown brut, prêt à coller dans mon PhDNotebook')">Obtenir le template en Markdown ↗</button>
+
+</div>
