@@ -37,6 +37,9 @@ jobs:
       - name: Build Astro
         run: npm run build
 
+      - name: Smoke tests
+        run: bash scripts/smoke-test.sh dist
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

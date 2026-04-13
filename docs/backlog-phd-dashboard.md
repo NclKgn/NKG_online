@@ -648,30 +648,18 @@ L'app locale existe déjà avec :
 
 ### 12.1 Smoke test post-build
 - **Priorité :** P1 | **Complexité :** M
-- **Description :** Étape dans `deploy.yml`, après `astro build`,
-  qui vérifie :
-  - Les pages public retournent du HTML valide (200)
-  - Les pages private ne sont PAS dans le build (`dist/`)
-  - Les pages guest contiennent le GuestGate
-  - Le sitemap ne contient pas de pages guest/private
-  - Les liens internes ne sont pas cassés (base path ok)
-- **Implémentation :** Script bash ou Node simple :
-  ```bash
-  # Pages public existent
-  test -f dist/NKG_online/index.html || exit 1
-  test -f dist/NKG_online/phd/index.html || exit 1
-
-  # Pages private N'existent PAS
-  test ! -f dist/NKG_online/phd/lab/index.html || exit 1
-  test ! -f dist/NKG_online/phd/meetings/index.html || exit 1
-
-  # Pages guest contiennent le gate
-  grep -q "guest-protected" dist/NKG_online/phd/dashboard/index.html || exit 1
-
-  # Sitemap ne contient pas de pages guest/private
-  ! grep -q "phd/dashboard" dist/NKG_online/sitemap-index.xml || exit 1
-  ```
+- **Description :** Script bash 15 checks post-build :
+  - Pages publiques existent et ne redirigent pas
+  - Pages privées (lab, meetings) redirigent vers /
+  - Pages guest (experiments, dashboard) existent sans redirection
+  - experiments contient `guest-protected` (GuestGate)
+  - Sitemap exclut phd/dashboard, phd/experiments, phd/lab, phd/meetings
+- **Notes :**
+  - dist/ est à la racine (pas dist/NKG_online/) — le base path est pour les URLs, pas le dossier
+  - Les pages private sont buildées en tant que redirects (Astro behavior), pas absentes
+  - `((VAR++))` avec `set -e` sort si VAR=0 → utiliser `VAR=$((VAR + 1))`
 - **Fichiers :** `scripts/smoke-test.sh`, `.github/workflows/deploy.yml`
+- **Statut :** ✅ Terminé (2026-04-13) — 15/15 tests passés localement
 
 ### 12.2 Notification d'échec de deploy
 - **Priorité :** P3 | **Complexité :** S
