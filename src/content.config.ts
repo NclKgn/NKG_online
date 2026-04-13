@@ -214,6 +214,23 @@ const meetings = defineCollection({
   }),
 });
 
+const figures = defineCollection({
+  loader: file('./src/data/figures.yaml'),
+  schema: z.object({
+    figures: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      target: z.enum(['article-1', 'article-2', 'article-scoping', 'thesis']),
+      chapter: z.string(),
+      status: z.enum(['brouillon', 'finalisee', 'a-refaire']),
+      source_experiment: z.string().optional(),
+      auto_generated: z.boolean().optional(),
+      last_updated: z.coerce.date(),
+      notes: z.string().optional(),
+    })),
+  }),
+});
+
 export const collections = {
   newsletter,
   projects,
@@ -229,5 +246,6 @@ export const collections = {
   collecte,
   thesis,
   timeline,
+  figures,
   visibility,
 };

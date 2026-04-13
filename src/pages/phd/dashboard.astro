@@ -5,6 +5,7 @@ import CollecteDashboard from '../../components/CollecteDashboard.astro';
 import ThesisTracker from '../../components/ThesisTracker.astro';
 import PhDTimeline from '../../components/PhDTimeline.astro';
 import PresentationToggle from '../../components/PresentationToggle.astro';
+import FigureTracker from '../../components/FigureTracker.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 import { t, getLocale } from '../../i18n';
@@ -54,6 +55,12 @@ const noindex = await shouldNoIndex(pageKey);
     <section class="dash-overview">
       <h2>{ui.timeline.title}</h2>
       <PhDTimeline />
+    </section>
+
+    <!-- Tracker figures (EPIC 19) -->
+    <section class="dash-overview">
+      <h2>{ui.figures.title}</h2>
+      <FigureTracker />
     </section>
 
     <!-- Modules (liens) -->

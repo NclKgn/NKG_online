@@ -1204,63 +1204,37 @@ L'app locale existe déjà avec :
 
 ---
 
-## EPIC 19 — Tracker de figures
+## EPIC 19 — Tracker de figures ✅
 
 > Suivi de l'état de chaque figure de thèse / article.
 > Quand une expérience produit de nouvelles données, les figures
 > liées sont automatiquement flaggées "à mettre à jour".
 
-### 19.1 Données figures `src/data/figures.yaml`
+### 19.1 Données figures `src/data/figures.yaml` ✅
 - **Priorité :** P1 | **Complexité :** M
 - **Description :** Registre de toutes les figures :
-  ```yaml
-  figures:
-    - id: fig-volcano-fgfr3
-      title: "Volcano plot — DE genes FGFR3 vs WT"
-      target: "article-1"       # article ou chapitre
-      chapter: "Résultats Biologie"
-      status: "finalisée"       # brouillon / finalisée / à refaire
-      source_experiment: "2026-04-10-exemple-synchondrose-fgfr3"
-      source_pipeline: "rnaseq-batch1"
-      last_updated: "2026-04-05"
-      file: "figures/fig-volcano-fgfr3.pdf"
-      notes: ""
-
-    - id: fig-prisma-scoping
-      title: "PRISMA flow diagram"
-      target: "article-2"
-      chapter: "Scoping Review"
-      status: "à refaire"
-      auto_generated: true  # → lié à EPIC 4.4
-      notes: "Se met à jour automatiquement avec les données Rayyan"
-
-    - id: fig-growth-curves
-      title: "Courbes de croissance synchondroses"
-      target: "thesis"
-      chapter: "Résultats Données Humaines"
-      status: "brouillon"
-      source_pipeline: "morpho-achondro-cohort"
-  ```
+  12 figures, 4 cibles (article-1, article-2, article-scoping, thesis),
+  statuts : `brouillon` / `finalisee` / `a-refaire`.
+  Champs : id, title, target, chapter, status, source_experiment (opt),
+  auto_generated (opt), last_updated, notes (opt).
 - **Fichiers :** `src/data/figures.yaml`
 
-### 19.2 Composant `FigureTracker.astro`
+### 19.2 Composant `FigureTracker.astro` ✅
 - **Priorité :** P1 | **Complexité :** M
 - **Description :** Vue dans le dashboard :
-  - Grille de figures groupées par chapitre/article
+  - Stats globales (total / finalisées / brouillon / à refaire / obsolètes)
+  - Grille de figures groupées par cible/article
   - Badge de statut coloré (brouillon 🟡 / finalisée 🟢 / à refaire 🔴)
-  - Nombre de figures par statut
-  - Lien vers l'expérience et le pipeline source
+  - Badge "Auto" pour les figures auto-générées
+  - Badge "Obsolète" pour les figures détectées comme outdated
 - **Fichiers :** `src/components/FigureTracker.astro`
 
-### 19.3 Détection automatique "à refaire"
+### 19.3 Détection automatique "à refaire" ✅
 - **Priorité :** P2 | **Complexité :** M
-- **Description :** Quand une expérience liée à une figure
-  change de statut (nouvelles données), ou quand un pipeline
-  progresse au-delà de l'étape "interprétation", les figures
-  associées passent automatiquement en "à refaire".
-  Implémentation : logique dans le composant qui compare
-  `last_updated` de la figure avec les dates de mise à jour
-  des expériences/pipelines liés.
+- **Description :** Comparaison build-time de `figure.last_updated`
+  avec la date de l'expérience source (`source_experiment`).
+  Si `experiment.date > figure.last_updated` → badge "Obsolète".
+  Implémentation : logique dans `FigureTracker.astro` (SSR Astro).
 - **Fichiers :** Logique dans `FigureTracker.astro`
 
 ---

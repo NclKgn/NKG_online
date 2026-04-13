@@ -1,0 +1,102 @@
+figures-data:
+  figures:
+    # ─── Article 1 — Biologie / Biomécanique ──────────────────────────────
+    - id: fig-lightsheet-3d
+      title: "Reconstruction 3D Light Sheet — SBS souris WT vs Fgfr3G380R"
+      target: article-1
+      chapter: "Résultats — Biologie"
+      status: brouillon
+      source_experiment: "2026-04-10-exemple-synchondrose-fgfr3"
+      last_updated: 2026-03-15
+      notes: "Rendu VVD à finaliser, registration à valider"
+
+    - id: fig-rnascope-fgfr3
+      title: "RNAscope FGFR3 — expression dans zones synchondrales"
+      target: article-1
+      chapter: "Résultats — Biologie"
+      status: a-refaire
+      source_experiment: "2026-04-10-exemple-synchondrose-fgfr3"
+      last_updated: 2026-02-10
+      notes: "Panel à refaire avec nouveau lot de sondes"
+
+    - id: fig-edu-proliferation
+      title: "Taux de prolifération EdU+ par zone — P7/P14/P21"
+      target: article-1
+      chapter: "Résultats — Biologie"
+      status: brouillon
+      source_experiment: "2026-04-10-exemple-synchondrose-fgfr3"
+      last_updated: 2026-04-01
+      notes: "Comptages ImageJ à finaliser pour P21"
+
+    - id: fig-exvivo-system
+      title: "Système de stimulation ex vivo — schéma et validation"
+      target: article-1
+      chapter: "Résultats — Biomécanique"
+      status: finalisee
+      last_updated: 2026-01-20
+      notes: "Figure méthode — validée pour soumission"
+
+    - id: fig-exvivo-results
+      title: "Réponse biomécanique synchondroses WT vs Fgfr3 — courbes charge/déplacement"
+      target: article-1
+      chapter: "Résultats — Biomécanique"
+      status: brouillon
+      last_updated: 2026-03-28
+      notes: "Manque n=2 pour compléter la série"
+
+    # ─── Article 2 — Données Humaines ────────────────────────────────────
+    - id: fig-growth-curves
+      title: "Courbes de croissance synchondroses — cohorte normale (0–18 ans)"
+      target: article-2
+      chapter: "Résultats — Données Humaines"
+      status: brouillon
+      last_updated: 2026-03-10
+      notes: "Modèles mixtes R/lme4 à finaliser"
+
+    - id: fig-atlas-sbs
+      title: "Atlas morphologique SBS — vues standardisées"
+      target: article-2
+      chapter: "Résultats — Données Humaines"
+      status: a-refaire
+      last_updated: 2026-02-20
+      notes: "Landmarks à revalider après correction du protocole"
+
+    - id: fig-achondro-comparison
+      title: "Comparaison SBS normale vs achondroplasie — dimensions clés"
+      target: article-2
+      chapter: "Résultats — Données Humaines"
+      status: brouillon
+      last_updated: 2026-04-05
+
+    # ─── Scoping Review ───────────────────────────────────────────────────
+    - id: fig-prisma
+      title: "Diagramme PRISMA flow"
+      target: article-scoping
+      chapter: "Scoping Review"
+      status: a-refaire
+      auto_generated: true
+      last_updated: 2026-03-01
+      notes: "Se met à jour automatiquement avec données Rayyan (EPIC 4.4)"
+
+    - id: fig-evidence-map
+      title: "Evidence map — synchondroses × méthodes × populations"
+      target: article-scoping
+      chapter: "Scoping Review"
+      status: brouillon
+      last_updated: 2026-03-15
+      notes: "À construire après extraction complète"
+
+    # ─── Thèse ────────────────────────────────────────────────────────────
+    - id: fig-thesis-intro-concept
+      title: "Schéma conceptuel — rôle des synchondroses dans la croissance craniofaciale"
+      target: thesis
+      chapter: "Introduction générale"
+      status: finalisee
+      last_updated: 2026-02-01
+
+    - id: fig-thesis-multimodal
+      title: "Schéma multimodal — stratégie de recherche intégrée"
+      target: thesis
+      chapter: "Introduction générale"
+      status: finalisee
+      last_updated: 2026-02-15
