@@ -5,8 +5,9 @@
 > - `PhD_Notebook` — App FastAPI + SQLite locale (saisie labo)
 >
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
-> **Date :** 12 avril 2026
-> **Statut :** Planification
+> **Date :** 13 avril 2026 (màj)
+> **Statut :** Phase 3–4 en cours — Phases 1 & 2 terminées
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 19 (12 EPICs)
 
 ---
 
@@ -1423,67 +1424,69 @@ L'app locale existe déjà avec :
   ⏸️  = Différé (en attente Rayyan API)
 ═══════════════════════════════════════════════════════════════
 
-Phase 1 — Fondations site 🌐                            ~1-2 sessions
-  9.1  Extension visibility.yaml (3 niveaux)     🌐
-  9.2  Refactor visibility.ts                    🌐
-  9.3  Collection Astro schema étendu            🌐
-  1.1  Page hub /phd/dashboard                   🌐
-  1.2  Collecte.yaml (manuel pour l'instant)     🌐
-  1.3  Collection Astro collecte                 🌐
-  8.2  Lien dans la navigation                   🌐
+Phase 1 — Fondations site 🌐                            ✅ TERMINÉE
+  9.1  Extension visibility.yaml (3 niveaux)     🌐 ✅
+  9.2  Refactor visibility.ts                    🌐 ✅
+  9.3  Collection Astro schema étendu            🌐 ✅
+  1.1  Page hub /phd/dashboard                   🌐 ✅
+  1.2  Collecte.yaml (manuel pour l'instant)     🌐 ✅
+  1.3  Collection Astro collecte                 🌐 ✅
+  8.2  Lien dans la navigation                   🌐 ✅
 
-Phase 2 — Dashboard core + accès invité 🌐              ~2-3 sessions
-  9.4  Page de login invité /guest               🌐
-  9.5  Composant GuestGate                       🌐
-  9.6  Filtrage de la navigation                 🌐
-  2.1  Composant CollecteDashboard               🌐
-  2.2  Enrichissement phd-progress               🌐
-  3.1  Données thesis.yaml                       🌐
-  3.2  Composant ThesisTracker                   🌐
-  3.3  Collection thesis                         🌐
+Phase 2 — Dashboard core + accès invité 🌐              ✅ TERMINÉE
+  9.4  Page de login invité /guest               🌐 ✅
+  9.5  Composant GuestGate                       🌐 ✅
+  9.6  Filtrage de la navigation                 🌐 ✅
+  2.1  Composant CollecteDashboard               🌐 ✅
+  2.2  Enrichissement phd-progress               🌐 ✅
+  3.1  Données thesis.yaml                       🌐 ✅
+  3.2  Composant ThesisTracker                   🌐 ✅
+  3.3  Collection thesis                         🌐 ✅
   4.1  Script rayyan-fetch.py                    ⏸️ (attente API)
   4.2  Composant ScopingDashboard                🌐 ✅ prototype
 
-Phase 3 — Bridge + planning 🔗🌐🔬                      ~3-4 sessions
-  0.1  Script notebook-export.py                 🔗 ← PRIORITAIRE
+Phase 3 — Bridge + planning 🔗🌐🔬                      🔄 EN COURS
+  0.1  Script notebook-export.py                 🔗 ← PRIORITAIRE (bloqué : accès PhD_Notebook)
   0.2  Documentation mapping données             🔗
-  10.1 Toggle mode présentation                  🌐
+  10.1 Toggle mode présentation                  🌐 ✅
+  12.1 Smoke tests post-build                    🌐 ✅
   17.1 Système de versions protocols.yaml        🌐 (puis 🔬)
   17.3 Lien expérience → version protocole       🌐🔬
   13.1 Données protocols.yaml                    🌐
   13.2 Composant ExperimentPlanner               🌐
   13.3 Paramétrage stades embryonnaires          🌐
   13.4 Création d'expérience → PhD_Notebook      🌐🔬
-  12.1 Smoke tests post-build                    🌐
 
-Phase 4 — Tracking avancé 🌐🔗                          ~4-5 sessions
-  19.1 Données figures.yaml                      🌐
-  19.2 Composant FigureTracker                   🌐
-  11.1 Script newsletter auto-générée            🔗🌐
+Phase 4 — Tracking avancé 🌐🔗                          🔄 EN COURS
+  8.1  Traductions i18n (EN/FR)                  🌐 ✅
+  5.1  Données timeline.yaml                     🌐 ✅
+  5.2  Composant PhDTimeline                     🌐 ✅
+  6.1  Composant ExperimentCard                  🌐 ✅
+  6.2  Vue galerie expériences                   🌐 ✅
+  19.1 Données figures.yaml                      🌐 ✅
+  19.2 Composant FigureTracker                   🌐 ✅
+  19.3 Détection auto "à refaire" figures        🌐 ✅
+  11.1 Script newsletter auto-générée            🔗🌐 ✅
+  11.2 GitHub Action newsletter hebdo            🌐 ✅
+  11.3 Page brouillons CMS                       🌐 ✅
   4.3  GitHub Action rayyan-sync                 ⏸️ (attente API)
   4.4  PRISMA auto-généré                        🌐
-  5.1  Données timeline.yaml                     🌐
-  5.2  Composant PhDTimeline                     🌐
-  6.1  Composant ExperimentCard                  🌐
-  6.2  Vue galerie expériences                   🌐
   14.1 Specimens.yaml (via bridge)               🔗
   14.2 Composant SpecimenTracker                 🌐
   14.3 Lien planificateur → tracker              🌐🔬
-  18.1 Données pipelines.yaml                    🌐 (puis 🔬🔗)
+  18.1 Données pipelines.yaml                    🌐
   18.2 Composant PipelineTracker                 🌐
   18.3 Lien pipeline → figures → expériences     🌐
-  19.3 Détection auto "à refaire" figures        🌐
   20.1 Script veille PubMed                      🔗
   20.2 Widget radar dashboard                    🌐
-  21.1 Données datasets.yaml (FAIR)              🌐 (puis 🔬🔗)
+  21.1 Données datasets.yaml (FAIR)              🌐
   21.2 Composant DataSharingStatus               🌐
   22.3 Checklist soutenance defense.yaml         🌐
   22.4 Widget soutenance dashboard               🌐
   22.5 Statut des sauvegardes                    🌐
   15.1 Export Zotero → YAML                      🔗
 
-Phase 5 — Productivité et UX 🌐🔬                       ~2-3 sessions
-  8.1  Traductions i18n                          🌐
+Phase 5 — Productivité et UX 🌐🔬                       ⬜ À VENIR
   9.7  Indicateur mode invité                    🌐
   10.2 URL directe mode présentation             🌐
   16.1 Vue "Blocages" dashboard                  🌐
@@ -1496,11 +1499,9 @@ Phase 5 — Productivité et UX 🌐🔬                       ~2-3 sessions
   0.3  GitHub Action notebook-sync               🔗
   0.4  Export des modules futurs                 🔗
 
-Phase 6 — Extras et polish (P3)                          ~2-3 sessions
+Phase 6 — Extras et polish (P3)                          ⬜ À VENIR
   4.5  Script pré-dédoublonnage                  🔗
   7.1  Alertes scoping review                    🌐
-  11.2 GitHub Action newsletter hebdo            🌐
-  11.3 Page brouillons CMS                       🌐
   12.2 Notification échec deploy                 🌐
   13.5 Export iCal planificateur                 🌐
   14.4 Alertes spécimens                         🌐
@@ -1594,9 +1595,9 @@ font dans des sessions Claude Code séparées sur ce repo.
 | `pipelines` | 18 | 🔲 À créer | Pipelines d'analyse |
 
 ### Compteur total
-- **23 EPICs** (0–22)
-- **~80 features**
-- **6 phases**
-- **~15–22 sessions Claude Code estimées**
+- **23 EPICs** (0–22) — **12 terminés**, 2 en cours (Phase 3–4), 9 à venir
+- **~80 features** — ~35 livrées
+- **6 phases** — Phase 1 ✅, Phase 2 ✅, Phase 3–4 🔄
+- **~15–22 sessions Claude Code estimées** — ~3 sessions utilisées
 - **2 repos** (NKG_online + PhD_Notebook)
 
