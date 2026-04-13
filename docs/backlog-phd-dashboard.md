@@ -5,9 +5,9 @@
 > - `PhD_Notebook` — App FastAPI + SQLite locale (saisie labo)
 >
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
-> **Date :** 13 avril 2026 (màj)
-> **Statut :** Phase 3–4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 19, 22.3, 22.4 (15 EPICs)
+> **Date :** 13 avril 2026 (màj session 5)
+> **Statut :** Phase 3 partielle, Phase 4 en cours — Phases 1 & 2 terminées
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 19, 22.3, 22.4 (17 items)
 
 ---
 
@@ -1462,6 +1462,7 @@ Phase 3 — Bridge + planning 🔗🌐🔬                      🔄 EN COURS
   0.2  Documentation mapping données             🔗 ✅
   10.1 Toggle mode présentation                  🌐 ✅
   12.1 Smoke tests post-build                    🌐 ✅
+  13.0 Tracker expériences live                  🔗🌐 ✅  ← session 5
   17.1 Système de versions protocols.yaml        🌐 (puis 🔬)
   17.3 Lien expérience → version protocole       🌐🔬
   13.1 Données protocols.yaml                    🌐
@@ -1481,10 +1482,12 @@ Phase 4 — Tracking avancé 🌐🔗                          🔄 EN COURS
   11.1 Script newsletter auto-générée            🔗🌐 ✅
   11.2 GitHub Action newsletter hebdo            🌐 ✅
   11.3 Page brouillons CMS                       🌐 ✅
+  14.1 Specimens.yaml (via bridge)               🔗 ✅  ← session 5
+  14.2 Composant SpecimenTracker                 🌐 ✅  ← session 5
+  22.3 Checklist soutenance defense.yaml         🌐 ✅  ← session 5
+  22.4 Widget soutenance dashboard               🌐 ✅  ← session 5
   4.3  GitHub Action rayyan-sync                 ⏸️ (attente API)
   4.4  PRISMA auto-généré                        🌐
-  14.1 Specimens.yaml (via bridge)               🔗
-  14.2 Composant SpecimenTracker                 🌐
   14.3 Lien planificateur → tracker              🌐🔬
   18.1 Données pipelines.yaml                    🌐
   18.2 Composant PipelineTracker                 🌐
@@ -1493,8 +1496,6 @@ Phase 4 — Tracking avancé 🌐🔗                          🔄 EN COURS
   20.2 Widget radar dashboard                    🌐
   21.1 Données datasets.yaml (FAIR)              🌐
   21.2 Composant DataSharingStatus               🌐
-  22.3 Checklist soutenance defense.yaml         🌐
-  22.4 Widget soutenance dashboard               🌐
   22.5 Statut des sauvegardes                    🌐
   15.1 Export Zotero → YAML                      🔗
 
