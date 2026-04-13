@@ -254,6 +254,7 @@ L'app locale existe déjà avec :
 - **Design :** Cohérent avec le design system existant (tokens CSS,
   composant ProgressBar.astro existant, cards, etc.)
 - **Fichiers :** `src/components/CollecteDashboard.astro`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ### 2.2 Enrichissement du `phd-progress.yaml` existant
 - **Priorité :** P1 | **Complexité :** S
@@ -262,6 +263,7 @@ L'app locale existe déjà avec :
   automatiquement depuis `collecte.yaml` plutôt qu'en dur.
 - **Option :** Script de calcul ou logique dans le composant Astro.
 - **Fichiers :** `src/data/phd-progress.yaml` (ou calcul dynamique)
+- **Statut :** ✅ Terminé (2026-04-13) — calcul dynamique dans `phd/index.astro`
 
 ---
 
@@ -275,34 +277,24 @@ L'app locale existe déjà avec :
   - Chapitres de thèse (titre, statut, %, deadline)
   - Articles / publications (titre, journal cible, statut soumission)
   - Jalons administratifs (CSI, comité suivi, soutenance)
-- **Format :**
-  ```yaml
-  chapters:
-    - title: "Introduction générale"
-      status: "en cours"
-      value: 40
-      deadline: "2026-06-01"
-    - title: "Matériel & Méthodes — Biologie"
-      status: "non démarré"
-      value: 0
-  publications:
-    - title: "Synchondrose SOS et développement craniofacial"
-      journal: "J Craniofac Surg"
-      status: "en préparation"
-  ```
+- **Fichiers :** `src/data/thesis.yaml`
+- **Statut :** ✅ Terminé (2026-04-13) — clé unique `thesis-data` (contrainte file loader)
 
 ### 3.2 Composant `ThesisTracker.astro`
 - **Priorité :** P1 | **Complexité :** M
 - **Description :** Visualisation de l'avancement de la rédaction :
   - Barre de progression par chapitre
-  - Statut des publications (pipeline visuel)
+  - Statut des publications (pipeline visuel horizontal)
+  - Jalons (dot coloré : fait / à venir)
   - Pourcentage global de rédaction
 - **Fichiers :** `src/components/ThesisTracker.astro`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ### 3.3 Collection Astro `thesis`
 - **Priorité :** P1 | **Complexité :** S
 - **Description :** Enregistrer la collection dans `content.config.ts`.
 - **Fichiers :** `src/content.config.ts`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ---
 
@@ -362,29 +354,19 @@ L'app locale existe déjà avec :
 
 ### 5.1 Données timeline `src/data/timeline.yaml`
 - **Priorité :** P2 | **Complexité :** S
-- **Description :** Liste de jalons avec date, type, statut :
-  ```yaml
-  - date: "2023-10-01"
-    label: "Début du PhD"
-    type: "milestone"
-    status: "done"
-  - date: "2026-06-15"
-    label: "Soumission Article 1"
-    type: "publication"
-    status: "upcoming"
-  - date: "2026-12-01"
-    label: "Soutenance (prévue)"
-    type: "milestone"
-    status: "upcoming"
-  ```
+- **Description :** Liste de jalons avec date, type, statut.
+  Types : milestone, publication, experiment, committee.
+- **Fichiers :** `src/data/timeline.yaml`
+- **Statut :** ✅ Terminé (2026-04-13) — 14 entrées de oct 2023 à déc 2026
 
 ### 5.2 Composant `PhDTimeline.astro`
 - **Priorité :** P2 | **Complexité :** M
-- **Description :** Composant visuel type Gantt simplifié ou
-  timeline verticale. Indicateur "vous êtes ici". Couleurs par
-  type de jalon (milestone, publication, comité, deadline admin).
-  Réutilise le composant `TimelineEntry.astro` existant si adapté.
+- **Description :** Timeline verticale avec ligne continue, dots colorés
+  par type, indicateur "Aujourd'hui" inséré dynamiquement entre le dernier
+  passé et le premier futur. Entrées passées vs futures différenciées.
 - **Fichiers :** `src/components/PhDTimeline.astro`
+- **Note :** `<=` dans le template Astro parse mal — précalcul dans le frontmatter.
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ---
 
@@ -396,19 +378,20 @@ L'app locale existe déjà avec :
 - **Priorité :** P2 | **Complexité :** M
 - **Description :** Fiche expérience visuelle avec :
   - Badge de statut coloré (planned → ongoing → completed)
-  - Résumé des hypothèses
-  - Tags cliquables
-  - Liens entre expériences liées
-- **Notes :** Le schéma Zod existant est déjà très riche (hypothèses,
-  variables, protocole, interprétation, next_actions…). Le composant
-  doit en tirer parti visuellement.
+  - Date, titre, objectif (tronqué), hypothèse principale (tronquée)
+  - Tags, `data-status` / `data-tags` pour les filtres JS
 - **Fichiers :** `src/components/ExperimentCard.astro`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ### 6.2 Vue galerie des expériences
 - **Priorité :** P2 | **Complexité :** S
-- **Description :** Améliorer `src/pages/phd/experiments/index.astro`
-  avec des filtres par statut et par tag, et une vue grille de cards.
-- **Fichiers :** `src/pages/phd/experiments/index.astro`
+- **Description :** Refonte de `experiments/index.astro` :
+  - Grille `auto-fill minmax(280px, 1fr)` de `ExperimentCard`
+  - Filtres client-side par statut et par tag (boutons pill)
+  - Élimination de la duplication GuestGate (prop `enabled` ajoutée)
+  - Message "Aucune expérience" si filtres sans résultats
+- **Fichiers :** `src/pages/phd/experiments/index.astro`, `src/components/GuestGate.astro`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ---
 

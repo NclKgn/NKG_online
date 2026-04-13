@@ -1,0 +1,85 @@
+timeline:
+  entries:
+    - id: phd-start
+      date: 2023-10-01
+      label: "Début du PhD"
+      type: milestone
+      status: done
+
+    - id: csi-y1
+      date: 2024-10-10
+      label: "Comité de suivi individuel — Année 1"
+      type: committee
+      status: done
+
+    - id: ls-protocol
+      date: 2024-12-01
+      label: "Validation protocole Light Sheet (iDISCO+)"
+      type: experiment
+      status: done
+
+    - id: exvivo-system
+      date: 2025-02-01
+      label: "Conception système de stimulation ex vivo"
+      type: experiment
+      status: done
+
+    - id: csi-y2
+      date: 2025-10-15
+      label: "Comité de suivi individuel — Année 2"
+      type: committee
+      status: done
+
+    - id: rayyan-screening
+      date: 2026-03-01
+      label: "Screening scoping review (Rayyan)"
+      type: milestone
+      status: done
+
+    - id: data-acq-human
+      date: 2026-05-01
+      label: "Fin acquisition données humaines"
+      type: experiment
+      status: upcoming
+
+    - id: pub1-submission
+      date: 2026-06-15
+      label: "Soumission Article 1 (biologie/biomécanique)"
+      type: publication
+      status: upcoming
+
+    - id: exvivo-done
+      date: 2026-08-15
+      label: "Fin culture ex vivo"
+      type: experiment
+      status: upcoming
+
+    - id: ls-analysis
+      date: 2026-10-01
+      label: "Analyse complète Light Sheet"
+      type: experiment
+      status: upcoming
+
+    - id: csi-y3
+      date: 2026-10-01
+      label: "Comité de suivi individuel — Année 3"
+      type: committee
+      status: upcoming
+
+    - id: pub2-submission
+      date: 2026-09-01
+      label: "Soumission Article 2 (atlas humain)"
+      type: publication
+      status: upcoming
+
+    - id: manuscript-done
+      date: 2026-11-15
+      label: "Dépôt manuscrit"
+      type: milestone
+      status: upcoming
+
+    - id: soutenance
+      date: 2026-12-15
+      label: "Soutenance de thèse"
+      type: milestone
+      status: upcoming

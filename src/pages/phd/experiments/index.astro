@@ -2,6 +2,7 @@
 // src/pages/phd/experiments/index.astro
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import GuestGate from '../../../components/GuestGate.astro';
+import ExperimentCard from '../../../components/ExperimentCard.astro';
 import { getCollection } from 'astro:content';
 import { base } from '../../../i18n';
 import { shouldBuild, isGuestOnly, shouldNoIndex } from '../../../lib/visibility';
@@ -20,85 +21,115 @@ const experiments = (await getCollection('experiments'))
   .filter((e) => isDev || !e.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-const statusLabel = { planned: 'Planifiée', ongoing: 'En cours', completed: 'Terminée' } as const;
-const statusClass = { planned: 'status-planned', ongoing: 'status-ongoing', completed: 'status-completed' } as const;
+// Tous les tags uniques, triés
+const allTags = [...new Set(experiments.flatMap((e) => e.data.tags))].sort();
 ---
 
 <BaseLayout title="Expériences" noindex={noindex}>
-  {needsGate ? (
-    <GuestGate>
-      <div class="container section">
-        <a href={base('/phd')} class="back-link mono">&larr; PhD</a>
-        <h1>Expériences</h1>
-        <div class="exp-list">
-          {experiments.map((exp) => {
-            const formattedDate = exp.data.date.toLocaleDateString('fr-FR', {
-              year: 'numeric', month: 'short', day: 'numeric',
-            });
-            return (
-              <a href={base(`/phd/experiments/${exp.id}`)} class="exp-item">
-                <time class="mono">{formattedDate}</time>
-                <div class="exp-body">
-                  <div class="exp-top">
-                    <h3>{exp.data.title}</h3>
-                    <span class:list={['status-badge', statusClass[exp.data.status]]}>
-                      {statusLabel[exp.data.status]}
-                    </span>
-                  </div>
-                  {exp.data.objective && (
-                    <p class="exp-objective">{exp.data.objective}</p>
-                  )}
-                  {exp.data.tags.length > 0 && (
-                    <div class="exp-tags">
-                      {exp.data.tags.map((tag) => (
-                        <span class="exp-tag small-caps">#{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    </GuestGate>
-  ) : (
+  <GuestGate enabled={needsGate}>
     <div class="container section">
+
       <a href={base('/phd')} class="back-link mono">&larr; PhD</a>
       <h1>Expériences</h1>
-      <div class="exp-list">
-        {experiments.map((exp) => {
-          const formattedDate = exp.data.date.toLocaleDateString('fr-FR', {
-            year: 'numeric', month: 'short', day: 'numeric',
-          });
-          return (
-            <a href={base(`/phd/experiments/${exp.id}`)} class="exp-item">
-              <time class="mono">{formattedDate}</time>
-              <div class="exp-body">
-                <div class="exp-top">
-                  <h3>{exp.data.title}</h3>
-                  <span class:list={['status-badge', statusClass[exp.data.status]]}>
-                    {statusLabel[exp.data.status]}
-                  </span>
-                </div>
-                {exp.data.objective && (
-                  <p class="exp-objective">{exp.data.objective}</p>
-                )}
-                {exp.data.tags.length > 0 && (
-                  <div class="exp-tags">
-                    {exp.data.tags.map((tag) => (
-                      <span class="exp-tag small-caps">#{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </a>
-          );
-        })}
+      <p class="exp-subtitle">{experiments.length} expérience{experiments.length > 1 ? 's' : ''} · fiches structurées</p>
+
+      <!-- Filtres -->
+      <div class="exp-filters" role="group" aria-label="Filtrer les expériences">
+        <div class="filter-group">
+          <span class="filter-label small-caps">Statut</span>
+          <div class="filter-buttons" id="status-filters">
+            <button class="filter-btn active" data-filter-status="all">Tous</button>
+            <button class="filter-btn" data-filter-status="planned">Planifiées</button>
+            <button class="filter-btn" data-filter-status="ongoing">En cours</button>
+            <button class="filter-btn" data-filter-status="completed">Terminées</button>
+          </div>
+        </div>
+
+        {allTags.length > 0 && (
+          <div class="filter-group">
+            <span class="filter-label small-caps">Tags</span>
+            <div class="filter-buttons" id="tag-filters">
+              <button class="filter-btn active" data-filter-tag="all">Tous</button>
+              {allTags.map((tag) => (
+                <button class="filter-btn" data-filter-tag={tag}>#{tag}</button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      <!-- Grille -->
+      <div class="exp-grid" id="exp-grid">
+        {experiments.map((exp) => (
+          <ExperimentCard
+            id={exp.id}
+            title={exp.data.title}
+            date={exp.data.date}
+            status={exp.data.status}
+            tags={exp.data.tags}
+            objective={exp.data.objective}
+            hypothesis_main={exp.data.hypothesis_main}
+            href={base(`/phd/experiments/${exp.id}`)}
+          />
+        ))}
+      </div>
+
+      <p class="exp-empty" id="exp-empty" hidden>Aucune expérience pour ces filtres.</p>
+
     </div>
-  )}
+  </GuestGate>
 </BaseLayout>
+
+<script>
+  // Filtres client-side
+  let activeStatus = 'all';
+  let activeTag    = 'all';
+
+  function applyFilters() {
+    const cards = document.querySelectorAll<HTMLElement>('#exp-grid .ec-card');
+    let visible = 0;
+
+    cards.forEach((card) => {
+      const status = card.dataset.status ?? '';
+      const tags   = (card.dataset.tags ?? '').split(',').filter(Boolean);
+
+      const matchStatus = activeStatus === 'all' || status === activeStatus;
+      const matchTag    = activeTag    === 'all' || tags.includes(activeTag);
+
+      if (matchStatus && matchTag) {
+        card.removeAttribute('hidden');
+        visible++;
+      } else {
+        card.setAttribute('hidden', '');
+      }
+    });
+
+    const empty = document.getElementById('exp-empty');
+    if (empty) empty.hidden = visible > 0;
+  }
+
+  // Boutons statut
+  document.getElementById('status-filters')?.addEventListener('click', (evt) => {
+    const btn = (evt.target as HTMLElement).closest<HTMLButtonElement>('[data-filter-status]');
+    if (!btn) return;
+    activeStatus = btn.dataset.filterStatus ?? 'all';
+    document.querySelectorAll('#status-filters .filter-btn').forEach((b) =>
+      b.classList.toggle('active', b === btn)
+    );
+    applyFilters();
+  });
+
+  // Boutons tag
+  document.getElementById('tag-filters')?.addEventListener('click', (evt) => {
+    const btn = (evt.target as HTMLElement).closest<HTMLButtonElement>('[data-filter-tag]');
+    if (!btn) return;
+    activeTag = btn.dataset.filterTag ?? 'all';
+    document.querySelectorAll('#tag-filters .filter-btn').forEach((b) =>
+      b.classList.toggle('active', b === btn)
+    );
+    applyFilters();
+  });
+</script>
 
 <style>
   .back-link {
@@ -110,62 +141,93 @@ const statusClass = { planned: 'status-planned', ongoing: 'status-ongoing', comp
   }
   .back-link:hover { color: var(--c-accent); }
 
-  h1 { margin-bottom: var(--space-xl); }
+  h1 { margin-bottom: var(--space-xs, 4px); }
 
-  .exp-list { display: flex; flex-direction: column; }
-
-  .exp-item {
-    display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: var(--space-lg);
-    padding: var(--space-md) 0;
-    border-bottom: 1px solid var(--c-border-light);
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.1s;
-  }
-  .exp-item:hover { background: var(--c-border-light); border-radius: var(--radius-sm); padding-left: 8px; }
-
-  .exp-item time {
-    font-size: 0.78rem;
+  .exp-subtitle {
+    font-size: 0.85rem;
     color: var(--c-text-3);
-    padding-top: 2px;
+    font-style: italic;
+    margin-bottom: var(--space-xl);
   }
 
-  .exp-top {
+  /* ── Filtres ── */
+
+  .exp-filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+  }
+
+  .filter-group {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    margin-bottom: 4px;
+    gap: var(--space-md);
+    flex-wrap: wrap;
   }
 
-  .exp-top h3 { font-size: 0.95rem; }
-
-  .status-badge {
-    font-size: 10px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 20px;
-    white-space: nowrap;
-  }
-  .status-planned  { background: var(--c-border-light); color: var(--c-text-3); }
-  .status-ongoing  { background: #E6F1FB; color: #0C447C; }
-  .status-completed { background: #EAF3DE; color: #27500A; }
-
-  .exp-objective {
-    font-size: 0.82rem;
-    color: var(--c-text-2);
-    font-style: italic;
-    margin-bottom: 6px;
-    line-height: 1.5;
-  }
-
-  .exp-tags { display: flex; gap: var(--space-xs); flex-wrap: wrap; }
-  .exp-tag {
-    font-size: 0.6rem;
-    padding: 1px 6px;
-    background: var(--c-border-light);
-    border-radius: 99px;
+  .filter-label {
+    font-size: 0.68rem;
     color: var(--c-text-3);
+    min-width: 42px;
+  }
+
+  .filter-buttons {
+    display: flex;
+    gap: var(--space-xs, 4px);
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-size: 0.72rem;
+    font-family: inherit;
+    padding: 3px 10px;
+    border: 1px solid var(--c-border);
+    border-radius: 99px;
+    background: transparent;
+    color: var(--c-text-2);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+
+  .filter-btn.active {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: #fff;
+  }
+
+  /* ── Grille ── */
+
+  .exp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-md);
+  }
+
+  /* ── Message vide ── */
+
+  .exp-empty {
+    font-size: 0.85rem;
+    color: var(--c-text-3);
+    font-style: italic;
+    padding: var(--space-xl) 0;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .exp-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-group {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
   }
 </style>

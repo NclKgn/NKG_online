@@ -1,9 +1,11 @@
 ---
 // src/pages/phd/dashboard.astro
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CollecteDashboard from '../../components/CollecteDashboard.astro';
+import ThesisTracker from '../../components/ThesisTracker.astro';
+import PhDTimeline from '../../components/PhDTimeline.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
-import { getCollection } from 'astro:content';
 
 const pageKey = 'phd/dashboard';
 
@@ -13,24 +15,6 @@ if (!(await shouldBuild(pageKey))) {
 }
 
 const noindex = await shouldNoIndex(pageKey);
-
-// Données collecte pour aperçu rapide
-const collecte = await getCollection('collecte');
-const total = collecte.length;
-const termines = collecte.filter((e) => e.data.statut === 'termine').length;
-const enCours = collecte.filter((e) => e.data.statut === 'en-cours').length;
-
-const axes = [
-  { key: 'biologie', label: 'Biologie', color: '#6080a0', href: base('/phd/dashboard#biologie') },
-  { key: 'biomecanique', label: 'Biomécanique', color: '#e07b2a', href: base('/phd/dashboard#biomecanique') },
-  { key: 'donnees-humaines', label: 'Données Humaines', color: '#c0392b', href: base('/phd/dashboard#donnees-humaines') },
-] as const;
-
-function axeProgress(key: string): number {
-  const items = collecte.filter((e) => e.data.partie === key);
-  if (!items.length) return 0;
-  return Math.round(items.reduce((acc, e) => acc + e.data.value, 0) / items.length);
-}
 ---
 
 <BaseLayout title="PhD Dashboard" noindex={noindex}>
@@ -46,46 +30,22 @@ function axeProgress(key: string): number {
     <h1>Dashboard</h1>
     <p class="dashboard-subtitle">Suivi de la collecte de données · Thèse en sciences biomédicales</p>
 
-    <!-- Vue d'ensemble collecte -->
+    <!-- Vue d'ensemble collecte (EPIC 2.1) -->
     <section class="dash-overview">
       <h2>Collecte de données</h2>
-      <div class="overview-stats">
-        <div class="stat-card card">
-          <span class="stat-value mono">{termines}<span class="stat-total">/{total}</span></span>
-          <span class="stat-label">Terminés</span>
-        </div>
-        <div class="stat-card card">
-          <span class="stat-value mono">{enCours}</span>
-          <span class="stat-label">En cours</span>
-        </div>
-        <div class="stat-card card">
-          <span class="stat-value mono">{total - termines - enCours}</span>
-          <span class="stat-label">Non démarrés</span>
-        </div>
-      </div>
+      <CollecteDashboard />
+    </section>
 
-      <!-- Progression par axe -->
-      <div class="axes-grid">
-        {axes.map((axe) => {
-          const pct = axeProgress(axe.key);
-          return (
-            <div class="axe-card card">
-              <div class="axe-header">
-                <span class="axe-dot" style={`background: ${axe.color}`}></span>
-                <span class="axe-label">{axe.label}</span>
-                <span class="axe-pct mono">{pct}%</span>
-              </div>
-              <div class="axe-bar-track">
-                <div class="axe-bar-fill" style={`width: ${pct}%; background: ${axe.color}`}></div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+    <!-- Tracker rédaction (EPIC 3) -->
+    <section class="dash-overview">
+      <h2>Rédaction</h2>
+      <ThesisTracker />
+    </section>
 
-      <a href={base('/phd/dashboard')} class="dash-link mono">
-        Détail collecte → <span class="coming-soon-badge">bientôt</span>
-      </a>
+    <!-- Timeline (EPIC 5) -->
+    <section class="dash-overview">
+      <h2>Timeline</h2>
+      <PhDTimeline />
     </section>
 
     <!-- Modules (liens) -->
@@ -181,106 +141,6 @@ function axeProgress(key: string): number {
 
   .dash-overview h2 {
     margin-bottom: var(--space-lg);
-  }
-
-  .overview-stats {
-    display: flex;
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
-    flex-wrap: wrap;
-  }
-
-  .stat-card {
-    flex: 1;
-    min-width: 100px;
-    padding: var(--space-md) var(--space-lg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-xs, 4px);
-  }
-
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--c-text);
-    line-height: 1;
-  }
-
-  .stat-total {
-    font-size: 1rem;
-    color: var(--c-text-3);
-  }
-
-  .stat-label {
-    font-size: 0.78rem;
-    color: var(--c-text-3);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  /* ── Axes ── */
-
-  .axes-grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-lg);
-  }
-
-  .axe-card {
-    padding: var(--space-md) var(--space-lg);
-  }
-
-  .axe-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-sm);
-  }
-
-  .axe-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .axe-label {
-    flex: 1;
-    font-size: 0.88rem;
-    font-weight: 600;
-  }
-
-  .axe-pct {
-    font-size: 0.82rem;
-    color: var(--c-text-2);
-  }
-
-  .axe-bar-track {
-    height: 5px;
-    background: var(--c-border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .axe-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.4s ease;
-  }
-
-  .dash-link {
-    font-size: 0.82rem;
-    color: var(--c-accent);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-sm);
-  }
-
-  .dash-link:hover {
-    text-decoration: underline;
   }
 
   /* ── Modules ── */

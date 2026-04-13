@@ -1,0 +1,164 @@
+---
+// src/components/ExperimentCard.astro
+// EPIC 6.1 — Fiche expérience visuelle
+interface Props {
+  id: string;
+  title: string;
+  date: Date;
+  status: 'planned' | 'ongoing' | 'completed';
+  tags: string[];
+  objective?: string;
+  hypothesis_main?: string;
+  href: string;
+}
+
+const { id, title, date, status, tags, objective, hypothesis_main, href } = Astro.props;
+
+const STATUS_CONFIG = {
+  planned:   { label: 'Planifiée',  cls: 'ec-planned' },
+  ongoing:   { label: 'En cours',   cls: 'ec-ongoing' },
+  completed: { label: 'Terminée',   cls: 'ec-completed' },
+} as const;
+
+const s = STATUS_CONFIG[status];
+
+const formattedDate = date.toLocaleDateString('fr-FR', {
+  year: 'numeric', month: 'short', day: 'numeric',
+});
+
+// Tronque à ~120 caractères sans couper les mots
+function truncate(text: string, max = 120): string {
+  if (text.length <= max) return text;
+  return text.slice(0, text.lastIndexOf(' ', max)) + '\u2026';
+}
+---
+
+<a
+  href={href}
+  class="ec-card card"
+  data-status={status}
+  data-tags={tags.join(',')}
+>
+  <div class="ec-header">
+    <span class={`ec-status ${s.cls}`}>{s.label}</span>
+    <time class="ec-date mono">{formattedDate}</time>
+  </div>
+
+  <h3 class="ec-title">{title}</h3>
+
+  {objective && (
+    <p class="ec-objective">{truncate(objective)}</p>
+  )}
+
+  {hypothesis_main && (
+    <p class="ec-hyp">{truncate(hypothesis_main, 100)}</p>
+  )}
+
+  {tags.length > 0 && (
+    <div class="ec-tags">
+      {tags.map((tag) => (
+        <span class="ec-tag small-caps">#{tag}</span>
+      ))}
+    </div>
+  )}
+</a>
+
+<style>
+  .ec-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    text-decoration: none;
+    color: var(--c-text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .ec-card:hover {
+    border-color: var(--c-accent);
+    box-shadow: 0 0 0 1px var(--c-accent);
+  }
+
+  /* Masquage pour filtres JS */
+  .ec-card[hidden] {
+    display: none;
+  }
+
+  /* ── Header ── */
+
+  .ec-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  .ec-status {
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+
+  .ec-planned   { background: var(--c-border);                                              color: var(--c-text-3); }
+  .ec-ongoing   { background: color-mix(in srgb, #6080a0 15%, transparent);                color: #6080a0; }
+  .ec-completed { background: color-mix(in srgb, var(--c-success) 15%, transparent);       color: var(--c-success); }
+
+  .ec-date {
+    font-size: 0.72rem;
+    color: var(--c-text-3);
+    white-space: nowrap;
+  }
+
+  /* ── Titre ── */
+
+  .ec-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0;
+    color: var(--c-text);
+  }
+
+  /* ── Textes ── */
+
+  .ec-objective {
+    font-size: 0.82rem;
+    color: var(--c-text-2);
+    line-height: 1.5;
+    margin: 0;
+    font-style: italic;
+  }
+
+  .ec-hyp {
+    font-size: 0.78rem;
+    color: var(--c-text-3);
+    line-height: 1.45;
+    margin: 0;
+    border-left: 2px solid var(--c-border);
+    padding-left: var(--space-sm);
+  }
+
+  /* ── Tags ── */
+
+  .ec-tags {
+    display: flex;
+    gap: var(--space-xs, 4px);
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: var(--space-xs, 4px);
+  }
+
+  .ec-tag {
+    font-size: 0.6rem;
+    padding: 1px 6px;
+    background: var(--c-border);
+    border-radius: 99px;
+    color: var(--c-text-3);
+  }
+</style>

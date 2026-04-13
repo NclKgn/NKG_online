@@ -1,0 +1,248 @@
+---
+// src/components/PhDTimeline.astro
+// EPIC 5.2 — Timeline verticale avec indicateur "vous êtes ici"
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('timeline', 'timeline');
+const raw = entry!.data.entries;
+
+// Tri chronologique
+const entries = [...raw].sort((a, b) => a.date.getTime() - b.date.getTime());
+
+const today = new Date();
+const todayMs = today.getTime();
+
+// Précalcul isPast pour chaque entrée (évite <= dans le template Astro)
+const entryMeta = entries.map((e, i) => ({
+  isPast:     e.date.getTime() < todayMs + 86400000, // date <= aujourd'hui
+  showMarker: false, // rempli ci-dessous
+}));
+
+// Trouver le point d'insertion "vous êtes ici"
+const lastDoneIdx = entryMeta.reduce((acc, m, i) => (m.isPast ? i : acc), -1);
+if (lastDoneIdx >= 0 && lastDoneIdx + 1 < entryMeta.length) {
+  entryMeta[lastDoneIdx + 1].showMarker = true;
+}
+const showNowFirst = lastDoneIdx === -1 && entries.length > 0;
+
+const TYPE_CONFIG = {
+  milestone:   { label: 'Jalon',        color: 'var(--c-accent)',   cls: 'type-milestone' },
+  publication: { label: 'Publication',  color: '#6080a0',           cls: 'type-pub' },
+  experiment:  { label: 'Expérience',   color: '#e07b2a',           cls: 'type-exp' },
+  committee:   { label: 'Comité',       color: 'var(--c-success)',  cls: 'type-committee' },
+} as const;
+
+function formatDate(d: Date): string {
+  return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+}
+---
+
+<div class="pht-root">
+  <div class="pht-line" aria-hidden="true"></div>
+
+  {entries.map((e, i) => {
+    const t = TYPE_CONFIG[e.type];
+    const { isPast, showMarker } = entryMeta[i];
+
+    return (
+      <Fragment>
+        {showMarker && (
+          <div class="pht-now" role="presentation">
+            <div class="pht-now-dot"></div>
+            <span class="pht-now-label mono">Aujourd'hui</span>
+          </div>
+        )}
+
+        <div class={`pht-entry ${isPast ? 'pht-done' : 'pht-upcoming'}`}>
+          <div class="pht-dot-col">
+            <span
+              class={`pht-dot ${t.cls} ${isPast ? 'dot-filled' : 'dot-outline'}`}
+              style={`--type-color: ${t.color}`}
+            ></span>
+          </div>
+          <div class="pht-body">
+            <div class="pht-meta">
+              <span class="pht-date mono">{formatDate(e.date)}</span>
+              <span class={`pht-type-badge ${t.cls}`}>{t.label}</span>
+            </div>
+            <span class="pht-label">{e.label}</span>
+          </div>
+        </div>
+      </Fragment>
+    );
+  })}
+
+  <!-- Marqueur en tête si tous les événements sont futurs -->
+  {showNowFirst && (
+    <div class="pht-now pht-now-first" role="presentation">
+      <div class="pht-now-dot"></div>
+      <span class="pht-now-label mono">Aujourd'hui</span>
+    </div>
+  )}
+</div>
+
+<style>
+  .pht-root {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-left: 28px;
+  }
+
+  /* Ligne verticale continue */
+  .pht-line {
+    position: absolute;
+    left: 9px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--c-border);
+    border-radius: 99px;
+  }
+
+  /* ── Entrée ── */
+
+  .pht-entry {
+    display: flex;
+    gap: var(--space-md);
+    align-items: flex-start;
+    padding: var(--space-sm) 0;
+    position: relative;
+  }
+
+  .pht-done {
+    opacity: 1;
+  }
+
+  .pht-upcoming {
+    opacity: 0.7;
+  }
+
+  .pht-upcoming:hover {
+    opacity: 1;
+  }
+
+  /* Dot */
+
+  .pht-dot-col {
+    position: absolute;
+    left: -28px;
+    top: 10px;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .pht-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--type-color);
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+
+  .dot-filled {
+    background: var(--type-color);
+  }
+
+  .dot-outline {
+    background: var(--c-surface);
+  }
+
+  /* Corps */
+
+  .pht-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+    width: 100%;
+  }
+
+  .pht-entry:last-child .pht-body {
+    border-bottom: none;
+  }
+
+  .pht-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .pht-date {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+    min-width: 72px;
+  }
+
+  .pht-label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--c-text);
+    line-height: 1.4;
+  }
+
+  .pht-done .pht-label {
+    color: var(--c-text-2);
+  }
+
+  /* Type badges */
+
+  .pht-type-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 1px 7px;
+    border-radius: 99px;
+  }
+
+  .type-milestone { background: color-mix(in srgb, var(--c-accent) 15%, transparent);  color: var(--c-accent); }
+  .type-pub       { background: color-mix(in srgb, #6080a0 15%, transparent);           color: #6080a0; }
+  .type-exp       { background: color-mix(in srgb, #e07b2a 15%, transparent);           color: #e07b2a; }
+  .type-committee { background: color-mix(in srgb, var(--c-success) 15%, transparent);  color: var(--c-success); }
+
+  /* ── Marqueur "Aujourd'hui" ── */
+
+  .pht-now {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    position: relative;
+    margin-left: -28px;
+  }
+
+  .pht-now-first {
+    order: -1;
+  }
+
+  .pht-now-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--c-accent);
+    border: 3px solid var(--c-surface);
+    box-shadow: 0 0 0 2px var(--c-accent);
+    flex-shrink: 0;
+    margin-left: 1px;
+  }
+
+  .pht-now-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--c-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Légende */
+  @media (max-width: 768px) {
+    .pht-meta {
+      flex-wrap: wrap;
+    }
+  }
+</style>

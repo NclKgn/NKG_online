@@ -11,9 +11,26 @@ if (!(await isSectionVisible('phd'))) {
 }
 
 const ui = t(getLocale());
-const progressEntries = await getCollection('phd-progress');
-const overall = progressEntries.find((e) => e.id === 'overall');
-const metrics = progressEntries.filter((e) => e.id !== 'overall');
+// EPIC 2.2 — Valeurs calculées dynamiquement depuis collecte.yaml
+const collecte = await getCollection('collecte');
+
+const AXES_META = [
+  { key: 'biologie',         label: 'Biologie',         color: '#6080a0' },
+  { key: 'biomecanique',     label: 'Biomécanique',     color: '#e07b2a' },
+  { key: 'donnees-humaines', label: 'Données Humaines', color: '#c0392b' },
+];
+
+function axeValue(key: string): number {
+  const items = collecte.filter((e) => e.data.partie === key);
+  if (!items.length) return 0;
+  return Math.round(items.reduce((acc, e) => acc + e.data.value, 0) / items.length);
+}
+
+const overallValue = collecte.length
+  ? Math.round(collecte.reduce((acc, e) => acc + e.data.value, 0) / collecte.length)
+  : 0;
+
+const metrics = AXES_META.map((a) => ({ label: a.label, value: axeValue(a.key), color: a.color }));
 ---
 
 <BaseLayout title="PhD" description="PhD research on skull base synchondroses in craniofacial development">
@@ -49,18 +66,16 @@ const metrics = progressEntries.filter((e) => e.id !== 'overall');
     <section class="phd-progress">
       <h2>Progress</h2>
       <div class="progress-card card">
-        {overall && (
-          <div class="progress-overall">
-            <span class="progress-overall-value mono">{overall.data.value}%</span>
-            <span class="progress-overall-label">{ui.common.overallAdvancement}</span>
-          </div>
-        )}
+        <div class="progress-overall">
+          <span class="progress-overall-value mono">{overallValue}%</span>
+          <span class="progress-overall-label">{ui.common.overallAdvancement}</span>
+        </div>
         <div class="progress-metrics">
           {metrics.map((m) => (
             <ProgressBar
-              label={m.data.label}
-              value={m.data.value}
-              color={m.data.color}
+              label={m.label}
+              value={m.value}
+              color={m.color}
             />
           ))}
         </div>

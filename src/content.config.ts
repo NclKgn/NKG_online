@@ -93,6 +93,45 @@ const hero = defineCollection({
   }),
 });
 
+const timeline = defineCollection({
+  loader: file('./src/data/timeline.yaml'),
+  schema: z.object({
+    entries: z.array(z.object({
+      id: z.string(),
+      date: z.coerce.date(),
+      label: z.string(),
+      type: z.enum(['milestone', 'publication', 'experiment', 'committee']),
+      status: z.enum(['done', 'upcoming']),
+    })),
+  }),
+});
+
+const thesis = defineCollection({
+  loader: file('./src/data/thesis.yaml'),
+  schema: z.object({
+    chapters: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      status: z.enum(['non-demarre', 'en-cours', 'termine']),
+      value: z.number().min(0).max(100),
+      deadline: z.coerce.date().optional(),
+    })),
+    publications: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      journal: z.string(),
+      status: z.enum(['planifie', 'en-preparation', 'soumis', 'en-revision', 'accepte', 'publie']),
+      deadline: z.coerce.date().optional(),
+    })),
+    milestones: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      date: z.coerce.date(),
+      status: z.enum(['done', 'upcoming']),
+    })),
+  }),
+});
+
 const collecte = defineCollection({
   loader: file('./src/data/collecte.yaml'),
   schema: z.object({
@@ -188,5 +227,7 @@ export const collections = {
   meetings,
   experiments,
   collecte,
+  thesis,
+  timeline,
   visibility,
 };

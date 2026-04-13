@@ -4,13 +4,18 @@ import { base } from '../i18n';
 
 interface Props {
   returnTo?: string;
+  enabled?: boolean;
 }
 
-const { returnTo } = Astro.props;
+const { returnTo, enabled = true } = Astro.props;
 const currentPath = Astro.url.pathname;
 const loginUrl = `${base('/guest')}?returnTo=${encodeURIComponent(returnTo || currentPath)}`;
 ---
 
+{!enabled ? (
+  <slot />
+) : (
+  <>
 <!-- Contenu protégé — masqué par défaut, révélé par JS si authentifié -->
 <div class="guest-protected" id="guest-content" style="display: none;">
   <slot />
@@ -30,6 +35,9 @@ const loginUrl = `${base('/guest')}?returnTo=${encodeURIComponent(returnTo || cu
     </a>
   </div>
 </div>
+
+  </>
+)}
 
 <script>
   const token = sessionStorage.getItem('nkg-guest');

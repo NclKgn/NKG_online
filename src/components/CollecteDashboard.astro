@@ -1,0 +1,356 @@
+---
+// src/components/CollecteDashboard.astro
+// EPIC 2.1 — Dashboard collecte de données, calculé depuis collecte.yaml
+import { getCollection } from 'astro:content';
+
+const collecte = await getCollection('collecte');
+
+const AXES = [
+  { key: 'biologie',         label: 'Biologie',         color: '#6080a0' },
+  { key: 'biomecanique',     label: 'Biomécanique',     color: '#e07b2a' },
+  { key: 'donnees-humaines', label: 'Données Humaines', color: '#c0392b' },
+] as const;
+
+function axeItems(key: string) {
+  return collecte.filter((e) => e.data.partie === key);
+}
+
+function axeProgress(key: string): number {
+  const items = axeItems(key);
+  if (!items.length) return 0;
+  return Math.round(items.reduce((acc, e) => acc + e.data.value, 0) / items.length);
+}
+
+const overall = collecte.length
+  ? Math.round(collecte.reduce((acc, e) => acc + e.data.value, 0) / collecte.length)
+  : 0;
+
+const totalItems   = collecte.length;
+const termines     = collecte.filter((e) => e.data.statut === 'termine').length;
+const enCours      = collecte.filter((e) => e.data.statut === 'en-cours').length;
+const nonDemarre   = totalItems - termines - enCours;
+
+const STATUT_CONFIG = {
+  'termine':     { label: 'Terminé',      cls: 'statut-termine' },
+  'en-cours':    { label: 'En cours',     cls: 'statut-en-cours' },
+  'non-demarre': { label: 'Non démarré',  cls: 'statut-non-demarre' },
+} as const;
+
+function formatDeadline(d: Date): string {
+  return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+}
+---
+
+<div class="cd-root">
+
+  <!-- Chiffres clés -->
+  <div class="cd-stats">
+    <div class="cd-stat card">
+      <span class="cd-stat-value mono">{overall}%</span>
+      <span class="cd-stat-label">Progression globale</span>
+    </div>
+    <div class="cd-stat card">
+      <span class="cd-stat-value mono">{termines}<span class="cd-stat-of">/{totalItems}</span></span>
+      <span class="cd-stat-label">Terminés</span>
+    </div>
+    <div class="cd-stat card">
+      <span class="cd-stat-value mono">{enCours}</span>
+      <span class="cd-stat-label">En cours</span>
+    </div>
+    <div class="cd-stat card">
+      <span class="cd-stat-value mono">{nonDemarre}</span>
+      <span class="cd-stat-label">Non démarrés</span>
+    </div>
+  </div>
+
+  <!-- Barre globale -->
+  <div class="cd-global-bar">
+    <div class="cd-global-track">
+      <div class="cd-global-fill" style={`width: ${overall}%`}></div>
+    </div>
+  </div>
+
+  <!-- Axes -->
+  {AXES.map((axe) => {
+    const pct   = axeProgress(axe.key);
+    const items = axeItems(axe.key);
+    return (
+      <section class="cd-axe" id={axe.key}>
+
+        <!-- En-tête axe -->
+        <div class="cd-axe-header">
+          <span class="cd-axe-dot" style={`background: ${axe.color}`}></span>
+          <h3 class="cd-axe-label">{axe.label}</h3>
+          <span class="cd-axe-pct mono">{pct}%</span>
+        </div>
+
+        <!-- Barre axe -->
+        <div class="cd-axe-track">
+          <div class="cd-axe-fill" style={`width: ${pct}%; background: ${axe.color}`}></div>
+        </div>
+
+        <!-- Sous-parties -->
+        <div class="cd-items">
+          {items.map((item) => {
+            const s = STATUT_CONFIG[item.data.statut];
+            return (
+              <div class="cd-item card">
+                <div class="cd-item-top">
+                  <span class={`cd-statut ${s.cls}`}>{s.label}</span>
+                  <span class="cd-item-label">{item.data.label}</span>
+                  {item.data.deadline && (
+                    <span class="cd-deadline mono small">
+                      {formatDeadline(item.data.deadline)}
+                    </span>
+                  )}
+                </div>
+                <div class="cd-item-bar-row">
+                  <div class="cd-item-track">
+                    <div
+                      class="cd-item-fill"
+                      style={`width: ${item.data.value}%; background: ${axe.color}`}
+                    ></div>
+                  </div>
+                  <span class="cd-item-pct mono">{item.data.value}%</span>
+                </div>
+                {item.data.notes && (
+                  <p class="cd-notes">{item.data.notes}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+      </section>
+    );
+  })}
+
+</div>
+
+<style>
+  .cd-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+  }
+
+  /* ── Chiffres clés ── */
+
+  .cd-stats {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .cd-stat {
+    flex: 1;
+    min-width: 90px;
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .cd-stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--c-text);
+  }
+
+  .cd-stat-of {
+    font-size: 1rem;
+    color: var(--c-text-3);
+  }
+
+  .cd-stat-label {
+    font-size: 0.72rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  /* ── Barre globale ── */
+
+  .cd-global-bar {
+    margin-top: calc(-1 * var(--space-lg));
+  }
+
+  .cd-global-track {
+    height: 6px;
+    background: var(--c-border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .cd-global-fill {
+    height: 100%;
+    background: var(--c-accent);
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── Axe ── */
+
+  .cd-axe {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .cd-axe-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .cd-axe-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cd-axe-label {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .cd-axe-pct {
+    font-size: 0.85rem;
+    color: var(--c-text-2);
+  }
+
+  .cd-axe-track {
+    height: 5px;
+    background: var(--c-border);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+  }
+
+  .cd-axe-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── Items ── */
+
+  .cd-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .cd-item {
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .cd-item-top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .cd-item-label {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .cd-deadline {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+  }
+
+  /* Statut badges */
+
+  .cd-statut {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+
+  .statut-termine {
+    background: color-mix(in srgb, var(--c-success) 15%, transparent);
+    color: var(--c-success);
+  }
+
+  .statut-en-cours {
+    background: color-mix(in srgb, #e07b2a 15%, transparent);
+    color: #e07b2a;
+  }
+
+  .statut-non-demarre {
+    background: var(--c-border);
+    color: var(--c-text-3);
+  }
+
+  /* Barre item */
+
+  .cd-item-bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .cd-item-track {
+    flex: 1;
+    height: 5px;
+    background: var(--c-border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .cd-item-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  .cd-item-pct {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* Notes */
+
+  .cd-notes {
+    font-size: 0.78rem;
+    color: var(--c-text-3);
+    font-style: italic;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .cd-stats {
+      flex-direction: column;
+    }
+
+    .cd-stat {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cd-stat-label {
+      text-align: right;
+    }
+  }
+</style>

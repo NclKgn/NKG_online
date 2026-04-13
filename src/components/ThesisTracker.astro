@@ -1,0 +1,508 @@
+---
+// src/components/ThesisTracker.astro
+// EPIC 3.2 — Tracker de rédaction calculé depuis thesis.yaml
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('thesis', 'thesis-data');
+const { chapters, publications, milestones } = entry!.data;
+
+const writingOverall = chapters.length
+  ? Math.round(chapters.reduce((acc, c) => acc + c.value, 0) / chapters.length)
+  : 0;
+
+const chapitresTermines = chapters.filter((c) => c.status === 'termine').length;
+
+const STATUT_CHAPTER = {
+  'termine':     { label: 'Terminé',     cls: 'st-termine' },
+  'en-cours':    { label: 'En cours',    cls: 'st-en-cours' },
+  'non-demarre': { label: 'Non démarré', cls: 'st-non-demarre' },
+} as const;
+
+const STATUT_PUB = {
+  'planifie':    { label: 'Planifié',    cls: 'pub-planifie' },
+  'en-preparation': { label: 'En préparation', cls: 'pub-en-prep' },
+  'soumis':      { label: 'Soumis',      cls: 'pub-soumis' },
+  'en-revision': { label: 'En révision', cls: 'pub-en-revision' },
+  'accepte':     { label: 'Accepté',     cls: 'pub-accepte' },
+  'publie':      { label: 'Publié',      cls: 'pub-publie' },
+} as const;
+
+// Pipeline statuts dans l'ordre
+const PUB_PIPELINE = ['planifie', 'en-preparation', 'soumis', 'en-revision', 'accepte', 'publie'] as const;
+
+function formatDate(d: Date): string {
+  return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+}
+
+const today = new Date();
+---
+
+<div class="tt-root">
+
+  <!-- Progression globale rédaction -->
+  <div class="tt-header">
+    <div class="tt-stat card">
+      <span class="tt-stat-value mono">{writingOverall}%</span>
+      <span class="tt-stat-label">Rédaction globale</span>
+    </div>
+    <div class="tt-stat card">
+      <span class="tt-stat-value mono">{chapitresTermines}<span class="tt-stat-of">/{chapters.length}</span></span>
+      <span class="tt-stat-label">Chapitres terminés</span>
+    </div>
+    <div class="tt-stat card">
+      <span class="tt-stat-value mono">{publications.length}</span>
+      <span class="tt-stat-label">Publications prévues</span>
+    </div>
+  </div>
+
+  <!-- Barre globale -->
+  <div class="tt-global-track">
+    <div class="tt-global-fill" style={`width: ${writingOverall}%`}></div>
+  </div>
+
+  <!-- Chapitres -->
+  <div class="tt-section">
+    <h3 class="tt-section-title">Chapitres</h3>
+    <div class="tt-chapters">
+      {chapters.map((ch) => {
+        const s = STATUT_CHAPTER[ch.status as keyof typeof STATUT_CHAPTER];
+        return (
+          <div class="tt-chapter card">
+            <div class="tt-chapter-top">
+              <span class={`tt-statut ${s.cls}`}>{s.label}</span>
+              <span class="tt-chapter-title">{ch.title}</span>
+              {ch.deadline && (
+                <span class="tt-deadline mono">{formatDate(ch.deadline)}</span>
+              )}
+            </div>
+            <div class="tt-chapter-bar-row">
+              <div class="tt-bar-track">
+                <div class="tt-bar-fill" style={`width: ${ch.value}%`}></div>
+              </div>
+              <span class="tt-chapter-pct mono">{ch.value}%</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Publications — pipeline visuel -->
+  <div class="tt-section">
+    <h3 class="tt-section-title">Publications</h3>
+    <div class="tt-publications">
+      {publications.map((pub) => {
+        const currentStep = PUB_PIPELINE.indexOf(pub.status as typeof PUB_PIPELINE[number]);
+        return (
+          <div class="tt-pub card">
+            <div class="tt-pub-header">
+              <span class="tt-pub-title">{pub.title}</span>
+              {pub.deadline && (
+                <span class="tt-deadline mono">{formatDate(pub.deadline)}</span>
+              )}
+            </div>
+            <span class="tt-pub-journal mono">{pub.journal}</span>
+            <!-- Pipeline steps -->
+            <div class="tt-pipeline" role="list">
+              {PUB_PIPELINE.map((step, i) => {
+                const isDone    = i < currentStep;
+                const isCurrent = i === currentStep;
+                const s = STATUT_PUB[step];
+                return (
+                  <div
+                    class={`tt-pipe-step ${isDone ? 'pipe-done' : ''} ${isCurrent ? 'pipe-current' : ''}`}
+                    role="listitem"
+                    title={s.label}
+                  >
+                    <span class="tt-pipe-dot"></span>
+                    <span class="tt-pipe-label">{s.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Jalons -->
+  <div class="tt-section">
+    <h3 class="tt-section-title">Jalons</h3>
+    <div class="tt-milestones">
+      {milestones.map((m) => {
+        const isPast = m.date < today;
+        return (
+          <div class={`tt-milestone card ${m.status === 'done' ? 'ms-done' : isPast ? 'ms-late' : 'ms-upcoming'}`}>
+            <span class="tt-milestone-dot"></span>
+            <div class="tt-milestone-body">
+              <span class="tt-milestone-title">{m.title}</span>
+              <span class="tt-milestone-date mono">{formatDate(m.date)}</span>
+            </div>
+            <span class={`tt-ms-badge ${m.status === 'done' ? 'ms-done' : ''}`}>
+              {m.status === 'done' ? 'Fait' : isPast ? 'En retard' : 'À venir'}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .tt-root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* ── Header stats ── */
+
+  .tt-header {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .tt-stat {
+    flex: 1;
+    min-width: 90px;
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .tt-stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--c-text);
+  }
+
+  .tt-stat-of {
+    font-size: 1rem;
+    color: var(--c-text-3);
+  }
+
+  .tt-stat-label {
+    font-size: 0.72rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  /* ── Barre globale ── */
+
+  .tt-global-track {
+    height: 6px;
+    background: var(--c-border);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: calc(-1 * var(--space-md));
+  }
+
+  .tt-global-fill {
+    height: 100%;
+    background: var(--c-accent);
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  /* ── Sections ── */
+
+  .tt-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .tt-section-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-3);
+    margin: 0;
+  }
+
+  /* ── Chapitres ── */
+
+  .tt-chapters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .tt-chapter {
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .tt-chapter-top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .tt-chapter-title {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .tt-deadline {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+  }
+
+  .tt-chapter-bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .tt-bar-track {
+    flex: 1;
+    height: 5px;
+    background: var(--c-border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .tt-bar-fill {
+    height: 100%;
+    background: var(--c-accent);
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  .tt-chapter-pct {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* ── Statut badges chapitres ── */
+
+  .tt-statut {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+
+  .st-termine {
+    background: color-mix(in srgb, var(--c-success) 15%, transparent);
+    color: var(--c-success);
+  }
+
+  .st-en-cours {
+    background: color-mix(in srgb, var(--c-accent) 15%, transparent);
+    color: var(--c-accent);
+  }
+
+  .st-non-demarre {
+    background: var(--c-border);
+    color: var(--c-text-3);
+  }
+
+  /* ── Publications ── */
+
+  .tt-publications {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .tt-pub {
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .tt-pub-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .tt-pub-title {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  .tt-pub-journal {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+  }
+
+  /* Pipeline */
+
+  .tt-pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: var(--space-xs, 4px);
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .tt-pipe-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 60px;
+    position: relative;
+    gap: 4px;
+  }
+
+  /* Ligne de connexion entre steps */
+  .tt-pipe-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: calc(50% + 6px);
+    right: calc(-50% + 6px);
+    height: 2px;
+    background: var(--c-border);
+    z-index: 0;
+  }
+
+  .tt-pipe-step.pipe-done:not(:last-child)::after,
+  .tt-pipe-step.pipe-current:not(:last-child)::after {
+    background: var(--c-accent);
+  }
+
+  .tt-pipe-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--c-border);
+    border: 2px solid var(--c-border);
+    position: relative;
+    z-index: 1;
+    transition: background 0.2s;
+  }
+
+  .pipe-done .tt-pipe-dot {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+  }
+
+  .pipe-current .tt-pipe-dot {
+    background: var(--c-surface);
+    border-color: var(--c-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 20%, transparent);
+  }
+
+  .tt-pipe-label {
+    font-size: 0.62rem;
+    color: var(--c-text-3);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .pipe-done .tt-pipe-label,
+  .pipe-current .tt-pipe-label {
+    color: var(--c-accent);
+    font-weight: 600;
+  }
+
+  /* ── Jalons ── */
+
+  .tt-milestones {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .tt-milestone {
+    padding: var(--space-md) var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .tt-milestone-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--c-border);
+  }
+
+  .ms-done .tt-milestone-dot   { background: var(--c-success); }
+  .ms-late .tt-milestone-dot   { background: #c0392b; }
+  .ms-upcoming .tt-milestone-dot { background: var(--c-text-3); }
+
+  .tt-milestone-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tt-milestone-title {
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .tt-milestone-date {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+  }
+
+  .tt-ms-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    background: var(--c-border);
+    color: var(--c-text-3);
+    flex-shrink: 0;
+  }
+
+  .ms-done .tt-ms-badge {
+    background: color-mix(in srgb, var(--c-success) 15%, transparent);
+    color: var(--c-success);
+  }
+
+  @media (max-width: 768px) {
+    .tt-header {
+      flex-direction: column;
+    }
+
+    .tt-stat {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tt-stat-label {
+      text-align: right;
+    }
+
+    .tt-pipeline {
+      gap: 0;
+    }
+  }
+</style>

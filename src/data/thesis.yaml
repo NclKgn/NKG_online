@@ -1,0 +1,92 @@
+thesis-data:
+  # ─── Chapitres ────────────────────────────────────────────────────────────
+  chapters:
+    - id: intro
+      title: "Introduction générale"
+      status: en-cours
+      value: 35
+      deadline: 2026-06-01
+
+    - id: mat-meth-bio
+      title: "Matériel & Méthodes — Biologie"
+      status: non-demarre
+      value: 0
+      deadline: 2026-07-01
+
+    - id: mat-meth-biomeca
+      title: "Matériel & Méthodes — Biomécanique"
+      status: non-demarre
+      value: 0
+      deadline: 2026-07-01
+
+    - id: mat-meth-humain
+      title: "Matériel & Méthodes — Données Humaines"
+      status: en-cours
+      value: 20
+      deadline: 2026-07-01
+
+    - id: resultats-bio
+      title: "Résultats — Biologie"
+      status: non-demarre
+      value: 0
+      deadline: 2026-09-01
+
+    - id: resultats-biomeca
+      title: "Résultats — Biomécanique"
+      status: non-demarre
+      value: 0
+      deadline: 2026-09-01
+
+    - id: resultats-humain
+      title: "Résultats — Données Humaines"
+      status: non-demarre
+      value: 0
+      deadline: 2026-10-01
+
+    - id: discussion
+      title: "Discussion"
+      status: non-demarre
+      value: 0
+      deadline: 2026-11-01
+
+    - id: conclusion
+      title: "Conclusion & perspectives"
+      status: non-demarre
+      value: 0
+      deadline: 2026-11-15
+
+  # ─── Publications ──────────────────────────────────────────────────────────
+  publications:
+    - id: pub-syncho-biology
+      title: "Biology and biomechanics of skull base synchondroses in achondroplasia"
+      journal: "Journal of Craniofacial Surgery"
+      status: en-preparation
+      deadline: 2026-06-15
+
+    - id: pub-human-atlas
+      title: "Human synchondrosis atlas: from fetal life to skeletal maturity"
+      journal: "Clinical Anatomy"
+      status: en-preparation
+      deadline: 2026-09-01
+
+    - id: pub-scoping
+      title: "Skull base synchondroses in craniofacial development — scoping review"
+      journal: "à déterminer"
+      status: planifie
+
+  # ─── Jalons administratifs ────────────────────────────────────────────────
+  milestones:
+    - id: csi-2025
+      title: "Comité de suivi individuel"
+      date: 2026-10-15
+      status: done
+
+    - id: csi-2026
+      title: "Comité de suivi individuel"
+      date: 2026-10-01
+      status: upcoming
+
+    - id: soutenance
+      title: "Soutenance de thèse (prévue)"
+      date: 2026-12-15
+      status: upcoming
