@@ -1,0 +1,8 @@
+# Auto-généré par scripts/notebook-export.py
+# Ne pas éditer manuellement — relancer le script pour mettre à jour.
+# Commande : python scripts/notebook-export.py --only specimens
+
+specimens-data:
+  generated_at: null
+  count: 0
+  specimens: []

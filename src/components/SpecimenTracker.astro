@@ -1,0 +1,382 @@
+---
+// src/components/SpecimenTracker.astro
+// EPIC 14.2 — Tracker de spécimens (données depuis PhD_Notebook via bridge)
+import { getEntry } from 'astro:content';
+import { t, getLocale } from '../i18n';
+
+const ui = t(getLocale()).dashboard.specimens;
+
+const entry = await getEntry('specimens', 'specimens-data');
+const data  = entry?.data;
+const specimens = data?.specimens ?? [];
+const hasData   = specimens.length > 0;
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+
+const total    = specimens.length;
+const active   = specimens.filter((s) => s.status === 'ACTIVE').length;
+
+// Par génotype (ACTIVE uniquement)
+const byGeno: Record<string, number> = {};
+for (const s of specimens.filter((s) => s.status === 'ACTIVE')) {
+  byGeno[s.genotype] = (byGeno[s.genotype] ?? 0) + 1;
+}
+
+// Par stade (tous statuts)
+const byStage: Record<string, number> = {};
+for (const s of specimens) {
+  byStage[s.stage] = (byStage[s.stage] ?? 0) + 1;
+}
+
+// Grouper par portée (litter code ou "—")
+const byLitter = new Map<string, typeof specimens>();
+for (const s of specimens) {
+  const key = s.litter ?? '—';
+  if (!byLitter.has(key)) byLitter.set(key, []);
+  byLitter.get(key)!.push(s);
+}
+
+// Trier portées : celles avec code d'abord, "—" à la fin
+const sortedLitters = [...byLitter.entries()].sort(([a], [b]) => {
+  if (a === '—') return 1;
+  if (b === '—') return -1;
+  return a.localeCompare(b);
+});
+
+// ── Config badges ──────────────────────────────────────────────────────────
+
+const GENO_CLS: Record<string, string> = {
+  WT:      'sp-geno-wt',
+  HET:     'sp-geno-het',
+  HOMO:    'sp-geno-homo',
+  UNKNOWN: 'sp-geno-unknown',
+};
+
+const STATUS_CLS: Record<string, string> = {
+  ACTIVE:   'sp-status-active',
+  LOST:     'sp-status-lost',
+  EXCLUDED: 'sp-status-lost',
+  ARCHIVED: 'sp-status-archived',
+};
+
+const STAGE_ORDER = ['E14_5', 'E16_5', 'P0', 'P1', 'P14', 'OTHER'];
+
+// Sync info
+const syncRaw = data?.generated_at;
+const syncLabel = syncRaw
+  ? new Date(syncRaw).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  : ui.never;
+---
+
+<div class="sp-root">
+
+  <!-- Stats -->
+  <div class="sp-stats">
+    <div class="sp-stat">
+      <span class="sp-stat-val">{total}</span>
+      <span class="sp-stat-lbl">{ui.total}</span>
+    </div>
+    <div class="sp-stat">
+      <span class="sp-stat-val sp-color-active">{active}</span>
+      <span class="sp-stat-lbl">{ui.active}</span>
+    </div>
+    {(['WT', 'HET', 'HOMO'] as const).map((g) => (
+      <div class="sp-stat">
+        <span class={`sp-stat-val ${GENO_CLS[g]}`}>{byGeno[g] ?? 0}</span>
+        <span class="sp-stat-lbl">{ui.genotypeLbls[g]}</span>
+      </div>
+    ))}
+    <div class="sp-stat sp-stat-sync">
+      <span class="sp-sync-label">{ui.syncInfo}</span>
+      <span class="sp-sync-val mono">{syncLabel}</span>
+    </div>
+  </div>
+
+  <!-- Stades (si données) -->
+  {hasData && (
+    <div class="sp-stages">
+      {STAGE_ORDER.filter((s) => byStage[s]).map((s) => (
+        <span class="sp-stage-chip">
+          <span class="sp-stage-name">{ui.stageLbls[s as keyof typeof ui.stageLbls]}</span>
+          <span class="sp-stage-count">{byStage[s]}</span>
+        </span>
+      ))}
+    </div>
+  )}
+
+  <!-- Tableau par portée -->
+  {hasData ? (
+    <div class="sp-groups">
+      {sortedLitters.map(([litter, items]) => (
+        <div class="sp-group">
+          <div class="sp-group-header">
+            <span class="sp-group-litter">{ui.litter} {litter}</span>
+            <span class="sp-group-count">{items.length}</span>
+          </div>
+          <table class="sp-table">
+            <thead>
+              <tr>
+                <th>{ui.stage}</th>
+                <th>{ui.genotype}</th>
+                <th>{ui.sex}</th>
+                <th>{ui.status}</th>
+                <th>Code</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((s) => (
+                <tr class={s.status !== 'ACTIVE' ? 'sp-row-inactive' : ''}>
+                  <td><span class="sp-stage-tag">{ui.stageLbls[s.stage as keyof typeof ui.stageLbls]}</span></td>
+                  <td><span class={`sp-badge ${GENO_CLS[s.genotype]}`}>{ui.genotypeLbls[s.genotype as keyof typeof ui.genotypeLbls]}</span></td>
+                  <td class="sp-sex">{s.sex ?? '—'}</td>
+                  <td><span class={`sp-badge ${STATUS_CLS[s.status]}`}>{ui.statusLbls[s.status as keyof typeof ui.statusLbls]}</span></td>
+                  <td class="sp-code mono">{s.code}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div class="sp-empty">
+      <p class="sp-empty-msg">{ui.empty}</p>
+      <p class="sp-empty-hint">{ui.runBridge}</p>
+      <pre class="sp-empty-cmd">python scripts/notebook-export.py --only specimens</pre>
+    </div>
+  )}
+
+</div>
+
+<style>
+  /* ── Stats ── */
+
+  .sp-stats {
+    display: flex;
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+  }
+
+  .sp-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sp-stat-sync {
+    margin-left: auto;
+    align-items: flex-end;
+  }
+
+  .sp-stat-val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: var(--font-mono, monospace);
+    line-height: 1;
+    color: var(--c-text);
+  }
+
+  .sp-stat-lbl {
+    font-size: 0.7rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .sp-sync-label {
+    font-size: 0.68rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .sp-sync-val {
+    font-size: 0.72rem;
+    color: var(--c-text-2);
+  }
+
+  /* Couleurs génotypes */
+  .sp-color-active { color: var(--c-success); }
+  .sp-geno-wt      { color: var(--c-success); }
+  .sp-geno-het     { color: #c09050; }
+  .sp-geno-homo    { color: #c0392b; }
+  .sp-geno-unknown { color: var(--c-text-3); }
+
+  /* ── Stades ── */
+
+  .sp-stages {
+    display: flex;
+    gap: var(--space-xs, 4px);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-lg);
+  }
+
+  .sp-stage-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    background: var(--c-border);
+    border-radius: 99px;
+    color: var(--c-text-2);
+  }
+
+  .sp-stage-name { font-weight: 600; }
+  .sp-stage-count {
+    font-family: var(--font-mono, monospace);
+    color: var(--c-text-3);
+  }
+
+  /* ── Groupes par portée ── */
+
+  .sp-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .sp-group-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .sp-group-litter {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-2);
+  }
+
+  .sp-group-count {
+    font-size: 0.68rem;
+    font-family: var(--font-mono, monospace);
+    color: var(--c-text-3);
+    background: var(--c-border);
+    padding: 1px 6px;
+    border-radius: 99px;
+  }
+
+  /* ── Table ── */
+
+  .sp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .sp-table th {
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-3);
+    padding: var(--space-xs, 4px) var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+  }
+
+  .sp-table td {
+    padding: var(--space-xs, 5px) var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text);
+    vertical-align: middle;
+  }
+
+  .sp-row-inactive td {
+    opacity: 0.5;
+  }
+
+  .sp-stage-tag {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    color: var(--c-text-2);
+  }
+
+  .sp-sex {
+    color: var(--c-text-3);
+    font-size: 0.78rem;
+  }
+
+  .sp-code {
+    font-size: 0.72rem;
+    color: var(--c-text-3);
+  }
+
+  /* ── Badges ── */
+
+  .sp-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 99px;
+  }
+
+  .sp-geno-wt      { background: color-mix(in srgb, var(--c-success) 12%, transparent); color: var(--c-success); }
+  .sp-geno-het     { background: color-mix(in srgb, #c09050 12%, transparent); color: #c09050; }
+  .sp-geno-homo    { background: color-mix(in srgb, #c0392b 12%, transparent); color: #c0392b; }
+  .sp-geno-unknown { background: var(--c-border); color: var(--c-text-3); }
+
+  .sp-status-active   { background: color-mix(in srgb, var(--c-success) 12%, transparent); color: var(--c-success); }
+  .sp-status-lost     { background: color-mix(in srgb, #c0392b 12%, transparent); color: #c0392b; }
+  .sp-status-archived { background: var(--c-border); color: var(--c-text-3); }
+
+  /* ── Empty state ── */
+
+  .sp-empty {
+    padding: var(--space-xl) 0;
+    text-align: center;
+  }
+
+  .sp-empty-msg {
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    font-style: italic;
+    margin-bottom: var(--space-sm);
+  }
+
+  .sp-empty-hint {
+    font-size: 0.8rem;
+    color: var(--c-text-3);
+    margin-bottom: var(--space-sm);
+  }
+
+  .sp-empty-cmd {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-family: var(--font-mono, monospace);
+    background: var(--c-border);
+    color: var(--c-text-2);
+    padding: var(--space-xs, 4px) var(--space-md);
+    border-radius: 6px;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .sp-stats {
+      gap: var(--space-lg);
+    }
+
+    .sp-stat-sync {
+      margin-left: 0;
+      align-items: flex-start;
+    }
+
+    .sp-table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+</style>

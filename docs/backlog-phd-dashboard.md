@@ -904,7 +904,7 @@ L'app locale existe déjà avec :
 
 ---
 
-## EPIC 14 — Tracker de spécimens / souris 🔬🔗🌐
+## EPIC 14 — Tracker de spécimens / souris 🔬🔗🌐 (partiel ✅)
 
 > Suivi des accouplements, portées, génotypages et disponibilité
 > des animaux. Connecté au planificateur d'expériences.
@@ -915,7 +915,7 @@ L'app locale existe déjà avec :
 > Le bridge (EPIC 0.1) exporte vers `specimens.yaml` pour la
 > visualisation sur le site Astro.
 
-### 14.1 Données spécimens `src/data/specimens.yaml` 🔗🌐
+### 14.1 Données spécimens `src/data/specimens.yaml` 🔗🌐 ✅
 - **Priorité :** P2 | **Complexité :** M → S (grâce au bridge)
 - **Description :** Généré automatiquement par le script d'export
   (EPIC 0.1) depuis la base SQLite de PhD_Notebook. Le YAML
@@ -954,7 +954,7 @@ L'app locale existe déjà avec :
   ```
 - **Fichiers :** `src/data/specimens.yaml`
 
-### 14.2 Composant `SpecimenTracker.astro`
+### 14.2 Composant `SpecimenTracker.astro` ✅
 - **Priorité :** P2 | **Complexité :** L
 - **Description :** Vue dans le dashboard :
   - Accouplements en cours avec dates attendues

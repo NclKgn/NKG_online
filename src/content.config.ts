@@ -231,6 +231,25 @@ const figures = defineCollection({
   }),
 });
 
+const specimens = defineCollection({
+  loader: file('./src/data/specimens.yaml'),
+  schema: z.object({
+    generated_at: z.string().nullable().optional(),
+    count: z.number(),
+    specimens: z.array(z.object({
+      code: z.string(),
+      stage: z.enum(['E14_5', 'E16_5', 'P0', 'P1', 'P14', 'OTHER']),
+      genotype: z.enum(['WT', 'HET', 'HOMO', 'UNKNOWN']),
+      sex: z.string().optional(),
+      litter: z.string().optional(),
+      sacrifice_date: z.string().optional(),
+      status: z.enum(['ACTIVE', 'LOST', 'EXCLUDED', 'ARCHIVED']),
+      status_note: z.string().optional(),
+      notes: z.string().optional(),
+    })),
+  }),
+});
+
 export const collections = {
   newsletter,
   projects,
@@ -247,5 +266,6 @@ export const collections = {
   thesis,
   timeline,
   figures,
+  specimens,
   visibility,
 };
