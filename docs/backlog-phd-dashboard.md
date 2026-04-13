@@ -416,10 +416,16 @@ L'app locale existe déjà avec :
 
 ### 8.1 Traductions dashboard
 - **Priorité :** P2 | **Complexité :** S
-- **Description :** Ajouter les clés FR/EN dans `src/i18n/` pour
-  tous les nouveaux composants (dashboard, collecte, thesis, scoping,
-  timeline, experiments).
-- **Fichiers :** `src/i18n/en.ts`, `src/i18n/fr.ts`
+- **Description :** Section `dashboard` ajoutée dans EN et FR couvrant :
+  collecte (statuts, labels stats), thesis (chapitres, publications pipeline,
+  jalons), timeline (today, 4 types), présentation (enter/exit),
+  modules (titres + descs), experiments (filtres, statuts, message vide).
+  Tous les composants câblés via `t(getLocale())`.
+- **Fichiers :** `src/i18n/en.ts`, `src/i18n/fr.ts`,
+  `CollecteDashboard.astro`, `ThesisTracker.astro`, `PhDTimeline.astro`,
+  `PresentationToggle.astro`, `ExperimentCard.astro`,
+  `experiments/index.astro`, `dashboard.astro`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ### 8.2 Lien dashboard dans la navigation PhD
 - **Priorité :** P0 | **Complexité :** S

@@ -2,6 +2,8 @@
 // src/components/PhDTimeline.astro
 // EPIC 5.2 — Timeline verticale avec indicateur "vous êtes ici"
 import { getEntry } from 'astro:content';
+import { t, getLocale } from '../i18n';
+const ui = t(getLocale()).dashboard.timeline;
 
 const entry = await getEntry('timeline', 'timeline');
 const raw = entry!.data.entries;
@@ -26,10 +28,10 @@ if (lastDoneIdx >= 0 && lastDoneIdx + 1 < entryMeta.length) {
 const showNowFirst = lastDoneIdx === -1 && entries.length > 0;
 
 const TYPE_CONFIG = {
-  milestone:   { label: 'Jalon',        color: 'var(--c-accent)',   cls: 'type-milestone' },
-  publication: { label: 'Publication',  color: '#6080a0',           cls: 'type-pub' },
-  experiment:  { label: 'Expérience',   color: '#e07b2a',           cls: 'type-exp' },
-  committee:   { label: 'Comité',       color: 'var(--c-success)',  cls: 'type-committee' },
+  milestone:   { label: ui.types.milestone,   color: 'var(--c-accent)',  cls: 'type-milestone' },
+  publication: { label: ui.types.publication, color: '#6080a0',          cls: 'type-pub' },
+  experiment:  { label: ui.types.experiment,  color: '#e07b2a',          cls: 'type-exp' },
+  committee:   { label: ui.types.committee,   color: 'var(--c-success)', cls: 'type-committee' },
 } as const;
 
 function formatDate(d: Date): string {
@@ -49,7 +51,7 @@ function formatDate(d: Date): string {
         {showMarker && (
           <div class="pht-now" role="presentation">
             <div class="pht-now-dot"></div>
-            <span class="pht-now-label mono">Aujourd'hui</span>
+            <span class="pht-now-label mono">{ui.today}</span>
           </div>
         )}
 
@@ -76,7 +78,7 @@ function formatDate(d: Date): string {
   {showNowFirst && (
     <div class="pht-now pht-now-first" role="presentation">
       <div class="pht-now-dot"></div>
-      <span class="pht-now-label mono">Aujourd'hui</span>
+      <span class="pht-now-label mono">{ui.today}</span>
     </div>
   )}
 </div>
@@ -205,7 +207,7 @@ function formatDate(d: Date): string {
   .type-exp       { background: color-mix(in srgb, #e07b2a 15%, transparent);           color: #e07b2a; }
   .type-committee { background: color-mix(in srgb, var(--c-success) 15%, transparent);  color: var(--c-success); }
 
-  /* ── Marqueur "Aujourd'hui" ── */
+  /* ── Marqueur "{ui.today}" ── */
 
   .pht-now {
     display: flex;

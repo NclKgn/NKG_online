@@ -2,6 +2,8 @@
 // src/components/CollecteDashboard.astro
 // EPIC 2.1 — Dashboard collecte de données, calculé depuis collecte.yaml
 import { getCollection } from 'astro:content';
+import { t, getLocale } from '../i18n';
+const ui = t(getLocale()).dashboard.collecte;
 
 const collecte = await getCollection('collecte');
 
@@ -31,9 +33,9 @@ const enCours      = collecte.filter((e) => e.data.statut === 'en-cours').length
 const nonDemarre   = totalItems - termines - enCours;
 
 const STATUT_CONFIG = {
-  'termine':     { label: 'Terminé',      cls: 'statut-termine' },
-  'en-cours':    { label: 'En cours',     cls: 'statut-en-cours' },
-  'non-demarre': { label: 'Non démarré',  cls: 'statut-non-demarre' },
+  'termine':     { label: ui.statut.termine,       cls: 'statut-termine' },
+  'en-cours':    { label: ui.statut['en-cours'],   cls: 'statut-en-cours' },
+  'non-demarre': { label: ui.statut['non-demarre'],cls: 'statut-non-demarre' },
 } as const;
 
 function formatDeadline(d: Date): string {
@@ -47,19 +49,19 @@ function formatDeadline(d: Date): string {
   <div class="cd-stats">
     <div class="cd-stat card">
       <span class="cd-stat-value mono">{overall}%</span>
-      <span class="cd-stat-label">Progression globale</span>
+      <span class="cd-stat-label">{ui.globalProgress}</span>
     </div>
     <div class="cd-stat card">
       <span class="cd-stat-value mono">{termines}<span class="cd-stat-of">/{totalItems}</span></span>
-      <span class="cd-stat-label">Terminés</span>
+      <span class="cd-stat-label">{ui.completed}</span>
     </div>
     <div class="cd-stat card">
       <span class="cd-stat-value mono">{enCours}</span>
-      <span class="cd-stat-label">En cours</span>
+      <span class="cd-stat-label">{ui.inProgress}</span>
     </div>
     <div class="cd-stat card">
       <span class="cd-stat-value mono">{nonDemarre}</span>
-      <span class="cd-stat-label">Non démarrés</span>
+      <span class="cd-stat-label">{ui.notStarted}</span>
     </div>
   </div>
 

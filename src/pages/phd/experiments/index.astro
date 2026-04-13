@@ -6,6 +6,8 @@ import ExperimentCard from '../../../components/ExperimentCard.astro';
 import { getCollection } from 'astro:content';
 import { base } from '../../../i18n';
 import { shouldBuild, isGuestOnly, shouldNoIndex } from '../../../lib/visibility';
+import { t, getLocale } from '../../../i18n';
+const uiExp = t(getLocale()).dashboard.experiments;
 
 const pageKey = 'phd/experiments';
 
@@ -31,25 +33,25 @@ const allTags = [...new Set(experiments.flatMap((e) => e.data.tags))].sort();
 
       <a href={base('/phd')} class="back-link mono">&larr; PhD</a>
       <h1>Expériences</h1>
-      <p class="exp-subtitle">{experiments.length} expérience{experiments.length > 1 ? 's' : ''} · fiches structurées</p>
+      <p class="exp-subtitle">{experiments.length} {uiExp.subtitle}</p>
 
       <!-- Filtres -->
       <div class="exp-filters" role="group" aria-label="Filtrer les expériences">
         <div class="filter-group">
-          <span class="filter-label small-caps">Statut</span>
+          <span class="filter-label small-caps">{uiExp.filterStatus}</span>
           <div class="filter-buttons" id="status-filters">
-            <button class="filter-btn active" data-filter-status="all">Tous</button>
-            <button class="filter-btn" data-filter-status="planned">Planifiées</button>
-            <button class="filter-btn" data-filter-status="ongoing">En cours</button>
-            <button class="filter-btn" data-filter-status="completed">Terminées</button>
+            <button class="filter-btn active" data-filter-status="all">{uiExp.filterAll}</button>
+            <button class="filter-btn" data-filter-status="planned">{uiExp.filterPlanned}</button>
+            <button class="filter-btn" data-filter-status="ongoing">{uiExp.filterOngoing}</button>
+            <button class="filter-btn" data-filter-status="completed">{uiExp.filterCompleted}</button>
           </div>
         </div>
 
         {allTags.length > 0 && (
           <div class="filter-group">
-            <span class="filter-label small-caps">Tags</span>
+            <span class="filter-label small-caps">{uiExp.filterTags}</span>
             <div class="filter-buttons" id="tag-filters">
-              <button class="filter-btn active" data-filter-tag="all">Tous</button>
+              <button class="filter-btn active" data-filter-tag="all">{uiExp.filterAll}</button>
               {allTags.map((tag) => (
                 <button class="filter-btn" data-filter-tag={tag}>#{tag}</button>
               ))}
@@ -74,7 +76,7 @@ const allTags = [...new Set(experiments.flatMap((e) => e.data.tags))].sort();
         ))}
       </div>
 
-      <p class="exp-empty" id="exp-empty" hidden>Aucune expérience pour ces filtres.</p>
+      <p class="exp-empty" id="exp-empty" hidden>{uiExp.empty}</p>
 
     </div>
   </GuestGate>

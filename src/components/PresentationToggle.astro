@@ -1,13 +1,15 @@
 ---
 // src/components/PresentationToggle.astro
 // EPIC 10.1 — Toggle mode présentation (fullscreen + styles améliorés)
+import { t, getLocale } from '../i18n';
+const uiPres = t(getLocale()).dashboard.presentation;
 ---
 
 <button class="pres-btn" id="pres-toggle" title="Mode présentation (P)">
   <span class="pres-icon-enter" aria-hidden="true">⊞</span>
   <span class="pres-icon-exit"  aria-hidden="true">✕</span>
-  <span class="pres-label-enter">Présenter</span>
-  <span class="pres-label-exit">Quitter</span>
+  <span class="pres-label-enter">{uiPres.enter}</span>
+  <span class="pres-label-exit">{uiPres.exit}</span>
 </button>
 
 <script>

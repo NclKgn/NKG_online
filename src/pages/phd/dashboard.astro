@@ -7,6 +7,8 @@ import PhDTimeline from '../../components/PhDTimeline.astro';
 import PresentationToggle from '../../components/PresentationToggle.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
+import { t, getLocale } from '../../i18n';
+const ui = t(getLocale()).dashboard;
 
 const pageKey = 'phd/dashboard';
 
@@ -31,39 +33,39 @@ const noindex = await shouldNoIndex(pageKey);
     <div class="dash-header">
       <div>
         <h1>Dashboard</h1>
-        <p class="dashboard-subtitle">Suivi de la collecte de données · Thèse en sciences biomédicales</p>
+        <p class="dashboard-subtitle">{ui.subtitle}</p>
       </div>
       <PresentationToggle />
     </div>
 
     <!-- Vue d'ensemble collecte (EPIC 2.1) -->
     <section class="dash-overview">
-      <h2>Collecte de données</h2>
+      <h2>{ui.collecte.title}</h2>
       <CollecteDashboard />
     </section>
 
     <!-- Tracker rédaction (EPIC 3) -->
     <section class="dash-overview">
-      <h2>Rédaction</h2>
+      <h2>{ui.thesis.title}</h2>
       <ThesisTracker />
     </section>
 
     <!-- Timeline (EPIC 5) -->
     <section class="dash-overview">
-      <h2>Timeline</h2>
+      <h2>{ui.timeline.title}</h2>
       <PhDTimeline />
     </section>
 
     <!-- Modules (liens) -->
     <section class="dash-modules">
-      <h2>Modules</h2>
+      <h2>{ui.modules.title}</h2>
       <div class="modules-grid">
 
         <a href={base('/phd/experiments')} class="module-card card">
           <span class="module-icon">⚗</span>
           <div class="module-info">
-            <span class="module-title">Expériences</span>
-            <span class="module-desc">Fiches structurées · hypothèses · protocoles</span>
+            <span class="module-title">{ui.modules.experiments.title}</span>
+            <span class="module-desc">{ui.modules.experiments.desc}</span>
           </div>
           <span class="module-arrow">→</span>
         </a>
@@ -71,28 +73,28 @@ const noindex = await shouldNoIndex(pageKey);
         <div class="module-card card module-disabled">
           <span class="module-icon">✍</span>
           <div class="module-info">
-            <span class="module-title">Rédaction</span>
-            <span class="module-desc">Chapitres · publications · avancement</span>
+            <span class="module-title">{ui.modules.writing.title}</span>
+            <span class="module-desc">{ui.modules.writing.desc}</span>
           </div>
-          <span class="coming-soon-badge">bientôt</span>
+          <span class="coming-soon-badge">{ui.modules.comingSoon}</span>
         </div>
 
         <div class="module-card card module-disabled">
           <span class="module-icon">🔍</span>
           <div class="module-info">
-            <span class="module-title">Scoping Review</span>
-            <span class="module-desc">Rayyan · extraction · synthèse</span>
+            <span class="module-title">{ui.modules.scopingReview.title}</span>
+            <span class="module-desc">{ui.modules.scopingReview.desc}</span>
           </div>
-          <span class="coming-soon-badge">bientôt</span>
+          <span class="coming-soon-badge">{ui.modules.comingSoon}</span>
         </div>
 
         <div class="module-card card module-disabled">
           <span class="module-icon">📅</span>
           <div class="module-info">
-            <span class="module-title">Timeline</span>
-            <span class="module-desc">Jalons · livrables · soutenance</span>
+            <span class="module-title">{ui.modules.timeline.title}</span>
+            <span class="module-desc">{ui.modules.timeline.desc}</span>
           </div>
-          <span class="coming-soon-badge">bientôt</span>
+          <span class="coming-soon-badge">{ui.modules.comingSoon}</span>
         </div>
 
       </div>

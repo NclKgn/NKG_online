@@ -2,6 +2,8 @@
 // src/components/ThesisTracker.astro
 // EPIC 3.2 — Tracker de rédaction calculé depuis thesis.yaml
 import { getEntry } from 'astro:content';
+import { t, getLocale } from '../i18n';
+const ui = t(getLocale()).dashboard.thesis;
 
 const entry = await getEntry('thesis', 'thesis-data');
 const { chapters, publications, milestones } = entry!.data;
@@ -13,18 +15,18 @@ const writingOverall = chapters.length
 const chapitresTermines = chapters.filter((c) => c.status === 'termine').length;
 
 const STATUT_CHAPTER = {
-  'termine':     { label: 'Terminé',     cls: 'st-termine' },
-  'en-cours':    { label: 'En cours',    cls: 'st-en-cours' },
-  'non-demarre': { label: 'Non démarré', cls: 'st-non-demarre' },
+  'termine':     { label: ui.chapStatut.termine,       cls: 'st-termine' },
+  'en-cours':    { label: ui.chapStatut['en-cours'],   cls: 'st-en-cours' },
+  'non-demarre': { label: ui.chapStatut['non-demarre'],cls: 'st-non-demarre' },
 } as const;
 
 const STATUT_PUB = {
-  'planifie':    { label: 'Planifié',    cls: 'pub-planifie' },
-  'en-preparation': { label: 'En préparation', cls: 'pub-en-prep' },
-  'soumis':      { label: 'Soumis',      cls: 'pub-soumis' },
-  'en-revision': { label: 'En révision', cls: 'pub-en-revision' },
-  'accepte':     { label: 'Accepté',     cls: 'pub-accepte' },
-  'publie':      { label: 'Publié',      cls: 'pub-publie' },
+  'planifie':       { label: ui.pubStatut.planifie,          cls: 'pub-planifie' },
+  'en-preparation': { label: ui.pubStatut['en-preparation'], cls: 'pub-en-prep' },
+  'soumis':         { label: ui.pubStatut.soumis,            cls: 'pub-soumis' },
+  'en-revision':    { label: ui.pubStatut['en-revision'],    cls: 'pub-en-revision' },
+  'accepte':        { label: ui.pubStatut.accepte,           cls: 'pub-accepte' },
+  'publie':         { label: ui.pubStatut.publie,            cls: 'pub-publie' },
 } as const;
 
 // Pipeline statuts dans l'ordre
@@ -43,15 +45,15 @@ const today = new Date();
   <div class="tt-header">
     <div class="tt-stat card">
       <span class="tt-stat-value mono">{writingOverall}%</span>
-      <span class="tt-stat-label">Rédaction globale</span>
+      <span class="tt-stat-label">{ui.globalWriting}</span>
     </div>
     <div class="tt-stat card">
       <span class="tt-stat-value mono">{chapitresTermines}<span class="tt-stat-of">/{chapters.length}</span></span>
-      <span class="tt-stat-label">Chapitres terminés</span>
+      <span class="tt-stat-label">{ui.chaptersCompleted}</span>
     </div>
     <div class="tt-stat card">
       <span class="tt-stat-value mono">{publications.length}</span>
-      <span class="tt-stat-label">Publications prévues</span>
+      <span class="tt-stat-label">{ui.publicationsPlanned}</span>
     </div>
   </div>
 
@@ -62,7 +64,7 @@ const today = new Date();
 
   <!-- Chapitres -->
   <div class="tt-section">
-    <h3 class="tt-section-title">Chapitres</h3>
+    <h3 class="tt-section-title">{ui.sections.chapters}</h3>
     <div class="tt-chapters">
       {chapters.map((ch) => {
         const s = STATUT_CHAPTER[ch.status as keyof typeof STATUT_CHAPTER];
@@ -89,7 +91,7 @@ const today = new Date();
 
   <!-- Publications — pipeline visuel -->
   <div class="tt-section">
-    <h3 class="tt-section-title">Publications</h3>
+    <h3 class="tt-section-title">{ui.sections.publications}</h3>
     <div class="tt-publications">
       {publications.map((pub) => {
         const currentStep = PUB_PIPELINE.indexOf(pub.status as typeof PUB_PIPELINE[number]);
@@ -128,7 +130,7 @@ const today = new Date();
 
   <!-- Jalons -->
   <div class="tt-section">
-    <h3 class="tt-section-title">Jalons</h3>
+    <h3 class="tt-section-title">{ui.sections.milestones}</h3>
     <div class="tt-milestones">
       {milestones.map((m) => {
         const isPast = m.date < today;
@@ -140,7 +142,7 @@ const today = new Date();
               <span class="tt-milestone-date mono">{formatDate(m.date)}</span>
             </div>
             <span class={`tt-ms-badge ${m.status === 'done' ? 'ms-done' : ''}`}>
-              {m.status === 'done' ? 'Fait' : isPast ? 'En retard' : 'À venir'}
+              {m.status === 'done' ? ui.milestoneStatut.done : isPast ? ui.milestoneStatut.late : ui.milestoneStatut.upcoming}
             </span>
           </div>
         );

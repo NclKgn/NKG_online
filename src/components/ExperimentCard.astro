@@ -1,6 +1,9 @@
 ---
 // src/components/ExperimentCard.astro
 // EPIC 6.1 — Fiche expérience visuelle
+import { t, getLocale } from '../i18n';
+const uiExp = t(getLocale()).dashboard.experiments.statut;
+
 interface Props {
   id: string;
   title: string;
@@ -15,9 +18,9 @@ interface Props {
 const { id, title, date, status, tags, objective, hypothesis_main, href } = Astro.props;
 
 const STATUS_CONFIG = {
-  planned:   { label: 'Planifiée',  cls: 'ec-planned' },
-  ongoing:   { label: 'En cours',   cls: 'ec-ongoing' },
-  completed: { label: 'Terminée',   cls: 'ec-completed' },
+  planned:   { label: uiExp.planned,   cls: 'ec-planned' },
+  ongoing:   { label: uiExp.ongoing,   cls: 'ec-ongoing' },
+  completed: { label: uiExp.completed, cls: 'ec-completed' },
 } as const;
 
 const s = STATUS_CONFIG[status];
