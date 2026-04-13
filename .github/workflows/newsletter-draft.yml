@@ -1,0 +1,68 @@
+# .github/workflows/newsletter-draft.yml
+# EPIC 11.2 — Génération automatique du brouillon de newsletter (vendredi 18h CEST)
+
+name: Weekly Newsletter Draft
+
+on:
+  schedule:
+    # Vendredi 16:00 UTC = 18:00 CEST (UTC+2) / 17:00 CET (UTC+1)
+    - cron: '0 16 * * 5'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Date de référence (YYYY-MM-DD, défaut : aujourd''hui)'
+        required: false
+        type: string
+      force:
+        description: 'Écraser si brouillon déjà existant'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Generate newsletter draft
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.date }}" ]; then
+            ARGS="--date ${{ inputs.date }}"
+          fi
+          if [ "${{ inputs.force }}" = "true" ]; then
+            ARGS="$ARGS --force"
+          fi
+          python scripts/generate-newsletter.py $ARGS
+
+      - name: Check for new file
+        id: check
+        run: |
+          if git status --porcelain | grep -q "src/content/newsletter/"; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No new draft to commit."
+          fi
+
+      - name: Commit and push draft
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/newsletter/
+          git commit -m "chore(newsletter): auto-generate draft for week $(date +%Y-W%V)"
+          git push

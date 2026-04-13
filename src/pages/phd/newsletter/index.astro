@@ -11,17 +11,34 @@ if (!(await isSectionVisible('phd'))) {
   return Astro.redirect('/');
 }
 
-const posts = (await getCollection('newsletter'))
-  .filter((e) => !e.data.draft)
+const isDev = import.meta.env.DEV;
+
+// In dev: show all posts (drafts visible with badge + filter)
+// In prod: published only
+const allPosts = (await getCollection('newsletter'))
+  .filter((e) => isDev || !e.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const posts = allPosts;
+const hasDrafts = isDev && allPosts.some((p) => p.data.draft);
 ---
 
 <BaseLayout title="PhD Newsletter" description="Weekly research digests">
   <div class="container section">
-    <h1>Newsletter</h1>
-    <p class="newsletter-subtitle">Weekly digests of PhD research progress.</p>
+    <div class="nl-header">
+      <div>
+        <h1>Newsletter</h1>
+        <p class="newsletter-subtitle">Weekly digests of PhD research progress.</p>
+      </div>
+      {hasDrafts && (
+        <div class="nl-filter" role="group" aria-label="Filtre newsletter">
+          <button class="nl-filter-btn active" data-filter="all">Tous</button>
+          <button class="nl-filter-btn" data-filter="published">Publiés</button>
+        </div>
+      )}
+    </div>
 
-    <div class="newsletter-list">
+    <div class="newsletter-list" id="nl-list">
       {posts.map((post) => {
         const formattedDate = post.data.date.toLocaleDateString('en-GB', {
           year: 'numeric',
@@ -29,11 +46,17 @@ const posts = (await getCollection('newsletter'))
           day: 'numeric',
         });
         return (
-          <a href={base(`/phd/newsletter/${post.id}`)} class="newsletter-item">
+          <a
+            href={base(`/phd/newsletter/${post.id}`)}
+            class="newsletter-item"
+            data-draft={post.data.draft ? 'true' : 'false'}
+          >
             <time class="mono">{formattedDate}</time>
             <div class="newsletter-item-body">
-              <h3>{post.data.title}</h3>
-              {post.data.draft && <span class="draft-badge mono">Draft</span>}
+              <h3>
+                {post.data.title}
+                {post.data.draft && <span class="draft-badge mono">Brouillon</span>}
+              </h3>
               <p>{post.data.summary}</p>
             </div>
           </a>
@@ -46,6 +69,22 @@ const posts = (await getCollection('newsletter'))
     </div>
   </div>
 </BaseLayout>
+
+{hasDrafts && (
+  <script>
+    const btns = document.querySelectorAll<HTMLButtonElement>('.nl-filter-btn');
+    btns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter ?? 'all';
+        btns.forEach((b) => b.classList.toggle('active', b === btn));
+        document.querySelectorAll<HTMLElement>('#nl-list .newsletter-item').forEach((item) => {
+          const isDraft = item.dataset.draft === 'true';
+          item.hidden = filter === 'published' && isDraft;
+        });
+      });
+    });
+  </script>
+)}
 
 <style>
   .newsletter-subtitle {
@@ -101,14 +140,65 @@ const posts = (await getCollection('newsletter'))
     font-size: 0.82rem;
   }
 
+  /* ── Header + filtre (dev only) ── */
+
+  .nl-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+
+  .nl-filter {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-top: var(--space-xs, 4px);
+  }
+
+  .nl-filter-btn {
+    font-size: 0.72rem;
+    font-family: inherit;
+    padding: 3px 10px;
+    border: 1px solid var(--c-border);
+    border-radius: 99px;
+    background: transparent;
+    color: var(--c-text-2);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+
+  .nl-filter-btn:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+
+  .nl-filter-btn.active {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: #fff;
+  }
+
+  /* ── Badge brouillon ── */
+
   .draft-badge {
     font-size: 0.6rem;
     padding: 1px 6px;
-    background: #fef3c7;
-    color: #92400e;
+    background: color-mix(in srgb, #c09050 15%, transparent);
+    color: #c09050;
     border-radius: 99px;
     margin-left: 6px;
     vertical-align: middle;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Items cachés par le filtre ── */
+
+  .newsletter-item[hidden] {
+    display: none;
   }
 
   @media (max-width: 768px) {

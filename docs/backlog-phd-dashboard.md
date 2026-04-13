@@ -587,12 +587,12 @@ L'app locale existe déjà avec :
 
 ---
 
-## EPIC 11 — Newsletter auto-générée
+## EPIC 11 — Newsletter auto-générée ✅
 
 > Script qui compile automatiquement un brouillon de newsletter
 > hebdomadaire à partir des activités de la semaine.
 
-### 11.1 Script de compilation newsletter
+### 11.1 Script de compilation newsletter ✅
 - **Priorité :** P1 | **Complexité :** L
 - **Description :** Script Python ou Node qui chaque vendredi :
   1. Parcourt les `lab-entries` de la semaine
@@ -628,18 +628,18 @@ L'app locale existe déjà avec :
   [À compléter avant publication]
   ```
 
-### 11.2 GitHub Action newsletter hebdo
+### 11.2 GitHub Action newsletter hebdo ✅
 - **Priorité :** P2 | **Complexité :** S
-- **Description :** Workflow déclenché chaque vendredi 18h (Paris).
-  Exécute le script, commit le brouillon, ouvre éventuellement
-  une PR ou envoie une notification.
+- **Description :** Workflow cron vendredi 16h00 UTC (18h CEST).
+  Exécute le script, commit le brouillon sur main.
+  `workflow_dispatch` avec inputs `date` et `force`.
 - **Fichiers :** `.github/workflows/newsletter-draft.yml`
 
-### 11.3 Page "brouillons" dans le CMS
+### 11.3 Page "brouillons" dans le CMS ✅
 - **Priorité :** P3 | **Complexité :** S
-- **Description :** Ajouter un filtre "brouillons" dans
-  `/phd/newsletter` (visible en dev/guest uniquement) pour
-  éditer et publier les newsletters auto-générées via Sveltia.
+- **Description :** Filtre "Tous / Publiés" affiché uniquement en dev
+  quand des brouillons existent. Badge "Brouillon" sur les items.
+  En prod, les drafts sont filtrés au build.
 - **Fichiers :** `src/pages/phd/newsletter/index.astro`
 
 ---
