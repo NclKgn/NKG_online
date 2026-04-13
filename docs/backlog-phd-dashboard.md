@@ -7,7 +7,7 @@
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
 > **Date :** 13 avril 2026 (màj)
 > **Statut :** Phase 3–4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 19 (12 EPICs)
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 19 (13 EPICs)
 
 ---
 
@@ -685,6 +685,18 @@ L'app locale existe déjà avec :
 > JSON). Le planificateur est une UI sur le site Astro (🌐) qui,
 > à la création, génère l'expérience dans PhD_Notebook (🔬) via
 > le bridge ou un export Markdown.
+
+### 13.0 Tracker live `ExperimentsLiveTracker.astro` 🔗🌐 ✅
+- **Priorité :** P0 | **Complexité :** S | **Statut :** ✅ Livré
+- **Description :** Visualisation des expériences issues de PhD_Notebook
+  via le bridge (même pattern que EPIC 14 / SpecimenTracker).
+  - `src/data/experiments-live.yaml` — placeholder (rempli par le bridge)
+  - Collection Astro `experiments-live` avec schéma Zod strict
+  - Composant `ExperimentsLiveTracker.astro` : stats (total/en cours/terminées),
+    groupement par type, badges statut colorés, état vide soigné
+  - Intégré dans `src/pages/phd/dashboard.astro`
+  - i18n EN + FR
+- **Fichiers :** `src/data/experiments-live.yaml`, `src/components/ExperimentsLiveTracker.astro`
 
 ### 13.1 Données protocoles `src/data/protocols.yaml` 🌐
 - **Priorité :** P1 | **Complexité :** M

@@ -250,6 +250,25 @@ const specimens = defineCollection({
   }),
 });
 
+const experimentsLive = defineCollection({
+  loader: file('./src/data/experiments-live.yaml'),
+  schema: z.object({
+    generated_at: z.string().nullable().optional(),
+    count: z.number(),
+    experiments: z.array(z.object({
+      code: z.string(),
+      type: z.enum(['EX_VIVO', 'IF', 'RNASCOPE', 'LIGHTSHEET', 'ANALYSIS', 'RNASEQ']),
+      title: z.string().optional(),
+      date_start: z.string(),
+      date_end: z.string().optional().nullable(),
+      status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ABANDONED']),
+      samples: z.array(z.string()).optional(),
+      notes: z.string().optional(),
+      params: z.record(z.unknown()).optional(),
+    })),
+  }),
+});
+
 export const collections = {
   newsletter,
   projects,
@@ -267,5 +286,6 @@ export const collections = {
   timeline,
   figures,
   specimens,
+  'experiments-live': experimentsLive,
   visibility,
 };

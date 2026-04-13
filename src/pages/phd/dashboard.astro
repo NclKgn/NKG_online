@@ -7,6 +7,7 @@ import PhDTimeline from '../../components/PhDTimeline.astro';
 import PresentationToggle from '../../components/PresentationToggle.astro';
 import FigureTracker from '../../components/FigureTracker.astro';
 import SpecimenTracker from '../../components/SpecimenTracker.astro';
+import ExperimentsLiveTracker from '../../components/ExperimentsLiveTracker.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 import { t, getLocale } from '../../i18n';
@@ -62,6 +63,12 @@ const noindex = await shouldNoIndex(pageKey);
     <section class="dash-overview">
       <h2>{ui.specimens.title}</h2>
       <SpecimenTracker />
+    </section>
+
+    <!-- Tracker expériences live (EPIC 13) -->
+    <section class="dash-overview">
+      <h2>{ui.experimentsLive.title}</h2>
+      <ExperimentsLiveTracker />
     </section>
 
     <!-- Tracker figures (EPIC 19) -->

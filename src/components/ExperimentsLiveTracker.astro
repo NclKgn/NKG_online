@@ -1,0 +1,353 @@
+---
+// src/components/ExperimentsLiveTracker.astro
+// EPIC 13 — Tracker d'expériences live (données depuis PhD_Notebook via bridge)
+import { getEntry } from 'astro:content';
+import { t, getLocale } from '../i18n';
+
+const ui = t(getLocale()).dashboard.experimentsLive;
+
+const entry = await getEntry('experiments-live', 'experiments-live');
+const data  = entry?.data;
+const experiments = data?.experiments ?? [];
+const hasData     = experiments.length > 0;
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+
+const total      = experiments.length;
+const inProgress = experiments.filter((e) => e.status === 'IN_PROGRESS').length;
+const completed  = experiments.filter((e) => e.status === 'COMPLETED').length;
+
+// Par type
+const byType: Record<string, number> = {};
+for (const e of experiments) {
+  byType[e.type] = (byType[e.type] ?? 0) + 1;
+}
+
+// Grouper par type pour l'affichage
+const TYPE_ORDER = ['EX_VIVO', 'IF', 'RNASCOPE', 'LIGHTSHEET', 'ANALYSIS', 'RNASEQ'] as const;
+
+const byTypeMap = new Map<string, typeof experiments>();
+for (const e of experiments) {
+  if (!byTypeMap.has(e.type)) byTypeMap.set(e.type, []);
+  byTypeMap.get(e.type)!.push(e);
+}
+
+// Trier les types selon TYPE_ORDER, mettre les types inconnus à la fin
+const sortedTypes = [...byTypeMap.entries()].sort(([a], [b]) => {
+  const ia = TYPE_ORDER.indexOf(a as typeof TYPE_ORDER[number]);
+  const ib = TYPE_ORDER.indexOf(b as typeof TYPE_ORDER[number]);
+  if (ia === -1 && ib === -1) return a.localeCompare(b);
+  if (ia === -1) return 1;
+  if (ib === -1) return -1;
+  return ia - ib;
+});
+
+// ── Config badges ──────────────────────────────────────────────────────────
+
+const STATUS_CLS: Record<string, string> = {
+  PLANNED:    'el-status-planned',
+  IN_PROGRESS:'el-status-inprogress',
+  COMPLETED:  'el-status-completed',
+  ABANDONED:  'el-status-abandoned',
+};
+
+// Sync info
+const syncRaw = data?.generated_at;
+const syncLabel = syncRaw
+  ? new Date(syncRaw).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  : ui.never;
+---
+
+<div class="el-root">
+
+  <!-- Stats -->
+  <div class="el-stats">
+    <div class="el-stat">
+      <span class="el-stat-val">{total}</span>
+      <span class="el-stat-lbl">{ui.total}</span>
+    </div>
+    <div class="el-stat">
+      <span class="el-stat-val el-color-inprogress">{inProgress}</span>
+      <span class="el-stat-lbl">{ui.inProgress}</span>
+    </div>
+    <div class="el-stat">
+      <span class="el-stat-val el-color-completed">{completed}</span>
+      <span class="el-stat-lbl">{ui.completed}</span>
+    </div>
+    {TYPE_ORDER.filter((t) => byType[t]).map((type) => (
+      <div class="el-stat">
+        <span class="el-stat-val el-color-type">{byType[type]}</span>
+        <span class="el-stat-lbl">{ui.typeLbls[type]}</span>
+      </div>
+    ))}
+    <div class="el-stat el-stat-sync">
+      <span class="el-sync-label">{ui.syncInfo}</span>
+      <span class="el-sync-val mono">{syncLabel}</span>
+    </div>
+  </div>
+
+  <!-- Tableau groupé par type -->
+  {hasData ? (
+    <div class="el-groups">
+      {sortedTypes.map(([type, items]) => (
+        <div class="el-group">
+          <div class="el-group-header">
+            <span class="el-group-type">{ui.typeLbls[type as keyof typeof ui.typeLbls] ?? type}</span>
+            <span class="el-group-count">{items.length}</span>
+          </div>
+          <table class="el-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>{ui.dateStart}</th>
+                <th>{ui.status}</th>
+                <th>{ui.samples}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((e) => (
+                <tr class={e.status === 'ABANDONED' ? 'el-row-abandoned' : ''}>
+                  <td class="el-code mono">{e.code}</td>
+                  <td class="el-date mono">{e.date_start}</td>
+                  <td><span class={`el-badge ${STATUS_CLS[e.status]}`}>{ui.statusLbls[e.status as keyof typeof ui.statusLbls]}</span></td>
+                  <td class="el-samples">
+                    {e.samples && e.samples.length > 0
+                      ? <span class="el-samples-list mono">{e.samples.join(', ')}</span>
+                      : <span class="el-samples-none">—</span>
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div class="el-empty">
+      <p class="el-empty-msg">{ui.empty}</p>
+      <p class="el-empty-hint">{ui.runBridge}</p>
+      <pre class="el-empty-cmd">python scripts/notebook-export.py --only experiments</pre>
+    </div>
+  )}
+
+</div>
+
+<style>
+  /* ── Stats ── */
+
+  .el-stats {
+    display: flex;
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+  }
+
+  .el-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .el-stat-sync {
+    margin-left: auto;
+    align-items: flex-end;
+  }
+
+  .el-stat-val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: var(--font-mono, monospace);
+    line-height: 1;
+    color: var(--c-text);
+  }
+
+  .el-stat-lbl {
+    font-size: 0.7rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .el-sync-label {
+    font-size: 0.68rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .el-sync-val {
+    font-size: 0.72rem;
+    color: var(--c-text-2);
+  }
+
+  /* Couleurs statuts */
+  .el-color-inprogress { color: #6080a0; }
+  .el-color-completed  { color: var(--c-success); }
+  .el-color-type       { color: var(--c-text-2); }
+
+  /* ── Groupes par type ── */
+
+  .el-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .el-group-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .el-group-type {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-2);
+  }
+
+  .el-group-count {
+    font-size: 0.68rem;
+    font-family: var(--font-mono, monospace);
+    color: var(--c-text-3);
+    background: var(--c-border);
+    padding: 1px 6px;
+    border-radius: 99px;
+  }
+
+  /* ── Table ── */
+
+  .el-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .el-table th {
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-3);
+    padding: var(--space-xs, 4px) var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+  }
+
+  .el-table td {
+    padding: var(--space-xs, 5px) var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text);
+    vertical-align: middle;
+  }
+
+  .el-row-abandoned td {
+    opacity: 0.45;
+  }
+
+  .el-code {
+    font-size: 0.72rem;
+    color: var(--c-text-2);
+  }
+
+  .el-date {
+    font-size: 0.72rem;
+    color: var(--c-text-3);
+  }
+
+  .el-samples-list {
+    font-size: 0.68rem;
+    color: var(--c-text-3);
+  }
+
+  .el-samples-none {
+    color: var(--c-text-3);
+  }
+
+  /* ── Badges statut ── */
+
+  .el-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 99px;
+  }
+
+  .el-status-planned {
+    background: var(--c-border);
+    color: var(--c-text-3);
+  }
+
+  .el-status-inprogress {
+    background: color-mix(in srgb, #6080a0 12%, transparent);
+    color: #6080a0;
+  }
+
+  .el-status-completed {
+    background: color-mix(in srgb, var(--c-success) 12%, transparent);
+    color: var(--c-success);
+  }
+
+  .el-status-abandoned {
+    background: color-mix(in srgb, #c0392b 12%, transparent);
+    color: #c0392b;
+  }
+
+  /* ── Empty state ── */
+
+  .el-empty {
+    padding: var(--space-xl) 0;
+    text-align: center;
+  }
+
+  .el-empty-msg {
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    font-style: italic;
+    margin-bottom: var(--space-sm);
+  }
+
+  .el-empty-hint {
+    font-size: 0.8rem;
+    color: var(--c-text-3);
+    margin-bottom: var(--space-sm);
+  }
+
+  .el-empty-cmd {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-family: var(--font-mono, monospace);
+    background: var(--c-border);
+    color: var(--c-text-2);
+    padding: var(--space-xs, 4px) var(--space-md);
+    border-radius: 6px;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .el-stats {
+      gap: var(--space-lg);
+    }
+
+    .el-stat-sync {
+      margin-left: 0;
+      align-items: flex-start;
+    }
+
+    .el-table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+</style>
