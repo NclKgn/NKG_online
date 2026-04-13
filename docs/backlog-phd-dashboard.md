@@ -91,13 +91,13 @@ L'app locale existe déjà avec :
 
 ---
 
-## EPIC 0 — Bridge : PhD_Notebook → NKG_online 🔗
+## EPIC 0 — Bridge : PhD_Notebook → NKG_online 🔗 (partiel ✅)
 
 > Script d'export qui lit la base SQLite de PhD_Notebook et
 > génère les fichiers YAML pour le site Astro. C'est le pont
 > central entre les deux repos.
 
-### 0.1 Script d'export `scripts/notebook-export.py`
+### 0.1 Script d'export `scripts/notebook-export.py` ✅
 - **Priorité :** P0 | **Complexité :** L
 - **Repo :** 🌐 NKG_online (mais lit la DB de 🔬 PhD_Notebook)
 - **Description :** Script Python qui se connecte à la base SQLite
@@ -121,7 +121,7 @@ L'app locale existe déjà avec :
 - **Fichiers :** `scripts/notebook-export.py`
 - **Dépendances :** `sqlalchemy`, `pyyaml`
 
-### 0.2 Mapping des données exportées
+### 0.2 Mapping des données exportées ✅
 - **Priorité :** P0 | **Complexité :** S
 - **Description :** Documentation du mapping entre les tables
   SQLite et les fichiers YAML :
@@ -1446,8 +1446,8 @@ Phase 2 — Dashboard core + accès invité 🌐              ✅ TERMINÉE
   4.2  Composant ScopingDashboard                🌐 ✅ prototype
 
 Phase 3 — Bridge + planning 🔗🌐🔬                      🔄 EN COURS
-  0.1  Script notebook-export.py                 🔗 ← PRIORITAIRE (bloqué : accès PhD_Notebook)
-  0.2  Documentation mapping données             🔗
+  0.1  Script notebook-export.py                 🔗 ✅
+  0.2  Documentation mapping données             🔗 ✅
   10.1 Toggle mode présentation                  🌐 ✅
   12.1 Smoke tests post-build                    🌐 ✅
   17.1 Système de versions protocols.yaml        🌐 (puis 🔬)
