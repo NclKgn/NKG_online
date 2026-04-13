@@ -563,24 +563,21 @@ L'app locale existe déjà avec :
 
 ### 10.1 Toggle mode présentation
 - **Priorité :** P1 | **Complexité :** M
-- **Description :** Bouton dans `/phd/dashboard` qui bascule
-  l'affichage en mode "présentation" :
-  - Masque les éléments de navigation (Nav, footer)
-  - Agrandit les composants visuels (progress bars, PRISMA)
-  - Passe en plein écran (Fullscreen API)
-  - Police plus grande, contraste renforcé
-  - Optionnel : mode défilement auto (slideshow)
-- **UX :** Un bouton discret "Présenter" (icône projecteur)
-  en haut du dashboard. Touche Escape pour quitter.
-- **Fichiers :** `src/components/PresentationToggle.astro`,
-  styles dans `ScopingDashboard.astro` et `CollecteDashboard.astro`
+- **Description :** Bouton "Présenter" dans le header du dashboard :
+  - Masque nav, footer, breadcrumb, modules, liens rapides
+  - Agrandit valeurs clés, barres de progression, titres h1/h2
+  - Fullscreen API (dégradé silencieux si non supporté)
+  - Touche P pour entrer, Escape pour quitter
+  - État restauré si fullscreen fermé nativement
+- **Fichiers :** `src/components/PresentationToggle.astro`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ### 10.2 URL directe mode présentation
 - **Priorité :** P2 | **Complexité :** S
-- **Description :** `/phd/dashboard?mode=presentation` active
-  le mode automatiquement. Pratique pour partager un lien
-  direct au directeur de thèse.
-- **Fichiers :** `src/pages/phd/dashboard.astro` (lecture query param)
+- **Description :** `?mode=presentation` dans l'URL active le mode
+  automatiquement au chargement. Intégré dans `PresentationToggle.astro`.
+- **Fichiers :** `src/components/PresentationToggle.astro`
+- **Statut :** ✅ Terminé (2026-04-13)
 
 ---
 

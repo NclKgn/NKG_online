@@ -1,0 +1,163 @@
+---
+// src/components/PresentationToggle.astro
+// EPIC 10.1 — Toggle mode présentation (fullscreen + styles améliorés)
+---
+
+<button class="pres-btn" id="pres-toggle" title="Mode présentation (P)">
+  <span class="pres-icon-enter" aria-hidden="true">⊞</span>
+  <span class="pres-icon-exit"  aria-hidden="true">✕</span>
+  <span class="pres-label-enter">Présenter</span>
+  <span class="pres-label-exit">Quitter</span>
+</button>
+
+<script>
+  const btn    = document.getElementById('pres-toggle')!;
+  const body   = document.body;
+  const ATTR   = 'data-presentation';
+  const KEY    = 'nkg-presentation';
+
+  function enter() {
+    body.setAttribute(ATTR, '');
+    sessionStorage.setItem(KEY, '1');
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  }
+
+  function exit() {
+    body.removeAttribute(ATTR);
+    sessionStorage.removeItem(KEY);
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+  }
+
+  function toggle() {
+    body.hasAttribute(ATTR) ? exit() : enter();
+  }
+
+  btn.addEventListener('click', toggle);
+
+  // Touche P pour présenter, Escape pour quitter
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && body.hasAttribute(ATTR)) { exit(); return; }
+    if (e.key === 'p' || e.key === 'P') {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA') toggle();
+    }
+  });
+
+  // Fullscreen fermé par l'utilisateur (Escape natif)
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && body.hasAttribute(ATTR)) exit();
+  });
+
+  // Auto-activation via ?mode=presentation (EPIC 10.2)
+  if (new URLSearchParams(location.search).get('mode') === 'presentation') {
+    enter();
+  }
+</script>
+
+<style is:global>
+  /* ── Mode présentation ───────────────────────────────────────────────────── */
+
+  body[data-presentation] .site-nav,
+  body[data-presentation] .site-footer,
+  body[data-presentation] .breadcrumb,
+  body[data-presentation] .dash-links,
+  body[data-presentation] .dash-modules,
+  body[data-presentation] .guest-badge {
+    display: none !important;
+  }
+
+  body[data-presentation] main {
+    padding-top: var(--space-xl) !important;
+  }
+
+  /* Agrandir les valeurs clés */
+  body[data-presentation] .cd-stat-value,
+  body[data-presentation] .tt-stat-value {
+    font-size: 2.8rem;
+  }
+
+  body[data-presentation] .cd-axe-label,
+  body[data-presentation] .tt-section-title {
+    font-size: 1.1rem;
+  }
+
+  body[data-presentation] .cd-item-label,
+  body[data-presentation] .tt-chapter-title,
+  body[data-presentation] .pht-label {
+    font-size: 1rem;
+  }
+
+  /* Barres plus épaisses */
+  body[data-presentation] .cd-global-track,
+  body[data-presentation] .tt-global-track {
+    height: 10px;
+  }
+
+  body[data-presentation] .cd-axe-track,
+  body[data-presentation] .cd-item-track,
+  body[data-presentation] .tt-bar-track {
+    height: 8px;
+  }
+
+  /* Dashboard titre */
+  body[data-presentation] h1 {
+    font-size: 2.8rem;
+  }
+
+  body[data-presentation] h2 {
+    font-size: 1.6rem;
+  }
+</style>
+
+<style>
+  .pres-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 5px 12px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm, 6px);
+    background: transparent;
+    color: var(--c-text-3);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pres-btn:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+
+  /* Icône exit masquée par défaut */
+  .pres-icon-exit,
+  .pres-label-exit {
+    display: none;
+  }
+
+  /* En mode présentation : inverser les icônes */
+  body[data-presentation] .pres-icon-enter,
+  body[data-presentation] .pres-label-enter {
+    display: none;
+  }
+
+  body[data-presentation] .pres-icon-exit,
+  body[data-presentation] .pres-label-exit {
+    display: inline;
+  }
+
+  body[data-presentation] .pres-btn {
+    position: fixed;
+    top: var(--space-md);
+    right: var(--space-md);
+    z-index: 9999;
+    background: var(--c-surface);
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+</style>

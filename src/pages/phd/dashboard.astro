@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import CollecteDashboard from '../../components/CollecteDashboard.astro';
 import ThesisTracker from '../../components/ThesisTracker.astro';
 import PhDTimeline from '../../components/PhDTimeline.astro';
+import PresentationToggle from '../../components/PresentationToggle.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 
@@ -27,8 +28,13 @@ const noindex = await shouldNoIndex(pageKey);
       <span>Dashboard</span>
     </nav>
 
-    <h1>Dashboard</h1>
-    <p class="dashboard-subtitle">Suivi de la collecte de données · Thèse en sciences biomédicales</p>
+    <div class="dash-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="dashboard-subtitle">Suivi de la collecte de données · Thèse en sciences biomédicales</p>
+      </div>
+      <PresentationToggle />
+    </div>
 
     <!-- Vue d'ensemble collecte (EPIC 2.1) -->
     <section class="dash-overview">
@@ -121,6 +127,14 @@ const noindex = await shouldNoIndex(pageKey);
     color: var(--c-accent);
   }
 
+  .dash-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+
   h1 {
     font-size: 2.2rem;
     margin-bottom: var(--space-xs, 6px);
@@ -130,7 +144,7 @@ const noindex = await shouldNoIndex(pageKey);
     font-size: 0.9rem;
     color: var(--c-text-2);
     font-style: italic;
-    margin-bottom: var(--space-xl);
+    margin-bottom: 0;
   }
 
   /* ── Overview ── */
