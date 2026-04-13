@@ -7,7 +7,7 @@
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
 > **Date :** 13 avril 2026 (màj)
 > **Statut :** Phase 3–4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 19 (13 EPICs)
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 19, 22.3, 22.4 (15 EPICs)
 
 ---
 
@@ -1377,8 +1377,8 @@ L'app locale existe déjà avec :
 - **Fichiers :** `src/components/ReagentDatabase.astro`,
   `src/pages/phd/reagents.astro`
 
-### 22.3 Checklist soutenance `src/data/defense.yaml`
-- **Priorité :** P2 | **Complexité :** S
+### 22.3 Checklist soutenance `src/data/defense.yaml` ✅
+- **Priorité :** P2 | **Complexité :** S | **Statut :** ✅ Livré
 - **Description :** Étapes administratives avec statut :
   ```yaml
   target_date: "2026-12-15"
@@ -1410,8 +1410,8 @@ L'app locale existe déjà avec :
   ```
 - **Fichiers :** `src/data/defense.yaml`
 
-### 22.4 Widget soutenance sur le dashboard
-- **Priorité :** P2 | **Complexité :** S
+### 22.4 Widget soutenance sur le dashboard ✅
+- **Priorité :** P2 | **Complexité :** S | **Statut :** ✅ Livré
 - **Description :** Barre de progression de la checklist
   soutenance + prochaine échéance mise en évidence.
   Intégré dans la timeline (EPIC 5) également.

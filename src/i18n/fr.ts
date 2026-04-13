@@ -153,6 +153,21 @@ export default {
       outdatedLabel:  'Obsolète',
       sourceExp:      'Expérience',
     },
+    defense: {
+      title:   'Checklist soutenance',
+      defense: 'Soutenance :',
+      next:    'Prochain :',
+      catLbls: {
+        admin:    'Admin',
+        jury:     'Jury',
+        manuscrit:'Manuscrit',
+      },
+      statusLbls: {
+        done:    'Fait',
+        upcoming:'À venir',
+        pending: 'En attente',
+      },
+    },
     experimentsLive: {
       title:      'Expériences live',
       total:      'Total',

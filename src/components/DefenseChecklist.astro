@@ -1,0 +1,286 @@
+---
+// src/components/DefenseChecklist.astro
+// EPIC 22.4 — Checklist soutenance sur le dashboard
+import { getEntry } from 'astro:content';
+import { t, getLocale } from '../i18n';
+
+const ui = t(getLocale()).dashboard.defense;
+
+const entry = await getEntry('defense', 'defense-data');
+const data  = entry?.data;
+const steps = data?.steps ?? [];
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function formatDeadline(d: string) {
+  return new Date(d).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function daysUntil(d: string) {
+  const diff = new Date(d).getTime() - Date.now();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+
+const total    = steps.length;
+const done     = steps.filter((s) => s.status === 'done').length;
+const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+
+// Prochaine échéance : premier step non-done avec deadline, trié par date
+const nextStep = steps
+  .filter((s) => s.status !== 'done' && s.deadline)
+  .sort((a, b) => (a.deadline! < b.deadline! ? -1 : 1))[0] ?? null;
+
+const nextDays   = nextStep?.deadline ? daysUntil(nextStep.deadline) : null;
+const nextUrgent = nextDays !== null && nextDays <= 30;
+
+const targetDate = data?.target_date
+  ? new Date(data.target_date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
+
+const STATUS_CLS: Record<string, string> = {
+  done:     'dc-status-done',
+  upcoming: 'dc-status-upcoming',
+  pending:  'dc-status-pending',
+};
+
+const CAT_CLS: Record<string, string> = {
+  admin:    'dc-cat-admin',
+  jury:     'dc-cat-jury',
+  manuscrit:'dc-cat-manuscrit',
+};
+---
+
+<div class="dc-root">
+
+  <!-- En-tête : date cible + progression -->
+  <div class="dc-header">
+    <div class="dc-progress-wrap">
+      <div class="dc-progress-bar">
+        <div class="dc-progress-fill" style={`width: ${progress}%`}></div>
+      </div>
+      <span class="dc-progress-label mono">{done}/{total}</span>
+    </div>
+    {targetDate && (
+      <span class="dc-target-date">
+        {ui.defense} <span class="mono">{targetDate}</span>
+      </span>
+    )}
+  </div>
+
+  <!-- Prochaine échéance -->
+  {nextStep && (
+    <div class={`dc-next ${nextUrgent ? 'dc-next-urgent' : ''}`}>
+      <span class="dc-next-label">{ui.next}</span>
+      <span class="dc-next-step">{nextStep.label}</span>
+      <span class={`dc-next-date mono ${nextUrgent ? 'dc-urgent-text' : ''}`}>
+        {formatDeadline(nextStep.deadline!)}
+        {nextDays !== null && (nextDays > 0 ? ` — J-${nextDays}` : ` — J${nextDays}`)}
+      </span>
+    </div>
+  )}
+
+  <!-- Liste des étapes -->
+  <ul class="dc-list">
+    {steps.map((step) => (
+      <li class={`dc-item ${STATUS_CLS[step.status]}`}>
+        <span class="dc-check" aria-hidden="true">
+          {step.status === 'done' ? '✓' : step.status === 'upcoming' ? '◎' : '○'}
+        </span>
+        <span class="dc-item-label">{step.label}</span>
+        <span class={`dc-cat-badge ${CAT_CLS[step.category]}`}>
+          {ui.catLbls[step.category as keyof typeof ui.catLbls]}
+        </span>
+        {step.status === 'done' && step.date && (
+          <span class="dc-item-date mono">{formatDeadline(step.date)}</span>
+        )}
+        {step.status !== 'done' && step.deadline && (
+          <span class="dc-item-date mono">{formatDeadline(step.deadline)}</span>
+        )}
+      </li>
+    ))}
+  </ul>
+
+</div>
+
+<style>
+  /* ── Header ── */
+
+  .dc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-lg);
+  }
+
+  .dc-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .dc-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--c-border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .dc-progress-fill {
+    height: 100%;
+    background: var(--c-success);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .dc-progress-label {
+    font-size: 0.75rem;
+    color: var(--c-text-2);
+    white-space: nowrap;
+  }
+
+  .dc-target-date {
+    font-size: 0.78rem;
+    color: var(--c-text-3);
+  }
+
+  .dc-target-date .mono {
+    color: var(--c-text-2);
+    font-size: 0.78rem;
+  }
+
+  /* ── Prochaine échéance ── */
+
+  .dc-next {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    padding: var(--space-sm) var(--space-md);
+    background: color-mix(in srgb, #6080a0 8%, transparent);
+    border: 1px solid color-mix(in srgb, #6080a0 25%, transparent);
+    border-radius: 6px;
+    margin-bottom: var(--space-lg);
+  }
+
+  .dc-next-urgent {
+    background: color-mix(in srgb, var(--c-accent) 8%, transparent);
+    border-color: color-mix(in srgb, var(--c-accent) 25%, transparent);
+  }
+
+  .dc-next-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6080a0;
+    white-space: nowrap;
+  }
+
+  .dc-next-urgent .dc-next-label {
+    color: var(--c-accent);
+  }
+
+  .dc-next-step {
+    font-size: 0.82rem;
+    color: var(--c-text);
+    flex: 1;
+  }
+
+  .dc-next-date {
+    font-size: 0.72rem;
+    color: var(--c-text-2);
+    white-space: nowrap;
+  }
+
+  .dc-urgent-text {
+    color: var(--c-accent);
+  }
+
+  /* ── Liste ── */
+
+  .dc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .dc-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs, 5px) var(--space-sm);
+    border-radius: 4px;
+    font-size: 0.82rem;
+  }
+
+  .dc-item:hover {
+    background: var(--c-surface);
+  }
+
+  .dc-check {
+    font-size: 0.78rem;
+    width: 1.2em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .dc-item-label {
+    flex: 1;
+    color: var(--c-text);
+  }
+
+  .dc-item-date {
+    font-size: 0.68rem;
+    color: var(--c-text-3);
+    white-space: nowrap;
+  }
+
+  /* Statuts */
+  .dc-status-done .dc-check     { color: var(--c-success); }
+  .dc-status-done .dc-item-label { color: var(--c-text-3); text-decoration: line-through; }
+  .dc-status-done .dc-item-date  { color: var(--c-text-3); }
+
+  .dc-status-upcoming .dc-check  { color: #6080a0; }
+  .dc-status-upcoming .dc-item-label { font-weight: 600; }
+
+  .dc-status-pending .dc-check   { color: var(--c-text-3); }
+  .dc-status-pending .dc-item-label { color: var(--c-text-2); }
+
+  /* ── Badges catégorie ── */
+
+  .dc-cat-badge {
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1px 6px;
+    border-radius: 99px;
+  }
+
+  .dc-cat-admin    { background: var(--c-border); color: var(--c-text-3); }
+  .dc-cat-jury     { background: color-mix(in srgb, #e07b2a 12%, transparent); color: #e07b2a; }
+  .dc-cat-manuscrit{ background: color-mix(in srgb, #6080a0 12%, transparent); color: #6080a0; }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .dc-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .dc-progress-wrap {
+      width: 100%;
+    }
+  }
+</style>

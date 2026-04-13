@@ -1,0 +1,53 @@
+# Checklist soutenance — EPIC 22.3
+# À mettre à jour manuellement au fil de l'avancement.
+
+defense-data:
+  target_date: "2026-12-15"
+  steps:
+    - id: inscription-3a
+      label: "Inscription en 3e année"
+      category: admin
+      status: done
+      date: "2025-10-01"
+
+    - id: csi-annuel
+      label: "CSI annuel (Comité de Suivi Individuel)"
+      category: admin
+      status: done
+      date: "2026-01-20"
+
+    - id: comite-suivi
+      label: "Comité de suivi de thèse"
+      category: admin
+      status: upcoming
+      deadline: "2026-06-15"
+
+    - id: pre-rapporteurs
+      label: "Choix des pré-rapporteurs"
+      category: jury
+      status: pending
+      deadline: "2026-07-01"
+
+    - id: composition-jury
+      label: "Composition du jury"
+      category: jury
+      status: pending
+      deadline: "2026-09-15"
+
+    - id: soumission-pre-rapporteurs
+      label: "Soumission manuscrit aux pré-rapporteurs"
+      category: manuscrit
+      status: pending
+      deadline: "2026-10-01"
+
+    - id: depot-ecole-doctorale
+      label: "Dépôt manuscrit à l'école doctorale"
+      category: manuscrit
+      status: pending
+      deadline: "2026-11-01"
+
+    - id: soutenance
+      label: "Soutenance"
+      category: admin
+      status: pending
+      deadline: "2026-12-15"

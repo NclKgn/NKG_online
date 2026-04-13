@@ -152,6 +152,21 @@ export default {
       outdatedLabel:  'Outdated',
       sourceExp:      'Experiment',
     },
+    defense: {
+      title:   'Defence Checklist',
+      defense: 'Defence:',
+      next:    'Next:',
+      catLbls: {
+        admin:    'Admin',
+        jury:     'Jury',
+        manuscrit:'Manuscript',
+      },
+      statusLbls: {
+        done:    'Done',
+        upcoming:'Upcoming',
+        pending: 'Pending',
+      },
+    },
     experimentsLive: {
       title:      'Live Experiments',
       total:      'Total',

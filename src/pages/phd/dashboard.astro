@@ -8,6 +8,7 @@ import PresentationToggle from '../../components/PresentationToggle.astro';
 import FigureTracker from '../../components/FigureTracker.astro';
 import SpecimenTracker from '../../components/SpecimenTracker.astro';
 import ExperimentsLiveTracker from '../../components/ExperimentsLiveTracker.astro';
+import DefenseChecklist from '../../components/DefenseChecklist.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 import { t, getLocale } from '../../i18n';
@@ -45,6 +46,12 @@ const noindex = await shouldNoIndex(pageKey);
     <section class="dash-overview">
       <h2>{ui.collecte.title}</h2>
       <CollecteDashboard />
+    </section>
+
+    <!-- Checklist soutenance (EPIC 22.3/22.4) -->
+    <section class="dash-overview">
+      <h2>{ui.defense.title}</h2>
+      <DefenseChecklist />
     </section>
 
     <!-- Tracker rédaction (EPIC 3) -->

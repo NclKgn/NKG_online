@@ -250,6 +250,21 @@ const specimens = defineCollection({
   }),
 });
 
+const defense = defineCollection({
+  loader: file('./src/data/defense.yaml'),
+  schema: z.object({
+    target_date: z.string(),
+    steps: z.array(z.object({
+      id: z.string(),
+      label: z.string(),
+      category: z.enum(['admin', 'jury', 'manuscrit']),
+      status: z.enum(['done', 'upcoming', 'pending']),
+      date: z.string().optional(),
+      deadline: z.string().optional(),
+    })),
+  }),
+});
+
 const experimentsLive = defineCollection({
   loader: file('./src/data/experiments-live.yaml'),
   schema: z.object({
@@ -287,5 +302,6 @@ export const collections = {
   figures,
   specimens,
   'experiments-live': experimentsLive,
+  defense,
   visibility,
 };
