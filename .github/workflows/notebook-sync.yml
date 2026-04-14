@@ -1,0 +1,25 @@
+# .github/workflows/notebook-sync.yml
+# EPIC 0.3 — Déclenchement manuel du rebuild après sync notebook local
+#
+# Usage :
+#   - Bouton "Run workflow" dans GitHub Actions > Notebook Sync
+#   - Ou : gh workflow run notebook-sync.yml
+#
+# Prérequis : avoir lancé scripts/sync-notebook.sh localement
+# (le push suffit à déclencher deploy.yml automatiquement,
+#  ce workflow sert à forcer un rebuild sans nouveau commit)
+
+name: Notebook Sync (manuel)
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Raison du rebuild (optionnel)"
+        required: false
+        default: "Sync notebook manuel"
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit

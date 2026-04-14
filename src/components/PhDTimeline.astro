@@ -1,31 +1,15 @@
 ---
-// src/components/PhDTimeline.astro
-// EPIC 5.2 — Timeline verticale avec indicateur "vous êtes ici"
+// src/components/PhDTimeline.astro — EPIC 5 (vertical + horizontal toggle)
 import { getEntry } from 'astro:content';
 import { t, getLocale } from '../i18n';
 const ui = t(getLocale()).dashboard.timeline;
 
 const entry = await getEntry('timeline', 'timeline');
 const raw = entry!.data.entries;
-
-// Tri chronologique
 const entries = [...raw].sort((a, b) => a.date.getTime() - b.date.getTime());
 
-const today = new Date();
+const today   = new Date();
 const todayMs = today.getTime();
-
-// Précalcul isPast pour chaque entrée (évite <= dans le template Astro)
-const entryMeta = entries.map((e, i) => ({
-  isPast:     e.date.getTime() < todayMs + 86400000, // date <= aujourd'hui
-  showMarker: false, // rempli ci-dessous
-}));
-
-// Trouver le point d'insertion "vous êtes ici"
-const lastDoneIdx = entryMeta.reduce((acc, m, i) => (m.isPast ? i : acc), -1);
-if (lastDoneIdx >= 0 && lastDoneIdx + 1 < entryMeta.length) {
-  entryMeta[lastDoneIdx + 1].showMarker = true;
-}
-const showNowFirst = lastDoneIdx === -1 && entries.length > 0;
 
 const TYPE_CONFIG = {
   milestone:   { label: ui.types.milestone,   color: 'var(--c-accent)',  cls: 'type-milestone' },
@@ -34,57 +18,235 @@ const TYPE_CONFIG = {
   committee:   { label: ui.types.committee,   color: 'var(--c-success)', cls: 'type-committee' },
 } as const;
 
-function formatDate(d: Date): string {
+function fmtDate(d: Date): string {
   return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
 }
+
+// ── Métadonnées partagées ──
+const entryMeta = entries.map((e) => ({
+  isPast: e.date.getTime() < todayMs + 86400000,
+  showMarker: false,
+}));
+const lastDoneIdx = entryMeta.reduce((acc, m, i) => (m.isPast ? i : acc), -1);
+if (lastDoneIdx >= 0 && lastDoneIdx + 1 < entryMeta.length) {
+  entryMeta[lastDoneIdx + 1].showMarker = true;
+}
+const showNowFirst = lastDoneIdx === -1 && entries.length > 0;
+
+// ── Vue horizontale — espacement égal ──
+const n = entries.length;
+const PAD = 5; // % de marge sur chaque côté
+function evenLeft(i: number): number {
+  return PAD + (i / (n - 1)) * (100 - 2 * PAD);
+}
+
+// Position du marqueur "aujourd'hui" dans la vue horizontale
+const showTodayH = todayMs > entries[0].date.getTime() && todayMs < entries[n - 1].date.getTime();
+let todayHLeft = 5;
+if (showTodayH && lastDoneIdx >= 0 && lastDoneIdx + 1 < n) {
+  const e0   = entries[lastDoneIdx];
+  const e1   = entries[lastDoneIdx + 1];
+  const frac = Math.max(0, Math.min(1,
+    (todayMs - e0.date.getTime()) / (e1.date.getTime() - e0.date.getTime())
+  ));
+  todayHLeft = evenLeft(lastDoneIdx) + frac * (evenLeft(lastDoneIdx + 1) - evenLeft(lastDoneIdx));
+}
+
+const hEvents = entries.map((e, i) => {
+  const cfg = TYPE_CONFIG[e.type];
+  return {
+    ...e,
+    leftPct:   evenLeft(i).toFixed(2),
+    isPast:    entryMeta[i].isPast,
+    above:     i % 2 === 0,
+    color:     cfg.color,
+    typeCls:   cfg.cls,
+    typeLabel: cfg.label,
+  };
+});
 ---
 
-<div class="pht-root">
-  <div class="pht-line" aria-hidden="true"></div>
+<div class="pht-root" id="pht-root" data-view="vertical">
 
-  {entries.map((e, i) => {
-    const t = TYPE_CONFIG[e.type];
-    const { isPast, showMarker } = entryMeta[i];
+  <!-- Bouton de bascule -->
+  <div class="pht-controls">
+    <button class="pht-view-btn" id="pht-view-btn">
+      <span class="icon-h" aria-hidden="true">⇌</span>
+      <span class="icon-v" aria-hidden="true">⇌</span>
+      <span class="lbl-to-h">Vue horizontale</span>
+      <span class="lbl-to-v">Vue verticale</span>
+    </button>
+  </div>
 
-    return (
-      <Fragment>
-        {showMarker && (
-          <div class="pht-now" role="presentation">
-            <div class="pht-now-dot"></div>
-            <span class="pht-now-label mono">{ui.today}</span>
-          </div>
-        )}
+  <!-- ═══════════════ VUE VERTICALE (originale) ═══════════════ -->
+  <div class="pht-v" id="pht-v">
+    <div class="pht-line" aria-hidden="true"></div>
 
-        <div class={`pht-entry ${isPast ? 'pht-done' : 'pht-upcoming'}`}>
-          <div class="pht-dot-col">
-            <span
-              class={`pht-dot ${t.cls} ${isPast ? 'dot-filled' : 'dot-outline'}`}
-              style={`--type-color: ${t.color}`}
-            ></span>
-          </div>
-          <div class="pht-body">
-            <div class="pht-meta">
-              <span class="pht-date mono">{formatDate(e.date)}</span>
-              <span class={`pht-type-badge ${t.cls}`}>{t.label}</span>
+    {entries.map((e, i) => {
+      const cfg = TYPE_CONFIG[e.type];
+      const { isPast, showMarker } = entryMeta[i];
+
+      return (
+        <>
+          {showMarker && (
+            <div class="pht-now" role="presentation">
+              <div class="pht-now-dot"></div>
+              <span class="pht-now-label mono">{ui.today}</span>
             </div>
-            <span class="pht-label">{e.label}</span>
-          </div>
-        </div>
-      </Fragment>
-    );
-  })}
+          )}
 
-  <!-- Marqueur en tête si tous les événements sont futurs -->
-  {showNowFirst && (
-    <div class="pht-now pht-now-first" role="presentation">
-      <div class="pht-now-dot"></div>
-      <span class="pht-now-label mono">{ui.today}</span>
+          <div class={`pht-entry ${isPast ? 'pht-done' : 'pht-upcoming'}`}>
+            <div class="pht-dot-col">
+              <span
+                class={`pht-dot ${cfg.cls} ${isPast ? 'dot-filled' : 'dot-outline'}`}
+                style={`--type-color: ${cfg.color}`}
+              ></span>
+            </div>
+            <div class="pht-body">
+              <div class="pht-meta">
+                <span class="pht-date mono">{fmtDate(e.date)}</span>
+                <span class={`pht-type-badge ${cfg.cls}`}>{cfg.label}</span>
+              </div>
+              <span class="pht-label">{e.label}</span>
+            </div>
+          </div>
+        </>
+      );
+    })}
+
+    {showNowFirst && (
+      <div class="pht-now pht-now-first" role="presentation">
+        <div class="pht-now-dot"></div>
+        <span class="pht-now-label mono">{ui.today}</span>
+      </div>
+    )}
+  </div>
+
+  <!-- ═══════════════ VUE HORIZONTALE ═══════════════ -->
+  <div class="pht-h-outer" id="pht-h">
+    <div class="pht-h-track">
+
+      <!-- Rail -->
+      <div class="pht-h-rail" aria-hidden="true"></div>
+
+      <!-- Événements -->
+      {hEvents.map((e) => (
+        <div
+          class={`pht-h-pin ${e.above ? 'pin-top' : 'pin-bot'} ${e.isPast ? 'pin-done' : 'pin-future'}`}
+          style={`left: ${e.leftPct}%; --col: ${e.color}`}
+          title={e.label}
+        >
+          <div class="pht-h-dot"></div>
+          {e.above ? (
+            <div class="pht-h-info pht-h-info-top">
+              <span class="pht-h-lbl">{e.label}</span>
+              <span class={`pht-h-badge ${e.typeCls}`}>{e.typeLabel}</span>
+              <time class="pht-h-date mono">{fmtDate(e.date)}</time>
+            </div>
+          ) : (
+            <div class="pht-h-info pht-h-info-bot">
+              <time class="pht-h-date mono">{fmtDate(e.date)}</time>
+              <span class={`pht-h-badge ${e.typeCls}`}>{e.typeLabel}</span>
+              <span class="pht-h-lbl">{e.label}</span>
+            </div>
+          )}
+        </div>
+      ))}
+
+      <!-- Marqueur aujourd'hui -->
+      {showTodayH && (
+        <div class="pht-h-today" style={`left: ${todayHLeft.toFixed(2)}%`}>
+          <span class="pht-h-today-lbl mono">{ui.today}</span>
+          <div class="pht-h-today-stem" aria-hidden="true"></div>
+          <div class="pht-h-today-dot"></div>
+        </div>
+      )}
+
     </div>
-  )}
+  </div>
+
 </div>
 
+<script>
+  const root = document.getElementById('pht-root')   as HTMLElement;
+  const btn  = document.getElementById('pht-view-btn') as HTMLButtonElement;
+  const KEY  = 'nkg-timeline-view';
+
+  function setView(v: 'vertical' | 'horizontal') {
+    root.dataset.view = v;
+    sessionStorage.setItem(KEY, v);
+  }
+
+  btn.addEventListener('click', () => {
+    setView(root.dataset.view === 'vertical' ? 'horizontal' : 'vertical');
+  });
+
+  const saved = sessionStorage.getItem(KEY) as 'vertical' | 'horizontal' | null;
+  if (saved === 'vertical' || saved === 'horizontal') setView(saved);
+
+  // Drag-to-scroll (vue horizontale)
+  const outer = document.getElementById('pht-h') as HTMLElement;
+  let dragging = false, startX = 0, scrollX = 0;
+  outer.addEventListener('mousedown',  (e) => { dragging = true; startX = e.pageX - outer.offsetLeft; scrollX = outer.scrollLeft; outer.style.cursor = 'grabbing'; });
+  outer.addEventListener('mouseleave', ()  => { dragging = false; outer.style.cursor = 'grab'; });
+  outer.addEventListener('mouseup',    ()  => { dragging = false; outer.style.cursor = 'grab'; });
+  outer.addEventListener('mousemove',  (e) => { if (!dragging) return; e.preventDefault(); outer.scrollLeft = scrollX - (e.pageX - outer.offsetLeft - startX); });
+</script>
+
 <style>
+  /* ── Conteneur racine ── */
   .pht-root {
+    /* rien ici — chaque vue gère ses propres styles */
+  }
+
+  /* ── Bascule vue ── */
+  .pht-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--space-md);
+  }
+
+  .pht-view-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 4px 10px;
+    border: 1px solid var(--c-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--c-text-3);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .pht-view-btn:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+
+  /* Labels du bouton selon la vue active */
+  .lbl-to-v, .icon-v { display: none; }
+
+  [data-view="horizontal"] .lbl-to-h { display: none; }
+  [data-view="horizontal"] .lbl-to-v { display: inline; }
+  [data-view="horizontal"] .icon-h   { display: none; }
+  [data-view="horizontal"] .icon-v   { display: inline; }
+
+  /* ── Visibilité des vues ── */
+  [data-view="vertical"]   #pht-h { display: none; }
+  [data-view="horizontal"] #pht-v { display: none; }
+
+
+  /* ════════════════════════════════════════
+     VUE VERTICALE — code original intact
+  ════════════════════════════════════════ */
+
+  .pht-v {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -92,7 +254,6 @@ function formatDate(d: Date): string {
     padding-left: 28px;
   }
 
-  /* Ligne verticale continue */
   .pht-line {
     position: absolute;
     left: 9px;
@@ -103,8 +264,6 @@ function formatDate(d: Date): string {
     border-radius: 99px;
   }
 
-  /* ── Entrée ── */
-
   .pht-entry {
     display: flex;
     gap: var(--space-md);
@@ -113,19 +272,9 @@ function formatDate(d: Date): string {
     position: relative;
   }
 
-  .pht-done {
-    opacity: 1;
-  }
-
-  .pht-upcoming {
-    opacity: 0.7;
-  }
-
-  .pht-upcoming:hover {
-    opacity: 1;
-  }
-
-  /* Dot */
+  .pht-done    { opacity: 1; }
+  .pht-upcoming { opacity: 0.7; }
+  .pht-upcoming:hover { opacity: 1; }
 
   .pht-dot-col {
     position: absolute;
@@ -145,15 +294,8 @@ function formatDate(d: Date): string {
     transition: transform 0.15s;
   }
 
-  .dot-filled {
-    background: var(--type-color);
-  }
-
-  .dot-outline {
-    background: var(--c-surface);
-  }
-
-  /* Corps */
+  .dot-filled  { background: var(--type-color); }
+  .dot-outline { background: var(--c-surface); }
 
   .pht-body {
     display: flex;
@@ -164,9 +306,7 @@ function formatDate(d: Date): string {
     width: 100%;
   }
 
-  .pht-entry:last-child .pht-body {
-    border-bottom: none;
-  }
+  .pht-entry:last-child .pht-body { border-bottom: none; }
 
   .pht-meta {
     display: flex;
@@ -187,11 +327,7 @@ function formatDate(d: Date): string {
     line-height: 1.4;
   }
 
-  .pht-done .pht-label {
-    color: var(--c-text-2);
-  }
-
-  /* Type badges */
+  .pht-done .pht-label { color: var(--c-text-2); }
 
   .pht-type-badge {
     font-size: 0.62rem;
@@ -207,8 +343,6 @@ function formatDate(d: Date): string {
   .type-exp       { background: color-mix(in srgb, #e07b2a 15%, transparent);           color: #e07b2a; }
   .type-committee { background: color-mix(in srgb, var(--c-success) 15%, transparent);  color: var(--c-success); }
 
-  /* ── Marqueur "{ui.today}" ── */
-
   .pht-now {
     display: flex;
     align-items: center;
@@ -218,9 +352,7 @@ function formatDate(d: Date): string {
     margin-left: -28px;
   }
 
-  .pht-now-first {
-    order: -1;
-  }
+  .pht-now-first { order: -1; }
 
   .pht-now-dot {
     width: 16px;
@@ -241,10 +373,194 @@ function formatDate(d: Date): string {
     letter-spacing: 0.06em;
   }
 
-  /* Légende */
   @media (max-width: 768px) {
-    .pht-meta {
-      flex-wrap: wrap;
-    }
+    .pht-meta { flex-wrap: wrap; }
+  }
+
+
+  /* ════════════════════════════════════════
+     VUE HORIZONTALE
+     Track 240px — rail à top: 110px
+     Dot 12px  → top: 104px  (center = 110)
+     Info top  → bottom: 140px (= 240 - 100, soit 10px au-dessus du dot)
+     Info bot  → top: 124px   (= 110 + 2 + 12)
+  ════════════════════════════════════════ */
+
+  .pht-h-outer {
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: grab;
+    padding-bottom: var(--space-sm);
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-border) transparent;
+    /* Breakout : sort du .container, occupe toute la fenêtre */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+
+  .pht-h-outer::-webkit-scrollbar       { height: 4px; }
+  .pht-h-outer::-webkit-scrollbar-track { background: transparent; }
+  .pht-h-outer::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 99px; }
+
+  .pht-h-track {
+    position: relative;
+    height: 240px;
+    min-width: max(100%, 1200px);
+  }
+
+  .pht-h-rail {
+    position: absolute;
+    top: 110px;
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: var(--c-border);
+    border-radius: 2px;
+  }
+
+  /* ── Pin ── */
+  .pht-h-pin {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100px;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
+  /* ── Dot ── */
+  .pht-h-dot {
+    position: absolute;
+    top: 104px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--col);
+    background: var(--c-surface);
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 2;
+  }
+
+  .pin-done .pht-h-dot   { background: var(--col); }
+  .pin-future .pht-h-dot { opacity: 0.6; }
+
+  .pht-h-pin:hover .pht-h-dot {
+    transform: translateX(-50%) scale(1.35);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--col) 20%, transparent);
+  }
+
+  /* ── Info ── */
+  .pht-h-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+  }
+
+  /* Zone haute : bottom ancré au-dessus du dot */
+  .pht-h-info-top {
+    bottom: 140px; /* 240 - (104 - 4) = 140 */
+  }
+
+  /* Zone basse : top ancré sous le rail */
+  .pht-h-info-bot {
+    top: 124px; /* 110 + 2 + 12 */
+  }
+
+  .pht-h-lbl {
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--c-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pin-future .pht-h-lbl { color: var(--c-text-2); }
+
+  .pht-h-date {
+    font-size: 0.62rem;
+    color: var(--c-text-3);
+    white-space: nowrap;
+  }
+
+  .pht-h-badge {
+    font-size: 0.56rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1px 5px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  /* Réutilise les classes de couleur déjà définies ci-dessus */
+
+  /* ── Marqueur aujourd'hui ── */
+  .pht-h-today {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transform: translateX(-50%);
+    z-index: 3;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pht-h-today-lbl {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--c-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    background: var(--c-surface);
+    padding: 2px 4px;
+    margin-top: 4px;
+    border-radius: 3px;
+  }
+
+  .pht-h-today-stem {
+    width: 1px;
+    flex: 1;
+    max-height: 90px;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--c-accent) 0px, var(--c-accent) 4px,
+      transparent 4px, transparent 8px
+    );
+    opacity: 0.6;
+  }
+
+  /* Dot pulsant — 16px, centre à top: 110px → top: 102px */
+  .pht-h-today-dot {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--c-accent);
+    border: 3px solid var(--c-surface);
+    box-shadow: 0 0 0 2px var(--c-accent);
+    animation: pht-pulse 2.2s ease-out infinite;
+  }
+
+  @keyframes pht-pulse {
+    0%  { box-shadow: 0 0 0 2px var(--c-accent); }
+    60% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--c-accent) 0%, transparent); }
+    100%{ box-shadow: 0 0 0 2px var(--c-accent); }
+  }
+
+  @media (max-width: 768px) {
+    .pht-h-outer { cursor: default; }
   }
 </style>
