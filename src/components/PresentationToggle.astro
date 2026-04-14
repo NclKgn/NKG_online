@@ -50,8 +50,9 @@ const uiPres = t(getLocale()).dashboard.presentation;
     if (!document.fullscreenElement && body.hasAttribute(ATTR)) exit();
   });
 
-  // Auto-activation via ?mode=presentation (EPIC 10.2)
-  if (new URLSearchParams(location.search).get('mode') === 'presentation') {
+  // Auto-activation via ?presentation=1 (EPIC 10.2)
+  const params = new URLSearchParams(location.search);
+  if (params.get('presentation') === '1' || params.get('mode') === 'presentation') {
     enter();
   }
 </script>

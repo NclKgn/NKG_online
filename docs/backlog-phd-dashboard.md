@@ -581,10 +581,11 @@ L'app locale existe déjà avec :
 
 ### 10.2 URL directe mode présentation
 - **Priorité :** P2 | **Complexité :** S
-- **Description :** `?mode=presentation` dans l'URL active le mode
+- **Description :** `?presentation=1` dans l'URL active le mode
   automatiquement au chargement. Intégré dans `PresentationToggle.astro`.
+  Fallback `?mode=presentation` conservé pour compatibilité.
 - **Fichiers :** `src/components/PresentationToggle.astro`
-- **Statut :** ✅ Terminé (2026-04-13)
+- **Statut :** ✅ Terminé (2026-04-14)
 
 ---
 

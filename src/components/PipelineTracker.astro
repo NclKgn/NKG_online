@@ -115,88 +115,98 @@ const syncLabel = syncRaw
         const progressPct = stepsTotal > 0 ? Math.round((stepsDone / stepsTotal) * 100) : 0;
 
         return (
-          <div class={`pt-card ${pipeline.status === 'ARCHIVED' ? 'pt-card-archived' : ''}`}>
+          <details class={`pt-card ${pipeline.status === 'ARCHIVED' ? 'pt-card-archived' : ''}`} open>
 
-            <!-- En-tête pipeline -->
-            <div class="pt-card-header">
-              <div class="pt-card-meta">
-                <span class="pt-axis-dot" style={`background: ${axisColor}`}></span>
-                <span class="pt-axis-label" style={`color: ${axisColor}`}>
-                  {ui.axisLbls[pipeline.axis as keyof typeof ui.axisLbls]}
-                </span>
-                <span class={`pt-badge ${STATUS_CLS[pipeline.status]}`}>
-                  {ui.statusLbls[pipeline.status as keyof typeof ui.statusLbls]}
-                </span>
-              </div>
-              <h3 class="pt-name">{pipeline.name}</h3>
-            </div>
-
-            <!-- Barre de progression -->
-            <div class="pt-progress-wrap">
-              <div class="pt-progress-bar">
-                <div class="pt-progress-fill" style={`width: ${progressPct}%; background: ${axisColor}`}></div>
-              </div>
-              <span class="pt-progress-label mono">{stepsDone}/{stepsTotal}</span>
-            </div>
-
-            <!-- Steps (chips) -->
-            <div class="pt-steps">
-              {pipeline.steps.map((step) => (
-                <div class={`pt-step ${STEP_STATUS_CLS[step.status]}`}>
-                  <span class="pt-step-icon">{STEP_TYPE_ICON[step.type] ?? '▸'}</span>
-                  <span class="pt-step-label">{step.label}</span>
-                  <span class="pt-step-type mono">
-                    {ui.stepTypeLbls[step.type as keyof typeof ui.stepTypeLbls]}
+            <!-- En-tête pipeline (summary = zone cliquable pour replier) -->
+            <summary class="pt-card-summary">
+              <div class="pt-card-header">
+                <div class="pt-card-meta">
+                  <span class="pt-axis-dot" style={`background: ${axisColor}`}></span>
+                  <span class="pt-axis-label" style={`color: ${axisColor}`}>
+                    {ui.axisLbls[pipeline.axis as keyof typeof ui.axisLbls]}
+                  </span>
+                  <span class={`pt-badge ${STATUS_CLS[pipeline.status]}`}>
+                    {ui.statusLbls[pipeline.status as keyof typeof ui.statusLbls]}
                   </span>
                 </div>
-              ))}
+                <div class="pt-summary-row">
+                  <h3 class="pt-name">{pipeline.name}</h3>
+                  <span class="pt-chevron" aria-hidden="true"></span>
+                </div>
+              </div>
+
+              <!-- Barre de progression (toujours visible) -->
+              <div class="pt-progress-wrap">
+                <div class="pt-progress-bar">
+                  <div class="pt-progress-fill" style={`width: ${progressPct}%; background: ${axisColor}`}></div>
+                </div>
+                <span class="pt-progress-label mono">{stepsDone}/{stepsTotal}</span>
+              </div>
+            </summary>
+
+            <!-- Contenu repliable -->
+            <div class="pt-card-body">
+
+              <!-- Steps (chips) -->
+              <div class="pt-steps">
+                {pipeline.steps.map((step) => (
+                  <div class={`pt-step ${STEP_STATUS_CLS[step.status]}`}>
+                    <span class="pt-step-icon">{STEP_TYPE_ICON[step.type] ?? '▸'}</span>
+                    <span class="pt-step-label">{step.label}</span>
+                    <span class="pt-step-type mono">
+                      {ui.stepTypeLbls[step.type as keyof typeof ui.stepTypeLbls]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <!-- Meta bas — EPIC 18.3 : liens enrichis pipeline → figures → expériences -->
+              {(pipeline.experiments?.length || pipeline.figures?.length || pipeline.notes) && (
+                <div class="pt-card-footer">
+
+                  {/* Expériences liées (codes PhD_Notebook) */}
+                  {pipeline.experiments && pipeline.experiments.length > 0 && (
+                    <div class="pt-links-row">
+                      <span class="pt-links-label">⚗ Exp.</span>
+                      {pipeline.experiments.map((expId) => (
+                        <span class="pt-exp-badge mono">{expId}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Figures liées — enrichies depuis figures.yaml */}
+                  {pipeline.figures && pipeline.figures.length > 0 && (
+                    <div class="pt-links-row pt-links-row--figures">
+                      <span class="pt-links-label">🖼 Fig.</span>
+                      <div class="pt-fig-list">
+                        {pipeline.figures.map((figId) => {
+                          const fig = figureById.get(figId);
+                          if (!fig) {
+                            return <span class="pt-fig-unknown mono">{figId}</span>;
+                          }
+                          const statusCls   = FIG_STATUS_CLS[fig.status]   ?? '';
+                          const statusLabel = FIG_STATUS_LABEL[fig.status] ?? fig.status;
+                          return (
+                            <div class="pt-fig-item">
+                              <span class={`pt-fig-status-dot ${statusCls}`}></span>
+                              <span class="pt-fig-title">{fig.title}</span>
+                              <span class={`pt-fig-badge ${statusCls}`}>{statusLabel}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {pipeline.notes && (
+                    <span class="pt-notes">{pipeline.notes}</span>
+                  )}
+                </div>
+              )}
+
             </div>
 
-            <!-- Meta bas — EPIC 18.3 : liens enrichis pipeline → figures → expériences -->
-            {(pipeline.experiments?.length || pipeline.figures?.length || pipeline.notes) && (
-              <div class="pt-card-footer">
-
-                {/* Expériences liées (codes PhD_Notebook) */}
-                {pipeline.experiments && pipeline.experiments.length > 0 && (
-                  <div class="pt-links-row">
-                    <span class="pt-links-label">⚗ Exp.</span>
-                    {pipeline.experiments.map((expId) => (
-                      <span class="pt-exp-badge mono">{expId}</span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Figures liées — enrichies depuis figures.yaml */}
-                {pipeline.figures && pipeline.figures.length > 0 && (
-                  <div class="pt-links-row pt-links-row--figures">
-                    <span class="pt-links-label">🖼 Fig.</span>
-                    <div class="pt-fig-list">
-                      {pipeline.figures.map((figId) => {
-                        const fig = figureById.get(figId);
-                        if (!fig) {
-                          return <span class="pt-fig-unknown mono">{figId}</span>;
-                        }
-                        const statusCls   = FIG_STATUS_CLS[fig.status]   ?? '';
-                        const statusLabel = FIG_STATUS_LABEL[fig.status] ?? fig.status;
-                        return (
-                          <div class="pt-fig-item">
-                            <span class={`pt-fig-status-dot ${statusCls}`}></span>
-                            <span class="pt-fig-title">{fig.title}</span>
-                            <span class={`pt-fig-badge ${statusCls}`}>{statusLabel}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {pipeline.notes && (
-                  <span class="pt-notes">{pipeline.notes}</span>
-                )}
-              </div>
-            )}
-
-          </div>
+          </details>
         );
       })}
     </div>
@@ -277,13 +287,67 @@ const syncLabel = syncRaw
   .pt-card {
     border: 1px solid var(--c-border);
     border-radius: 8px;
-    padding: var(--space-lg);
     background: var(--c-surface);
   }
 
   .pt-card-archived {
     opacity: 0.5;
   }
+
+  /* Summary = zone cliquable */
+  .pt-card-summary {
+    list-style: none;
+    padding: var(--space-lg);
+    cursor: pointer;
+    border-radius: 8px;
+    user-select: none;
+  }
+
+  .pt-card-summary::-webkit-details-marker { display: none; }
+
+  .pt-card-summary:hover {
+    background: color-mix(in srgb, var(--c-border) 30%, transparent);
+  }
+
+  /* Corps repliable */
+  .pt-card-body {
+    padding: 0 var(--space-lg) var(--space-lg);
+  }
+
+  /* Ligne nom + chevron */
+  .pt-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  /* Chevron animé */
+  .pt-chevron {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .pt-chevron::before,
+  .pt-chevron::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 6px;
+    height: 1.5px;
+    background: var(--c-text-3);
+    border-radius: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  .pt-chevron::before { left: 1px;  transform: translateY(-50%) rotate(-45deg); }
+  .pt-chevron::after  { right: 1px; transform: translateY(-50%) rotate(45deg);  }
+
+  /* Replié : chevron pointe vers le bas */
+  .pt-card:not([open]) .pt-chevron::before { transform: translateY(-50%) rotate(45deg);  }
+  .pt-card:not([open]) .pt-chevron::after  { transform: translateY(-50%) rotate(-45deg); }
 
   .pt-card-header {
     margin-bottom: var(--space-md);
