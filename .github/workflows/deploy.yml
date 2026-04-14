@@ -32,7 +32,9 @@ jobs:
         run: npm ci
 
       - name: Create .env
-        run: echo "PUBLIC_GUEST_CODE=${{ secrets.GUEST_CODE }}" > .env
+        run: |
+          echo "PUBLIC_GUEST_CODE=${{ secrets.GUEST_CODE }}" > .env
+          echo "PUBLIC_ADMIN_CODE=${{ secrets.PUBLIC_ADMIN_CODE }}" >> .env
 
       - name: Build Astro
         run: npm run build
