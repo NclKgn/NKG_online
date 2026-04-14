@@ -46,64 +46,64 @@ const noindex = await shouldNoIndex(pageKey);
     </div>
 
     <!-- Vue d'ensemble collecte (EPIC 2.1) -->
-    <section class="dash-overview">
-      <h2>{ui.collecte.title}</h2>
-      <CollecteDashboard />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.collecte.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><CollecteDashboard /></div>
+    </details>
 
     <!-- Checklist soutenance (EPIC 22.3/22.4) -->
-    <section class="dash-overview">
-      <h2>{ui.defense.title}</h2>
-      <DefenseChecklist />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.defense.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><DefenseChecklist /></div>
+    </details>
 
     <!-- Tracker rédaction (EPIC 3) -->
-    <section class="dash-overview">
-      <h2>{ui.thesis.title}</h2>
-      <ThesisTracker />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.thesis.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><ThesisTracker /></div>
+    </details>
 
     <!-- Timeline (EPIC 5) -->
-    <section class="dash-overview">
-      <h2>{ui.timeline.title}</h2>
-      <PhDTimeline />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.timeline.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><PhDTimeline /></div>
+    </details>
 
     <!-- Tracker spécimens (EPIC 14) -->
-    <section class="dash-overview">
-      <h2>{ui.specimens.title}</h2>
-      <SpecimenTracker />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.specimens.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><SpecimenTracker /></div>
+    </details>
 
     <!-- Tracker expériences live (EPIC 13) -->
-    <section class="dash-overview">
-      <h2>{ui.experimentsLive.title}</h2>
-      <ExperimentsLiveTracker />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.experimentsLive.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><ExperimentsLiveTracker /></div>
+    </details>
 
     <!-- Tracker pipelines d'analyse (EPIC 18) -->
-    <section class="dash-overview">
-      <h2>{ui.pipelines.title}</h2>
-      <PipelineTracker />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.pipelines.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><PipelineTracker /></div>
+    </details>
 
     <!-- Partage des données FAIR (EPIC 21) -->
-    <section class="dash-overview">
-      <h2>{ui.datasets.title}</h2>
-      <DataSharingStatus />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.datasets.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><DataSharingStatus /></div>
+    </details>
 
     <!-- Radar littérature PubMed (EPIC 20) -->
-    <section class="dash-overview">
-      <h2>{ui.pubmed.title}</h2>
-      <PubMedRadar />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.pubmed.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><PubMedRadar /></div>
+    </details>
 
     <!-- Tracker figures (EPIC 19) -->
-    <section class="dash-overview">
-      <h2>{ui.figures.title}</h2>
-      <FigureTracker />
-    </section>
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.figures.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><FigureTracker /></div>
+    </details>
 
     <!-- Modules (liens) -->
     <section class="dash-modules">
@@ -198,14 +198,69 @@ const noindex = await shouldNoIndex(pageKey);
     margin-bottom: 0;
   }
 
-  /* ── Overview ── */
+  /* ── Sections repliables ── */
 
-  .dash-overview {
+  .dash-section {
     margin-bottom: var(--space-2xl);
   }
 
-  .dash-overview h2 {
+  .dash-section:not([open]) {
+    margin-bottom: var(--space-xs, 4px);
+  }
+
+  .dash-section-summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    cursor: pointer;
+    padding: var(--space-xs, 4px) 0;
     margin-bottom: var(--space-lg);
+    user-select: none;
+  }
+
+  .dash-section-summary::-webkit-details-marker { display: none; }
+
+  .dash-section:not([open]) .dash-section-summary {
+    margin-bottom: 0;
+  }
+
+  .dash-section-summary h2 {
+    margin-bottom: 0;
+  }
+
+  .dash-section-summary:hover h2 {
+    color: var(--c-accent);
+  }
+
+  .dash-chevron {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .dash-chevron::before,
+  .dash-chevron::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 7px;
+    height: 2px;
+    background: var(--c-text-3);
+    border-radius: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  .dash-chevron::before { left: 1px;  transform: translateY(-50%) rotate(-45deg); }
+  .dash-chevron::after  { right: 1px; transform: translateY(-50%) rotate(45deg);  }
+
+  .dash-section:not([open]) .dash-chevron::before { transform: translateY(-50%) rotate(45deg);  }
+  .dash-section:not([open]) .dash-chevron::after  { transform: translateY(-50%) rotate(-45deg); }
+
+  .dash-section-body {
+    /* pas de padding supplémentaire — chaque composant gère son propre espacement */
   }
 
   /* ── Modules ── */
