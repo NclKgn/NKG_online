@@ -1,0 +1,81 @@
+---
+// src/components/AdminGate.astro
+// Protège le contenu private — vérifie nkg-admin dans sessionStorage.
+import { base } from '../i18n';
+
+interface Props {
+  enabled?: boolean;
+}
+
+const { enabled = true } = Astro.props;
+const currentPath = Astro.url.pathname;
+const loginUrl = `${base('/admin-login')}?returnTo=${encodeURIComponent(currentPath)}`;
+---
+
+{!enabled ? (
+  <slot />
+) : (
+  <>
+    <div id="admin-content" style="display: none;">
+      <slot />
+    </div>
+
+    <div id="admin-blocked">
+      <div class="ag-card card">
+        <span class="ag-icon" aria-hidden="true">🔐</span>
+        <h2>Accès administrateur requis</h2>
+        <p>Cette page est privée. Connectez-vous avec votre code admin.</p>
+        <a href={loginUrl} class="ag-btn mono">Se connecter →</a>
+      </div>
+    </div>
+  </>
+)}
+
+<script>
+  const token = sessionStorage.getItem('nkg-admin');
+  if (token) {
+    document.getElementById('admin-content')!.style.display = '';
+    document.getElementById('admin-blocked')!.style.display = 'none';
+  }
+</script>
+
+<style>
+  .ag-card {
+    max-width: 400px;
+    margin: var(--space-2xl) auto;
+    text-align: center;
+    padding: var(--space-xl);
+  }
+
+  .ag-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: var(--space-md);
+  }
+
+  .ag-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .ag-card p {
+    font-size: 0.88rem;
+    color: var(--c-text-2);
+    line-height: 1.6;
+    margin-bottom: var(--space-lg);
+  }
+
+  .ag-btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background: var(--c-accent);
+    color: #fff !important;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .ag-btn:hover { opacity: 0.85; }
+</style>

@@ -61,6 +61,12 @@ export async function shouldNoIndex(key: string): Promise<boolean> {
   return level !== 'public';
 }
 
+/** La page nécessite-t-elle le AdminGate ? (private en prod) */
+export async function isAdminOnly(key: string): Promise<boolean> {
+  if (isDev) return false;
+  return (await getAccessLevel(key)) === 'private';
+}
+
 /** Rétrocompat — true si public OU guest (= buildé) */
 export async function isSectionVisible(key: string): Promise<boolean> {
   if (isDev) return true;

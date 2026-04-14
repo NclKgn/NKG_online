@@ -1,0 +1,164 @@
+---
+// src/pages/admin-login.astro
+// Page de login admin — code séparé du code invité (PUBLIC_ADMIN_CODE).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { base } from '../i18n';
+
+const adminCode = import.meta.env.PUBLIC_ADMIN_CODE || 'changeme';
+---
+
+<BaseLayout title="Accès admin" noindex={true}>
+  <div class="container section">
+    <div class="al-card card">
+      <span class="al-icon" aria-hidden="true">🔐</span>
+      <h1>Accès admin</h1>
+      <p>Contenu privé — entrez votre code administrateur.</p>
+
+      <div class="al-form">
+        <input
+          type="password"
+          id="admin-code-input"
+          placeholder="Code admin"
+          autocomplete="off"
+          aria-label="Code admin"
+        />
+        <button id="admin-submit" type="button">Accéder</button>
+        <p class="al-error" id="admin-error" role="alert">Code incorrect.</p>
+      </div>
+
+      <a href={base('/guest')} class="al-guest-link mono">
+        Vous êtes un invité ? →
+      </a>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ adminCode }}>
+  async function hashCode(str) {
+    const buf = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(str)
+    );
+    return Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  const expectedHash = await hashCode(adminCode);
+
+  const input  = document.getElementById('admin-code-input');
+  const btn    = document.getElementById('admin-submit');
+  const error  = document.getElementById('admin-error');
+
+  async function tryLogin() {
+    const value = input.value.trim();
+    if (!value) return;
+    const hash = await hashCode(value);
+    if (hash === expectedHash) {
+      sessionStorage.setItem('nkg-admin', hash);
+      const params   = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo') || '/NKG_online/phd/dashboard';
+      window.location.href = returnTo;
+    } else {
+      error.style.display = 'block';
+      input.classList.add('shake');
+      setTimeout(() => input.classList.remove('shake'), 500);
+    }
+  }
+
+  btn.addEventListener('click', tryLogin);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tryLogin();
+    error.style.display = 'none';
+  });
+</script>
+
+<style>
+  .al-card {
+    max-width: 400px;
+    margin: var(--space-2xl) auto;
+    text-align: center;
+    padding: var(--space-xl);
+  }
+
+  .al-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: var(--space-md);
+  }
+
+  .al-card h1 {
+    font-size: 1.6rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .al-card > p {
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    margin-bottom: var(--space-lg);
+    line-height: 1.6;
+  }
+
+  .al-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  #admin-code-input {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 10px 16px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    background: var(--c-bg);
+    color: var(--c-text);
+    text-align: center;
+    width: 100%;
+    max-width: 240px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  #admin-code-input:focus { border-color: var(--c-accent); }
+
+  #admin-submit {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 32px;
+    background: var(--c-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  #admin-submit:hover { opacity: 0.85; }
+
+  .al-error {
+    display: none;
+    font-size: 0.82rem;
+    color: #c0392b;
+    margin: 0;
+  }
+
+  .al-guest-link {
+    font-size: 0.78rem;
+    color: var(--c-text-3);
+    text-decoration: none;
+  }
+
+  .al-guest-link:hover { color: var(--c-accent); }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .shake { animation: shake 0.4s ease; }
+</style>

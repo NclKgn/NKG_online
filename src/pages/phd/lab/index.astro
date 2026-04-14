@@ -1,16 +1,13 @@
 ---
 // src/pages/phd/lab/index.astro
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdminGate from '../../../components/AdminGate.astro';
 import { getCollection } from 'astro:content';
-import { shouldBuild, shouldNoIndex } from '../../../lib/visibility';
+import { isAdminOnly, shouldNoIndex } from '../../../lib/visibility';
 
 const pageKey = 'phd/lab';
-
-if (!(await shouldBuild(pageKey))) {
-  return Astro.redirect('/');
-}
-
-const noindex = await shouldNoIndex(pageKey);
+const adminOnly = await isAdminOnly(pageKey);
+const noindex   = await shouldNoIndex(pageKey);
 
 const isDev = import.meta.env.DEV;
 const entries = (await getCollection('lab-entries'))
@@ -18,8 +15,9 @@ const entries = (await getCollection('lab-entries'))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 
-<BaseLayout title="Lab Notebook (Private)" noindex={noindex}>
+<BaseLayout title="Lab Notebook" noindex={noindex}>
   <div class="container section">
+    <AdminGate enabled={adminOnly}>
     <h1>Lab Notebook</h1>
 
     <div class="entry-list">
@@ -45,6 +43,7 @@ const entries = (await getCollection('lab-entries'))
         );
       })}
     </div>
+    </AdminGate>
   </div>
 </BaseLayout>
 
