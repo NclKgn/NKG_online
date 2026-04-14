@@ -67,11 +67,13 @@ PRIVATE_PAGES=(
 for page in "${PRIVATE_PAGES[@]}"; do
   path="${DIST}/${page}"
   if [ ! -f "$path" ]; then
-    fail "${page} — fichier manquant (attendu : redirect)"
+    fail "${page} — fichier manquant (attendu : redirect ou AdminGate)"
   elif grep -q "Redirecting to:" "$path" 2>/dev/null; then
-    ok "${page} → redirection"
+    ok "${page} → redirection statique"
+  elif grep -q 'id="admin-content"' "$path" 2>/dev/null; then
+    ok "${page} → AdminGate présent"
   else
-    fail "${page} — contenu exposé (devrait être une redirection)"
+    fail "${page} — contenu exposé (ni redirection ni AdminGate)"
   fi
 done
 
