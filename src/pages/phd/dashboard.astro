@@ -5,6 +5,7 @@ import CollecteDashboard from '../../components/CollecteDashboard.astro';
 import ThesisTracker from '../../components/ThesisTracker.astro';
 import PhDTimeline from '../../components/PhDTimeline.astro';
 import PresentationToggle from '../../components/PresentationToggle.astro';
+import PrintButton from '../../components/PrintButton.astro';
 import FigureTracker from '../../components/FigureTracker.astro';
 import SpecimenTracker from '../../components/SpecimenTracker.astro';
 import ExperimentsLiveTracker from '../../components/ExperimentsLiveTracker.astro';
@@ -44,7 +45,10 @@ const noindex = await shouldNoIndex(pageKey);
         <h1>Dashboard</h1>
         <p class="dashboard-subtitle">{ui.subtitle}</p>
       </div>
-      <PresentationToggle />
+      <div class="dash-header-actions">
+        <PrintButton />
+        <PresentationToggle />
+      </div>
     </div>
 
     <!-- Blocages + Actions (EPIC 16.1 / 16.2) -->
@@ -198,6 +202,13 @@ const noindex = await shouldNoIndex(pageKey);
     justify-content: space-between;
     gap: var(--space-md);
     margin-bottom: var(--space-xl);
+  }
+
+  .dash-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
   }
 
   h1 {
@@ -410,5 +421,86 @@ const noindex = await shouldNoIndex(pageKey);
       flex-direction: column;
       gap: var(--space-md);
     }
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════════════
+     STYLES D'IMPRESSION — EPIC 16.3
+     is:global car on cible des classes de composants enfants
+════════════════════════════════════════════════════ -->
+<style is:global>
+  @media print {
+    /* ── Éléments à masquer ── */
+    .site-nav,
+    .site-footer,
+    .breadcrumb,
+    .dash-links,
+    .dash-modules,
+    .pres-btn,
+    .print-btn,
+    .pht-controls,
+    .pht-h-outer,
+    .guest-badge,
+    .admin-badge,
+    .dash-top-widgets {
+      display: none !important;
+    }
+
+    /* ── Timeline : forcer vue verticale ── */
+    #pht-v {
+      display: flex !important;
+    }
+
+    /* ── Fond blanc, texte sombre ── */
+    html, body {
+      background: #fff !important;
+      color: #1c1917 !important;
+    }
+
+    /* ── Préserver les couleurs (barres, badges) ── */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* ── Container pleine largeur ── */
+    .container {
+      max-width: 100% !important;
+      padding: 0 20px !important;
+    }
+
+    /* ── Sections repliables : garder le titre h2, cacher le chevron ── */
+    .dash-section-summary {
+      cursor: default;
+      pointer-events: none;
+      margin-bottom: 12pt;
+    }
+    .dash-chevron {
+      display: none !important;
+    }
+    .dash-section-body {
+      display: block !important;
+    }
+
+    /* ── PipelineTracker cards ── */
+    .pt-card-body {
+      display: block !important;
+    }
+
+    /* ── Pas de coupure dans les cartes et entrées ── */
+    .card,
+    .pht-entry,
+    .pt-card,
+    .cd-axe-row,
+    .tt-chapter-row {
+      break-inside: avoid;
+    }
+
+    /* ── Saut de page entre grandes sections ── */
+    .dash-section {
+      break-before: auto;
+      margin-bottom: 24pt;
+    }
+
   }
 </style>

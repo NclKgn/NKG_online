@@ -1,0 +1,67 @@
+---
+// src/components/PrintButton.astro
+// EPIC 16.3 — Export PDF du dashboard via window.print()
+---
+
+<button class="print-btn" id="print-btn" onclick="window.print()" title="Exporter en PDF">
+  <span aria-hidden="true">⊡</span>
+  PDF
+</button>
+
+<script>
+  // Avant impression : ouvre tous les <details> fermés
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('details:not([open])').forEach((el) => {
+      const d = el as HTMLDetailsElement;
+      d.dataset.printClosed = '1';
+      d.open = true;
+    });
+    // Mode présentation actif → le désactiver temporairement
+    if (document.body.hasAttribute('data-presentation')) {
+      document.body.dataset.printPresentation = '1';
+      document.body.removeAttribute('data-presentation');
+    }
+  });
+
+  // Après impression : restaure l'état
+  window.addEventListener('afterprint', () => {
+    document.querySelectorAll('details[data-print-closed]').forEach((el) => {
+      const d = el as HTMLDetailsElement;
+      d.open = false;
+      delete d.dataset.printClosed;
+    });
+    if (document.body.dataset.printPresentation) {
+      document.body.setAttribute('data-presentation', '');
+      delete document.body.dataset.printPresentation;
+    }
+  });
+</script>
+
+<style>
+  .print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 5px 12px;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm, 6px);
+    background: transparent;
+    color: var(--c-text-3);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .print-btn:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+
+  @media print {
+    .print-btn { display: none !important; }
+  }
+</style>

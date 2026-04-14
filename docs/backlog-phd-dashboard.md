@@ -7,7 +7,7 @@
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
 > **Date :** 14 avril 2026 (màj session 8)
 > **Statut :** Phase 3 partielle, Phase 4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 10.2, 11, 12.1, 13.0, 14.1, 14.2, 14.3, 16.1, 16.2, 18.1, 18.2, 18.3, 19, 20.1, 20.2, 21.1, 21.2, 22.3, 22.4, 22.5, 0.3 (30 items)
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 10.2, 11, 12.1, 13.0, 14.1, 14.2, 14.3, 16.1, 16.2, 16.3, 18.1, 18.2, 18.3, 19, 20.1, 20.2, 21.1, 21.2, 22.3, 22.4, 22.5, 0.3 (31 items)
 
 ---
 
@@ -1500,7 +1500,7 @@ Phase 5 — Productivité et UX 🌐🔬                       ⬜ À VENIR
   10.2 URL directe mode présentation             🌐
   16.1 Vue "Blocages" dashboard                  ✅ 🌐
   16.2 Actions items réunions → dashboard        ✅ 🌐
-  16.3 Export PDF du dashboard                   🌐
+  16.3 Export PDF du dashboard                   ✅ 🌐
   16.4 Quick log mobile                          🌐 (ou 🔬)
   17.2 Affichage changelog protocoles            🌐
   22.1 Base de réactifs                          🔬🔗
