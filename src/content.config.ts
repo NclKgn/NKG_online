@@ -284,6 +284,30 @@ const experimentsLive = defineCollection({
   }),
 });
 
+const pipelineStep = z.object({
+  type: z.enum(['acquisition', 'preprocessing', 'analysis', 'figure']),
+  label: z.string(),
+  status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED']),
+});
+
+const pipelinesData = defineCollection({
+  loader: file('./src/data/pipelines.yaml'),
+  schema: z.object({
+    generated_at: z.string().nullable().optional(),
+    count: z.number(),
+    pipelines: z.array(z.object({
+      id: z.string(),
+      name: z.string(),
+      status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ARCHIVED']),
+      axis: z.enum(['biologie', 'biomecanique', 'donnees-humaines']),
+      steps: z.array(pipelineStep),
+      experiments: z.array(z.string()).optional(),
+      figures: z.array(z.string()).optional(),
+      notes: z.string().optional(),
+    })),
+  }),
+});
+
 export const collections = {
   newsletter,
   projects,
@@ -302,6 +326,7 @@ export const collections = {
   figures,
   specimens,
   'experiments-live': experimentsLive,
+  'pipelines-data': pipelinesData,
   defense,
   visibility,
 };

@@ -5,9 +5,9 @@
 > - `PhD_Notebook` — App FastAPI + SQLite locale (saisie labo)
 >
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
-> **Date :** 13 avril 2026 (màj session 5)
+> **Date :** 14 avril 2026 (màj session 6)
 > **Statut :** Phase 3 partielle, Phase 4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 19, 22.3, 22.4 (17 items)
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 18.1, 18.2, 19, 22.3, 22.4 (19 items)
 
 ---
 
@@ -1156,7 +1156,7 @@ L'app locale existe déjà avec :
 > un module de PhD_Notebook (nouvelle table `pipelines`) avec
 > export via bridge. En attendant, YAML dans NKG_online est ok.
 
-### 18.1 Données pipelines `src/data/pipelines.yaml`
+### 18.1 Données pipelines `src/data/pipelines.yaml` ✅
 - **Priorité :** P2 | **Complexité :** M
 - **Description :** Base de données des analyses en cours :
   ```yaml
@@ -1201,7 +1201,7 @@ L'app locale existe déjà avec :
   ```
 - **Fichiers :** `src/data/pipelines.yaml`
 
-### 18.2 Composant `PipelineTracker.astro`
+### 18.2 Composant `PipelineTracker.astro` ✅
 - **Priorité :** P2 | **Complexité :** M
 - **Description :** Vue dans le dashboard : pipeline horizontal
   par analyse avec bulles de statut (done ✓ / in_progress ◉ /

@@ -1,0 +1,26 @@
+# src/data/pipelines.yaml
+# EPIC 18 — Tracker de pipelines d'analyse
+# Généré par scripts/notebook-export.py --only pipelines
+# (ou édité manuellement en attendant)
+
+pipelines-data:
+  generated_at: null
+  count: 0
+  pipelines:
+    - id: "pipeline-rnascope-e165"
+      name: "RNAscope E16.5 — FGF pathway"
+      status: "IN_PROGRESS"
+      axis: "biologie"
+      steps:
+        - type: "acquisition"
+          label: "Coupes + scan confocal"
+          status: "COMPLETED"
+        - type: "analysis"
+          label: "Quantification signal (FIJI)"
+          status: "IN_PROGRESS"
+        - type: "figure"
+          label: "Figure 3A — densité signal"
+          status: "PLANNED"
+      experiments: ["EXP-001"]
+      figures: ["fig-003"]
+      notes: "Pipeline en attente des dernières acquisitions confocales."

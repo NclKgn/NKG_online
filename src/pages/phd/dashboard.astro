@@ -9,6 +9,7 @@ import FigureTracker from '../../components/FigureTracker.astro';
 import SpecimenTracker from '../../components/SpecimenTracker.astro';
 import ExperimentsLiveTracker from '../../components/ExperimentsLiveTracker.astro';
 import DefenseChecklist from '../../components/DefenseChecklist.astro';
+import PipelineTracker from '../../components/PipelineTracker.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 import { t, getLocale } from '../../i18n';
@@ -76,6 +77,12 @@ const noindex = await shouldNoIndex(pageKey);
     <section class="dash-overview">
       <h2>{ui.experimentsLive.title}</h2>
       <ExperimentsLiveTracker />
+    </section>
+
+    <!-- Tracker pipelines d'analyse (EPIC 18) -->
+    <section class="dash-overview">
+      <h2>{ui.pipelines.title}</h2>
+      <PipelineTracker />
     </section>
 
     <!-- Tracker figures (EPIC 19) -->
