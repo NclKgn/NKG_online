@@ -16,10 +16,20 @@ function normalize(value: boolean | AccessLevel): AccessLevel {
 
 let _cache: Map<string, AccessLevel> | null = null;
 
+// Traduit les clés YAML "phd-dashboard" → "phd/dashboard"
+// (les "/" sont invalides comme noms de champs CMS, on stocke avec "-")
+const PARENT_SECTIONS = ['phd'];
+function normalizeId(id: string): string {
+  for (const p of PARENT_SECTIONS) {
+    if (id.startsWith(p + '-')) return p + '/' + id.slice(p.length + 1);
+  }
+  return id;
+}
+
 async function getVisibilityMap(): Promise<Map<string, AccessLevel>> {
   if (_cache) return _cache;
   const vis = await getCollection('visibility');
-  _cache = new Map(vis.map((e) => [e.id, normalize(e.data)]));
+  _cache = new Map(vis.map((e) => [normalizeId(e.id), normalize(e.data)]));
   return _cache;
 }
 

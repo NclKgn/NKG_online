@@ -16,7 +16,11 @@ try {
       if (typeof v === 'boolean') return !v;
       return v !== 'public';
     })
-    .map(([k]) => `/${k}`);
+    .map(([k]) => {
+      // "phd-dashboard" → "/phd/dashboard" (clés CMS sans "/" → URL avec "/")
+      const normalized = k.replace(/^(phd)-/, '$1/');
+      return `/${normalized}`;
+    });
 } catch {}
 
 // NOTE : plus besoin de alwaysHidden — tout est dans visibility.yaml

@@ -5,8 +5,8 @@ stack: public
 labs: public
 misc: public
 admin: private
-phd/dashboard: guest
-phd/experiments: guest
-phd/lab: private
-phd/meetings: private
-phd/newsletter: public
+phd-dashboard: guest
+phd-experiments: guest
+phd-lab: private
+phd-meetings: private
+phd-newsletter: public

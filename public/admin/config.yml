@@ -650,10 +650,6 @@ singletons:
     file: src/data/visibility.yaml
     icon: visibility
     fields:
-      - label: "── Sections principales ──"
-        name: _sep1
-        widget: divider
-        required: false
       - label: PhD
         name: phd
         widget: select
@@ -702,12 +698,8 @@ singletons:
           - { label: "Invité (code requis)", value: guest }
           - { label: "Privé (dev uniquement)", value: private }
         default: public
-      - label: "── Sous-pages PhD ──"
-        name: _sep2
-        widget: divider
-        required: false
       - label: "PhD / Dashboard"
-        name: phd/dashboard
+        name: phd-dashboard
         widget: select
         options:
           - { label: "Public (indexé)", value: public }
@@ -715,7 +707,7 @@ singletons:
           - { label: "Privé (dev uniquement)", value: private }
         default: guest
       - label: "PhD / Expériences"
-        name: phd/experiments
+        name: phd-experiments
         widget: select
         options:
           - { label: "Public (indexé)", value: public }
@@ -723,7 +715,7 @@ singletons:
           - { label: "Privé (dev uniquement)", value: private }
         default: guest
       - label: "PhD / Cahier de labo"
-        name: phd/lab
+        name: phd-lab
         widget: select
         options:
           - { label: "Public (indexé)", value: public }
@@ -731,7 +723,7 @@ singletons:
           - { label: "Privé (dev uniquement)", value: private }
         default: private
       - label: "PhD / Réunions"
-        name: phd/meetings
+        name: phd-meetings
         widget: select
         options:
           - { label: "Public (indexé)", value: public }
@@ -739,7 +731,7 @@ singletons:
           - { label: "Privé (dev uniquement)", value: private }
         default: private
       - label: "PhD / Newsletter"
-        name: phd/newsletter
+        name: phd-newsletter
         widget: select
         options:
           - { label: "Public (indexé)", value: public }
