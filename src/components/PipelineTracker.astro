@@ -9,6 +9,24 @@ const ui = t(getLocale()).dashboard.pipelines;
 const entry = await getEntry('pipelines-data', 'pipelines-data');
 const data  = entry?.data;
 const pipelines = data?.pipelines ?? [];
+
+// ── EPIC 18.3 — Cross-reference figures & experiments ─────────────────────
+
+const figuresEntry = await getEntry('figures', 'figures-data');
+const allFigures   = figuresEntry?.data.figures ?? [];
+const figureById   = new Map(allFigures.map((f) => [f.id, f]));
+
+const FIG_STATUS_CLS: Record<string, string> = {
+  finalisee:  'pt-fig-finalisee',
+  brouillon:  'pt-fig-brouillon',
+  'a-refaire':'pt-fig-arefaire',
+};
+
+const FIG_STATUS_LABEL: Record<string, string> = {
+  finalisee:  'finalisée',
+  brouillon:  'brouillon',
+  'a-refaire':'à refaire',
+};
 const hasData   = pipelines.length > 0;
 
 // ── Stats ──────────────────────────────────────────────────────────────────
@@ -134,19 +152,44 @@ const syncLabel = syncRaw
               ))}
             </div>
 
-            <!-- Meta bas -->
+            <!-- Meta bas — EPIC 18.3 : liens enrichis pipeline → figures → expériences -->
             {(pipeline.experiments?.length || pipeline.figures?.length || pipeline.notes) && (
               <div class="pt-card-footer">
+
+                {/* Expériences liées (codes PhD_Notebook) */}
                 {pipeline.experiments && pipeline.experiments.length > 0 && (
-                  <span class="pt-meta-item mono">
-                    ⚗ {pipeline.experiments.join(', ')}
-                  </span>
+                  <div class="pt-links-row">
+                    <span class="pt-links-label">⚗ Exp.</span>
+                    {pipeline.experiments.map((expId) => (
+                      <span class="pt-exp-badge mono">{expId}</span>
+                    ))}
+                  </div>
                 )}
+
+                {/* Figures liées — enrichies depuis figures.yaml */}
                 {pipeline.figures && pipeline.figures.length > 0 && (
-                  <span class="pt-meta-item mono">
-                    Fig. {pipeline.figures.join(', ')}
-                  </span>
+                  <div class="pt-links-row pt-links-row--figures">
+                    <span class="pt-links-label">🖼 Fig.</span>
+                    <div class="pt-fig-list">
+                      {pipeline.figures.map((figId) => {
+                        const fig = figureById.get(figId);
+                        if (!fig) {
+                          return <span class="pt-fig-unknown mono">{figId}</span>;
+                        }
+                        const statusCls   = FIG_STATUS_CLS[fig.status]   ?? '';
+                        const statusLabel = FIG_STATUS_LABEL[fig.status] ?? fig.status;
+                        return (
+                          <div class="pt-fig-item">
+                            <span class={`pt-fig-status-dot ${statusCls}`}></span>
+                            <span class="pt-fig-title">{fig.title}</span>
+                            <span class={`pt-fig-badge ${statusCls}`}>{statusLabel}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
+
                 {pipeline.notes && (
                   <span class="pt-notes">{pipeline.notes}</span>
                 )}
@@ -364,31 +407,120 @@ const syncLabel = syncRaw
     text-decoration-color: var(--c-success);
   }
 
-  /* ── Footer carte ── */
+  /* ── Footer carte — EPIC 18.3 ── */
 
   .pt-card-footer {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: var(--space-sm);
     padding-top: var(--space-sm);
     border-top: 1px solid var(--c-border);
+  }
+
+  .pt-links-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .pt-links-row--figures {
     align-items: flex-start;
   }
 
-  .pt-meta-item {
-    font-size: 0.68rem;
+  .pt-links-label {
+    font-size: 0.65rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  /* Expériences */
+  .pt-exp-badge {
+    font-size: 0.65rem;
     color: var(--c-text-3);
     background: var(--c-border);
-    padding: 2px 8px;
+    padding: 2px 7px;
     border-radius: 99px;
+  }
+
+  /* Figures enrichies */
+  .pt-fig-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .pt-fig-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--c-border) 40%, transparent);
+  }
+
+  .pt-fig-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .pt-fig-finalisee  { background: var(--c-success); }
+  .pt-fig-brouillon  { background: #e07b2a; }
+  .pt-fig-arefaire   { background: #c0392b; }
+
+  .pt-fig-title {
+    flex: 1;
+    font-size: 0.75rem;
+    color: var(--c-text-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pt-fig-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 5px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+
+  .pt-fig-badge.pt-fig-finalisee {
+    background: color-mix(in srgb, var(--c-success) 15%, transparent);
+    color: var(--c-success);
+  }
+
+  .pt-fig-badge.pt-fig-brouillon {
+    background: color-mix(in srgb, #e07b2a 15%, transparent);
+    color: #e07b2a;
+  }
+
+  .pt-fig-badge.pt-fig-arefaire {
+    background: color-mix(in srgb, #c0392b 15%, transparent);
+    color: #c0392b;
+  }
+
+  .pt-fig-unknown {
+    font-size: 0.65rem;
+    color: var(--c-text-3);
+    background: var(--c-border);
+    padding: 2px 7px;
+    border-radius: 99px;
+    opacity: 0.6;
   }
 
   .pt-notes {
     font-size: 0.78rem;
     color: var(--c-text-2);
     font-style: italic;
-    width: 100%;
-    margin-top: 2px;
   }
 
   /* ── Badges statut pipeline ── */

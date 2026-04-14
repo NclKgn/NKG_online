@@ -22,5 +22,5 @@ pipelines-data:
           label: "Figure 3A — densité signal"
           status: "PLANNED"
       experiments: ["EXP-001"]
-      figures: ["fig-003"]
+      figures: ["fig-rnascope-fgfr3", "fig-edu-proliferation"]
       notes: "Pipeline en attente des dernières acquisitions confocales."

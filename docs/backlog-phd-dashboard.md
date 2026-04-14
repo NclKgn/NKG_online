@@ -5,9 +5,9 @@
 > - `PhD_Notebook` — App FastAPI + SQLite locale (saisie labo)
 >
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
-> **Date :** 14 avril 2026 (màj session 6)
+> **Date :** 14 avril 2026 (màj session 7)
 > **Statut :** Phase 3 partielle, Phase 4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 18.1, 18.2, 19, 20.1, 20.2, 21.1, 21.2, 22.3, 22.4, 22.5 (24 items)
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 18.1, 18.2, 18.3, 19, 20.1, 20.2, 21.1, 21.2, 22.3, 22.4, 22.5 (25 items)
 
 ---
 
@@ -1491,7 +1491,7 @@ Phase 4 — Tracking avancé 🌐🔗                          🔄 EN COURS
   14.3 Lien planificateur → tracker              🌐🔬
   18.1 Données pipelines.yaml                    🌐
   18.2 Composant PipelineTracker                 🌐
-  18.3 Lien pipeline → figures → expériences     🌐
+  18.3 Lien pipeline → figures → expériences     ✅ 🌐
   20.1 Script veille PubMed                      🔗
   20.2 Widget radar dashboard                    🌐
   21.1 Données datasets.yaml (FAIR)              🌐
