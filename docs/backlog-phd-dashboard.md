@@ -7,7 +7,7 @@
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
 > **Date :** 14 avril 2026 (màj session 6)
 > **Statut :** Phase 3 partielle, Phase 4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 18.1, 18.2, 19, 21.1, 21.2, 22.3, 22.4 (21 items)
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 18.1, 18.2, 19, 21.1, 21.2, 22.3, 22.4, 22.5 (22 items)
 
 ---
 
@@ -1417,7 +1417,7 @@ L'app locale existe déjà avec :
   Intégré dans la timeline (EPIC 5) également.
 - **Fichiers :** `src/components/DefenseChecklist.astro`
 
-### 22.5 Statut des sauvegardes
+### 22.5 Statut des sauvegardes ✅
 - **Priorité :** P2 | **Complexité :** S
 - **Description :** Widget sur le dashboard qui lit les
   infos de backup de `datasets.yaml` (EPIC 21) et affiche

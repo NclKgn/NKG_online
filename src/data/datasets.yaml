@@ -13,6 +13,7 @@ datasets-data:
         local: true
         remote: "NAS labo"
         cloud: false
+        last_backup_date: "2026-04-10"
       sharing:
         repository: null
         accession: null
@@ -33,6 +34,7 @@ datasets-data:
         local: true
         remote: "NAS labo"
         cloud: false
+        last_backup_date: "2026-04-14"
       sharing:
         repository: null
         accession: null

@@ -321,6 +321,7 @@ const datasetsData = defineCollection({
         local: z.boolean(),
         remote: z.string().nullable().optional(),
         cloud: z.boolean(),
+        last_backup_date: z.string().optional(),
       }),
       sharing: z.object({
         repository: z.string().nullable().optional(),

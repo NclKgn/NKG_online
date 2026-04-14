@@ -25,9 +25,31 @@ const deposited = datasets.filter(
 
 const notDeposited = total - deposited;
 
-const backupOk = datasets.every(
-  (d) => d.backup.local && (d.backup.remote || d.backup.cloud)
-);
+// ── EPIC 22.5 — Feu tricolore backup ──────────────────────────────────────
+// 🔴 si au moins un dataset sans backup local
+// 🟡 si la dernière backup date de plus de 7 jours pour au moins un dataset
+// 🟢 sinon
+
+const TODAY = new Date();
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+const hasNoBackup = datasets.some((d) => !d.backup.local);
+
+const hasStaleBackup = !hasNoBackup && datasets.some((d) => {
+  if (!d.backup.last_backup_date) return false;
+  const backupDate = new Date(d.backup.last_backup_date);
+  return (TODAY.getTime() - backupDate.getTime()) > SEVEN_DAYS_MS;
+});
+
+const backupLevel: 'ok' | 'stale' | 'missing' =
+  hasNoBackup  ? 'missing' :
+  hasStaleBackup ? 'stale'   : 'ok';
+
+const BACKUP_INDICATOR = {
+  ok:      { dot: 'ds-dot-ok',      label: 'ui.backupOk' },
+  stale:   { dot: 'ds-dot-stale',   label: 'ui.backupStale' },
+  missing: { dot: 'ds-dot-missing', label: 'ui.backupMissing' },
+};
 
 // ── Config ──────────────────────────────────────────────────────────────────
 
@@ -70,10 +92,15 @@ const FAIR_FIELDS: Record<string, 'findable' | 'accessible' | 'interoperable' | 
       </div>
     )}
     <div class="ds-stat ds-stat-backup">
-      <span class={`ds-backup-indicator ${backupOk ? 'ds-backup-ok' : 'ds-backup-warn'}`}>
-        {backupOk ? '●' : '●'}
-      </span>
-      <span class="ds-stat-lbl">{backupOk ? ui.backupOk : ui.backupWarn}</span>
+      <div class="ds-backup-traffic">
+        <span class={`ds-dot ${BACKUP_INDICATOR[backupLevel].dot}`}></span>
+        <span class="ds-backup-lbl">
+          {backupLevel === 'ok'      ? ui.backupOk      : ''}
+          {backupLevel === 'stale'   ? ui.backupStale   : ''}
+          {backupLevel === 'missing' ? ui.backupMissing : ''}
+        </span>
+      </div>
+      <span class="ds-stat-lbl">{ui.backup}</span>
     </div>
   </div>
 
@@ -211,8 +238,29 @@ const FAIR_FIELDS: Record<string, 'findable' | 'accessible' | 'interoperable' | 
     font-size: 0.85rem;
   }
 
-  .ds-backup-ok   { color: var(--c-success); }
-  .ds-backup-warn { color: #c0392b; }
+  .ds-backup-traffic {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+  }
+
+  .ds-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ds-dot-ok      { background: var(--c-success); }
+  .ds-dot-stale   { background: #e07b2a; }
+  .ds-dot-missing { background: #c0392b; }
+
+  .ds-backup-lbl {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--c-text);
+  }
 
   /* ── Table ── */
 
