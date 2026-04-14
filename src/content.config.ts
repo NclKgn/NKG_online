@@ -308,6 +308,28 @@ const pipelinesData = defineCollection({
   }),
 });
 
+const pubmedAlerts = defineCollection({
+  loader: file('./src/data/pubmed-alerts.yaml'),
+  schema: z.object({
+    fetched_at: z.string().optional(),
+    queries: z.array(z.object({
+      id: z.string(),
+      label: z.string(),
+      query: z.string(),
+    })),
+    articles: z.array(z.object({
+      pmid: z.string(),
+      title: z.string(),
+      authors: z.string(),
+      journal: z.string(),
+      date: z.string(),
+      doi: z.string(),
+      query_id: z.string(),
+      read: z.boolean().default(false),
+    })),
+  }),
+});
+
 const datasetsData = defineCollection({
   loader: file('./src/data/datasets.yaml'),
   schema: z.object({
@@ -359,6 +381,7 @@ export const collections = {
   'experiments-live': experimentsLive,
   'pipelines-data': pipelinesData,
   'datasets-data': datasetsData,
+  'pubmed-alerts': pubmedAlerts,
   defense,
   visibility,
 };

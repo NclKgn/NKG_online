@@ -11,6 +11,7 @@ import ExperimentsLiveTracker from '../../components/ExperimentsLiveTracker.astr
 import DefenseChecklist from '../../components/DefenseChecklist.astro';
 import PipelineTracker from '../../components/PipelineTracker.astro';
 import DataSharingStatus from '../../components/DataSharingStatus.astro';
+import PubMedRadar from '../../components/PubMedRadar.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 import { t, getLocale } from '../../i18n';
@@ -90,6 +91,12 @@ const noindex = await shouldNoIndex(pageKey);
     <section class="dash-overview">
       <h2>{ui.datasets.title}</h2>
       <DataSharingStatus />
+    </section>
+
+    <!-- Radar littérature PubMed (EPIC 20) -->
+    <section class="dash-overview">
+      <h2>{ui.pubmed.title}</h2>
+      <PubMedRadar />
     </section>
 
     <!-- Tracker figures (EPIC 19) -->

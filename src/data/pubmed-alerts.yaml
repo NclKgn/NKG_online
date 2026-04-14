@@ -1,0 +1,98 @@
+# src/data/pubmed-alerts.yaml
+# EPIC 20 — Radar littérature PubMed
+# Généré par scripts/pubmed-radar.py (ou manuellement via session Claude)
+# Source : PubMed (https://pubmed.ncbi.nlm.nih.gov)
+
+pubmed-alerts:
+  fetched_at: "2026-04-14"
+  queries:
+    - id: "synchondrosis"
+      label: "Base du crâne / synchondroses"
+      query: "skull base synchondrosis OR spheno-occipital synchondrosis"
+    - id: "achondroplasia-craniofacial"
+      label: "Achondroplasie craniofaciale"
+      query: "achondroplasia AND craniofacial"
+    - id: "fgfr3-growth-plate"
+      label: "FGFR3 × plaque de croissance"
+      query: "FGFR3 AND (growth plate OR synchondrosis)"
+  articles:
+    - pmid: "41015538"
+      title: "CT-Based Timeline for Closure of Sphenoid Body Synchondroses and Foramina in Children"
+      authors: "Cerron-Vela CR et al."
+      journal: "AJNR Am J Neuroradiol"
+      date: "2026-04-02"
+      doi: "10.3174/ajnr.A9021"
+      query_id: "synchondrosis"
+      read: false
+
+    - pmid: "41804496"
+      title: "Skeletal Age Status Determination Using the Spheno-Occipital Synchondrosis Closure in a Cameroonian Population"
+      authors: "Sylvie S et al."
+      journal: "Health Sci Rep"
+      date: "2026-03-08"
+      doi: "10.1002/hsr2.71963"
+      query_id: "synchondrosis"
+      read: false
+
+    - pmid: "41766013"
+      title: "Integrating cervical vertebral maturation and spheno-occipital synchondrosis on CT: a non-linear framework for probabilistic age estimation"
+      authors: "Karabag G et al."
+      journal: "Int J Legal Med"
+      date: "2026-03-02"
+      doi: "10.1007/s00414-026-03752-x"
+      query_id: "synchondrosis"
+      read: false
+
+    - pmid: "41954527"
+      title: "Dkk1 inhibition restores mandibular growth in an achondroplasia mouse model"
+      authors: "Raveendranathan B et al."
+      journal: "Biology Open"
+      date: "2026-04-09"
+      doi: "10.1242/bio.062540"
+      query_id: "achondroplasia-craniofacial"
+      read: false
+
+    - pmid: "41937556"
+      title: "Orthodontic and Maxillofacial Surgery Treatment in Achondroplasia for Orofacial Alterations: A Systematic Review"
+      authors: "Farronato M et al."
+      journal: "Orthod Craniofac Res"
+      date: "2026-04-06"
+      doi: "10.1111/ocr.70108"
+      query_id: "achondroplasia-craniofacial"
+      read: false
+
+    - pmid: "41340868"
+      title: "Three-dimensional craniofacial imaging in children with achondroplasia treated with vosoritide"
+      authors: "Hoskens H et al."
+      journal: "Genet Med Open"
+      date: "2025-10-13"
+      doi: "10.1016/j.gimo.2025.103463"
+      query_id: "achondroplasia-craniofacial"
+      read: false
+
+    - pmid: "41748604"
+      title: "Excess FGFR3 signaling in achondroplasia disrupts turnover of resting zone chondrocytes via CREB signaling"
+      authors: "Horike N et al."
+      journal: "Nat Commun"
+      date: "2026-02-26"
+      doi: "10.1038/s41467-026-69507-9"
+      query_id: "fgfr3-growth-plate"
+      read: false
+
+    - pmid: "41596573"
+      title: "Spatiotemporal Regulation and Lineage Specification in Embryonic Endochondral Ossification"
+      authors: "Wu S et al."
+      journal: "Int J Mol Sci"
+      date: "2026-01-16"
+      doi: "10.3390/ijms27020926"
+      query_id: "fgfr3-growth-plate"
+      read: false
+
+    - pmid: "40581360"
+      title: "Early determination of the dorsal-ventral axis in endochondral ossification in mice"
+      authors: "Wu S et al."
+      journal: "J Bone Miner Res"
+      date: "2025-11-29"
+      doi: "10.1093/jbmr/zjaf086"
+      query_id: "fgfr3-growth-plate"
+      read: false
