@@ -1,5 +1,5 @@
 phd: false
-projects: true
+projects: false
 cv: public
 stack: public
 labs: public
