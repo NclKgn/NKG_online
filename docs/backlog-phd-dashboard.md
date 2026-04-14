@@ -1489,14 +1489,14 @@ Phase 4 — Tracking avancé 🌐🔗                          🔄 EN COURS
   4.3  GitHub Action rayyan-sync                 ⏸️ (attente API)
   4.4  PRISMA auto-généré                        🌐
   14.3 Lien planificateur → tracker              🌐🔬
-  18.1 Données pipelines.yaml                    🌐
-  18.2 Composant PipelineTracker                 🌐
+  18.1 Données pipelines.yaml                    ✅ 🌐
+  18.2 Composant PipelineTracker                 ✅ 🌐
   18.3 Lien pipeline → figures → expériences     ✅ 🌐
-  20.1 Script veille PubMed                      🔗
-  20.2 Widget radar dashboard                    🌐
-  21.1 Données datasets.yaml (FAIR)              🌐
-  21.2 Composant DataSharingStatus               🌐
-  22.5 Statut des sauvegardes                    🌐
+  20.1 Script veille PubMed                      ✅ 🔗
+  20.2 Widget radar dashboard                    ✅ 🌐
+  21.1 Données datasets.yaml (FAIR)              ✅ 🌐
+  21.2 Composant DataSharingStatus               ✅ 🌐
+  22.5 Statut des sauvegardes                    ✅ 🌐
   15.1 Export Zotero → YAML                      🔗
 
 Phase 5 — Productivité et UX 🌐🔬                       ⬜ À VENIR
