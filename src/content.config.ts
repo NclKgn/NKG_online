@@ -209,7 +209,13 @@ const meetings = defineCollection({
     date: z.coerce.date(),
     attendees: z.array(z.string()).default([]),
     decisions: z.array(z.string()).default([]),
-    actions: z.array(z.string()).default([]),
+    actions: z.array(
+      z.object({
+        text: z.string(),
+        done: z.boolean().default(false),
+        due: z.string().optional(),
+      })
+    ).default([]),
     draft: z.boolean().default(false),
   }),
 });

@@ -1,0 +1,213 @@
+---
+// src/components/ActionItems.astro
+// EPIC 16.2 — Actions items des réunions remontés sur le dashboard
+import { getCollection } from 'astro:content';
+import { t, getLocale } from '../i18n';
+
+const ui = t(getLocale()).dashboard.actionItems;
+
+// ── Lire toutes les réunions non-draft, triées par date desc ───────────────
+
+const allMeetings = await getCollection('meetings', (entry) => !entry.data.draft);
+allMeetings.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// ── Extraire les actions ouvertes ──────────────────────────────────────────
+
+interface OpenAction {
+  text: string;
+  due?: string;
+  meetingTitle: string;
+  meetingDate: Date;
+  dueOverdue: boolean;
+}
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const openActions: OpenAction[] = [];
+
+for (const meeting of allMeetings) {
+  for (const action of meeting.data.actions) {
+    if (action.done) continue;
+    const dueOverdue = !!action.due && new Date(action.due) < today;
+    openActions.push({
+      text:         action.text,
+      due:          action.due,
+      meetingTitle: meeting.data.title,
+      meetingDate:  meeting.data.date,
+      dueOverdue,
+    });
+  }
+}
+
+const hasActions = openActions.length > 0;
+
+const dateFmt = (d: Date) =>
+  d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+
+<div class="ai-root">
+
+  {hasActions ? (
+    <ul class="ai-list">
+      {openActions.map((a) => (
+        <li class={`ai-item ${a.dueOverdue ? 'ai-item--overdue' : ''}`}>
+          <span class="ai-checkbox" aria-hidden="true"></span>
+          <div class="ai-content">
+            <span class="ai-text">{a.text}</span>
+            <div class="ai-meta">
+              <span class="ai-meeting-ref">
+                <span class="ai-from">{ui.from}</span>
+                <span class="ai-meeting-title">{a.meetingTitle}</span>
+                <span class="ai-meeting-date mono">{dateFmt(a.meetingDate)}</span>
+              </span>
+              {a.due && (
+                <span class={`ai-due ${a.dueOverdue ? 'ai-due--overdue' : ''}`}>
+                  <span class="ai-due-lbl">{ui.due}</span>
+                  <span class="ai-due-val mono">{a.due}</span>
+                </span>
+              )}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="ai-empty">{ui.noActions}</p>
+  )}
+
+</div>
+
+<style>
+  .ai-root {
+    border-radius: 8px;
+    border: 1px solid var(--c-border);
+    overflow: hidden;
+  }
+
+  .ai-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ai-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    border-bottom: 1px solid var(--c-border);
+    border-left: 3px solid transparent;
+  }
+
+  .ai-item:last-child {
+    border-bottom: none;
+  }
+
+  .ai-item--overdue {
+    border-left-color: #c0392b;
+  }
+
+  .ai-checkbox {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--c-border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .ai-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ai-text {
+    font-size: 0.85rem;
+    color: var(--c-text);
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .ai-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .ai-meeting-ref {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ai-from {
+    font-size: 0.65rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .ai-meeting-title {
+    font-size: 0.72rem;
+    color: var(--c-text-2);
+  }
+
+  .ai-meeting-date {
+    font-size: 0.68rem;
+    color: var(--c-text-3);
+  }
+
+  .ai-due {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--c-border);
+  }
+
+  .ai-due--overdue {
+    background: color-mix(in srgb, #c0392b 12%, transparent);
+  }
+
+  .ai-due-lbl {
+    font-size: 0.62rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .ai-due-val {
+    font-size: 0.68rem;
+    color: var(--c-text-2);
+  }
+
+  .ai-due--overdue .ai-due-lbl,
+  .ai-due--overdue .ai-due-val {
+    color: #c0392b;
+  }
+
+  /* ── Empty ── */
+
+  .ai-empty {
+    padding: var(--space-lg);
+    font-size: 0.85rem;
+    color: var(--c-text-3);
+    font-style: italic;
+    margin: 0;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .ai-item {
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .ai-meta {
+      gap: var(--space-sm);
+    }
+  }
+</style>

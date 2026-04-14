@@ -3,7 +3,12 @@ title: "Meeting Title"
 date: 2026-04-03
 attendees: [Name 1, Name 2]
 decisions: [Decision made during meeting]
-actions: [Action item to complete]
+actions:
+  - text: "Task description"
+    done: false
+    due: "2026-04-30"
+  - text: "Another task"
+    done: true
 draft: true
 ---
 

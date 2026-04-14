@@ -1,0 +1,291 @@
+---
+// src/components/BlockersWidget.astro
+// EPIC 16.1 — Agrégateur de points bloquants (thesis deadlines, expériences en retard, figures à refaire)
+import { getEntry } from 'astro:content';
+import { t, getLocale } from '../i18n';
+
+const ui = t(getLocale()).dashboard.blockers;
+
+// ── Sources de données ─────────────────────────────────────────────────────
+
+const thesisEntry = await getEntry('thesis', 'thesis-data');
+const thesis = thesisEntry?.data;
+
+const expEntry = await getEntry('experiments-live', 'experiments-live');
+const experiments = expEntry?.data?.experiments ?? [];
+
+const figEntry = await getEntry('figures', 'figures-data');
+const figures = figEntry?.data?.figures ?? [];
+
+// ── Calcul des jours restants ──────────────────────────────────────────────
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+function daysUntil(dateStr: string): number {
+  const d = new Date(dateStr);
+  d.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+type Severity = 'urgent' | 'warning' | 'info';
+
+interface Blocker {
+  severity: Severity;
+  category: 'deadline' | 'experiment' | 'figure';
+  label: string;
+  detail?: string;
+  daysLeft?: number;
+}
+
+const blockers: Blocker[] = [];
+
+// ── Deadlines thèse (chapitres + publications) ─────────────────────────────
+
+const DONE_STATUSES = new Set(['termine', 'soumis', 'publie', 'done']);
+
+for (const ch of (thesis?.chapters ?? [])) {
+  if (DONE_STATUSES.has(ch.status) || !ch.deadline) continue;
+  const days = daysUntil(ch.deadline);
+  if (days > 60) continue;
+  blockers.push({
+    severity: days < 0 ? 'urgent' : days < 14 ? 'urgent' : days < 30 ? 'warning' : 'info',
+    category: 'deadline',
+    label: ch.title,
+    detail: 'Chapitre',
+    daysLeft: days,
+  });
+}
+
+for (const pub of (thesis?.publications ?? [])) {
+  if (DONE_STATUSES.has(pub.status) || !pub.deadline) continue;
+  const days = daysUntil(pub.deadline);
+  if (days > 60) continue;
+  blockers.push({
+    severity: days < 0 ? 'urgent' : days < 14 ? 'urgent' : days < 30 ? 'warning' : 'info',
+    category: 'deadline',
+    label: pub.title,
+    detail: 'Publication',
+    daysLeft: days,
+  });
+}
+
+// ── Expériences planifiées en retard ──────────────────────────────────────
+
+for (const exp of experiments) {
+  if (exp.status !== 'PLANNED' || !exp.date_start) continue;
+  const days = daysUntil(exp.date_start);
+  if (days >= 0) continue; // pas encore en retard
+  blockers.push({
+    severity: days < -14 ? 'urgent' : 'warning',
+    category: 'experiment',
+    label: exp.code,
+    detail: exp.type,
+    daysLeft: days,
+  });
+}
+
+// ── Figures à refaire ──────────────────────────────────────────────────────
+
+for (const fig of figures) {
+  if (fig.status !== 'a-refaire') continue;
+  blockers.push({
+    severity: 'info',
+    category: 'figure',
+    label: fig.title,
+    detail: fig.chapter ?? fig.target,
+  });
+}
+
+// ── Tri : urgent d'abord, puis warning, puis info ─────────────────────────
+
+const SEV_ORDER: Record<Severity, number> = { urgent: 0, warning: 1, info: 2 };
+blockers.sort((a, b) => SEV_ORDER[a.severity] - SEV_ORDER[b.severity]);
+
+const hasBlockers = blockers.length > 0;
+const urgentCount = blockers.filter((b) => b.severity === 'urgent').length;
+---
+
+<div class={`bw-root ${hasBlockers ? (urgentCount > 0 ? 'bw-has-urgent' : 'bw-has-warnings') : 'bw-all-clear'}`}>
+
+  {hasBlockers ? (
+    <ul class="bw-list">
+      {blockers.map((b) => (
+        <li class={`bw-item bw-item--${b.severity}`}>
+          <span class={`bw-dot bw-dot--${b.severity}`}></span>
+          <div class="bw-content">
+            <span class="bw-label">{b.label}</span>
+            {b.detail && <span class="bw-detail">{b.detail}</span>}
+          </div>
+          <div class="bw-right">
+            {b.daysLeft !== undefined && (
+              <span class={`bw-days bw-days--${b.severity}`}>
+                {b.daysLeft < 0
+                  ? ui.overdue
+                  : `${b.daysLeft} ${ui.daysLeft}`
+                }
+              </span>
+            )}
+            <span class={`bw-cat bw-cat--${b.category}`}>
+              {ui.categories[b.category]}
+            </span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="bw-ok">
+      <span class="bw-ok-dot"></span>
+      <div>
+        <span class="bw-ok-title">{ui.allClear}</span>
+        <span class="bw-ok-sub">{ui.allClearSub}</span>
+      </div>
+    </div>
+  )}
+
+</div>
+
+<style>
+  .bw-root {
+    border-radius: 8px;
+    border: 1px solid var(--c-border);
+    overflow: hidden;
+  }
+
+  /* ── All clear ── */
+
+  .bw-ok {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .bw-ok-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--c-success);
+  }
+
+  .bw-ok-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--c-success);
+    display: block;
+  }
+
+  .bw-ok-sub {
+    font-size: 0.75rem;
+    color: var(--c-text-3);
+    display: block;
+  }
+
+  /* ── Liste ── */
+
+  .bw-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .bw-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    border-bottom: 1px solid var(--c-border);
+  }
+
+  .bw-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Ligne colorée à gauche selon sévérité */
+  .bw-item--urgent  { border-left: 3px solid #c0392b; }
+  .bw-item--warning { border-left: 3px solid #e07b2a; }
+  .bw-item--info    { border-left: 3px solid #6080a0; }
+
+  .bw-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .bw-dot--urgent  { background: #c0392b; }
+  .bw-dot--warning { background: #e07b2a; }
+  .bw-dot--info    { background: #6080a0; }
+
+  .bw-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .bw-label {
+    font-size: 0.82rem;
+    color: var(--c-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bw-detail {
+    font-size: 0.68rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .bw-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+  }
+
+  .bw-days {
+    font-size: 0.7rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 99px;
+  }
+
+  .bw-days--urgent  { background: color-mix(in srgb, #c0392b 12%, transparent); color: #c0392b; }
+  .bw-days--warning { background: color-mix(in srgb, #e07b2a 12%, transparent); color: #e07b2a; }
+  .bw-days--info    { background: color-mix(in srgb, #6080a0 12%, transparent); color: #6080a0; }
+
+  .bw-cat {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--c-border);
+    color: var(--c-text-3);
+  }
+
+  .bw-cat--deadline   { background: color-mix(in srgb, #6080a0 10%, transparent); color: #6080a0; }
+  .bw-cat--experiment { background: color-mix(in srgb, #e07b2a 10%, transparent); color: #e07b2a; }
+  .bw-cat--figure     { background: color-mix(in srgb, var(--c-accent) 10%, transparent); color: var(--c-accent); }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .bw-item {
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .bw-right {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+  }
+</style>

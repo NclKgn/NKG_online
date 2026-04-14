@@ -50,6 +50,25 @@ const currentPath = Astro.url.pathname;
         <a href="#" class="nav-link nav-lang-inactive">FR</a>
       </span>
       <ThemeToggle />
+
+      <span class="nav-auth-sep"></span>
+
+      <!-- Connexion invité -->
+      <a href={base('/guest')} class="nav-auth-btn" id="nav-guest-btn" aria-label="Accès invité" title="Accès invité">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </a>
+
+      <!-- Connexion admin -->
+      <a href={base('/admin-login')} class="nav-auth-btn" id="nav-admin-btn" aria-label="Accès admin" title="Accès admin">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="7.5" cy="15.5" r="5.5"/>
+          <path d="M21 2l-9.6 9.6"/>
+          <path d="M15.5 7.5l3 3L22 7l-3-3"/>
+        </svg>
+      </a>
     </div>
   </div>
 </nav>
@@ -133,6 +152,47 @@ const currentPath = Astro.url.pathname;
     color: var(--c-text-3) !important;
   }
 
+  .nav-auth-sep {
+    display: block;
+    width: 1px;
+    height: 16px;
+    background: var(--c-border);
+    margin-left: 10px;
+  }
+
+  /* ── Auth buttons (guest / admin) ── */
+
+  .nav-auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    color: var(--c-text-3);
+    transition: color 0.15s, background 0.15s;
+    margin-left: 2px;
+    text-decoration: none;
+  }
+
+  .nav-auth-btn:hover {
+    color: var(--c-text);
+    background: var(--c-border-light);
+  }
+
+  .nav-auth-btn:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+  }
+
+  .nav-auth-btn.authenticated {
+    color: var(--c-success);
+  }
+
+  .nav-auth-btn.authenticated:hover {
+    color: var(--c-success);
+    background: color-mix(in srgb, var(--c-success) 10%, transparent);
+  }
+
   .nav-toggle {
     display: none;
     flex-direction: column;
@@ -205,4 +265,12 @@ const currentPath = Astro.url.pathname;
   toggle?.addEventListener('click', () => {
     links?.classList.toggle('open');
   });
+
+  // Auth button states — colorés si déjà connecté
+  if (sessionStorage.getItem('nkg-guest')) {
+    document.getElementById('nav-guest-btn')?.classList.add('authenticated');
+  }
+  if (sessionStorage.getItem('nkg-admin')) {
+    document.getElementById('nav-admin-btn')?.classList.add('authenticated');
+  }
 </script>

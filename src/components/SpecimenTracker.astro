@@ -43,6 +43,20 @@ const sortedLitters = [...byLitter.entries()].sort(([a], [b]) => {
   return a.localeCompare(b);
 });
 
+// ── EPIC 14.3 — Cross-reference experiments ────────────────────────────────
+
+const expEntry  = await getEntry('experiments-live', 'experiments-live');
+const allExps   = expEntry?.data?.experiments ?? [];
+
+// Reverse index : specimen code → list of experiments that use it
+const expsBySpecimen = new Map<string, typeof allExps>();
+for (const exp of allExps) {
+  for (const code of (exp.samples ?? [])) {
+    if (!expsBySpecimen.has(code)) expsBySpecimen.set(code, []);
+    expsBySpecimen.get(code)!.push(exp);
+  }
+}
+
 // ── Config badges ──────────────────────────────────────────────────────────
 
 const GENO_CLS: Record<string, string> = {
@@ -121,6 +135,7 @@ const syncLabel = syncRaw
                 <th>{ui.sex}</th>
                 <th>{ui.status}</th>
                 <th>Code</th>
+                {allExps.length > 0 && <th>Exp.</th>}
               </tr>
             </thead>
             <tbody>
@@ -131,6 +146,23 @@ const syncLabel = syncRaw
                   <td class="sp-sex">{s.sex ?? '—'}</td>
                   <td><span class={`sp-badge ${STATUS_CLS[s.status]}`}>{ui.statusLbls[s.status as keyof typeof ui.statusLbls]}</span></td>
                   <td class="sp-code mono">{s.code}</td>
+                  {allExps.length > 0 && (() => {
+                    const linked = expsBySpecimen.get(s.code) ?? [];
+                    return (
+                      <td class="sp-exps">
+                        {linked.length > 0
+                          ? <div class="sp-exp-chips">
+                              {linked.map((exp) => (
+                                <span class={`sp-exp-chip sp-exp-chip--${exp.status.toLowerCase()}`}>
+                                  <span class="sp-exp-code mono">{exp.code}</span>
+                                </span>
+                              ))}
+                            </div>
+                          : <span class="sp-exp-none">—</span>
+                        }
+                      </td>
+                    );
+                  })()}
                 </tr>
               ))}
             </tbody>
@@ -331,6 +363,55 @@ const syncLabel = syncRaw
   .sp-status-active   { background: color-mix(in srgb, var(--c-success) 12%, transparent); color: var(--c-success); }
   .sp-status-lost     { background: color-mix(in srgb, #c0392b 12%, transparent); color: #c0392b; }
   .sp-status-archived { background: var(--c-border); color: var(--c-text-3); }
+
+  /* ── EPIC 14.3 : Chips expériences liées ── */
+
+  .sp-exps {
+    vertical-align: middle;
+  }
+
+  .sp-exp-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+
+  .sp-exp-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 5px;
+    border-radius: 5px;
+    font-size: 0.62rem;
+  }
+
+  .sp-exp-code {
+    font-weight: 600;
+  }
+
+  .sp-exp-chip--planned {
+    background: var(--c-border);
+    color: var(--c-text-3);
+  }
+
+  .sp-exp-chip--in_progress {
+    background: color-mix(in srgb, #6080a0 12%, transparent);
+    color: #6080a0;
+  }
+
+  .sp-exp-chip--completed {
+    background: color-mix(in srgb, var(--c-success) 12%, transparent);
+    color: var(--c-success);
+  }
+
+  .sp-exp-chip--abandoned {
+    background: color-mix(in srgb, #c0392b 12%, transparent);
+    color: #c0392b;
+    opacity: 0.6;
+  }
+
+  .sp-exp-none {
+    color: var(--c-text-3);
+  }
 
   /* ── Empty state ── */
 

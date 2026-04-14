@@ -40,7 +40,14 @@ collections:
       - { label: Date, name: date, widget: datetime, format: YYYY-MM-DD, date_format: YYYY-MM-DD, time_format: false }
       - { label: Attendees, name: attendees, widget: list, default: [] }
       - { label: Decisions, name: decisions, widget: list, default: [] }
-      - { label: Actions, name: actions, widget: list, default: [] }
+      - label: Actions
+        name: actions
+        widget: list
+        default: []
+        fields:
+          - { label: Tâche, name: text, widget: string }
+          - { label: Fait, name: done, widget: boolean, default: false }
+          - { label: Échéance, name: due, widget: string, required: false, hint: "Format YYYY-MM-DD" }
       - { label: Draft, name: draft, widget: boolean, default: false }
       - { label: Body, name: body, widget: markdown, modes: [rich_text, raw] }
 
@@ -226,6 +233,247 @@ collections:
               - { label: Tools, name: tools, widget: string }
               - { label: Description, name: description, widget: text }
               - { label: Order, name: order, widget: number, value_type: int }
+
+      # ── PhD Dashboard data ────────────────────────────
+
+      - name: thesis
+        label: "Thèse — Chapitres & Jalons"
+        file: src/data/thesis.yaml
+        fields:
+          - label: thesis-data
+            name: thesis-data
+            widget: object
+            fields:
+              - label: Chapitres
+                name: chapters
+                widget: list
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Titre, name: title, widget: string }
+                  - label: Statut
+                    name: status
+                    widget: select
+                    options:
+                      - { label: "Non démarré", value: non-demarre }
+                      - { label: "En cours", value: en-cours }
+                      - { label: "Terminé", value: termine }
+                  - { label: "Avancement (%)", name: value, widget: number, value_type: int, min: 0, max: 100 }
+                  - { label: Deadline, name: deadline, widget: string, required: false, hint: "YYYY-MM-DD" }
+              - label: Publications
+                name: publications
+                widget: list
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Titre, name: title, widget: string }
+                  - { label: Journal, name: journal, widget: string }
+                  - label: Statut
+                    name: status
+                    widget: select
+                    options:
+                      - { label: Planifié, value: planifie }
+                      - { label: En préparation, value: en-preparation }
+                      - { label: Soumis, value: soumis }
+                      - { label: Accepté, value: accepte }
+                      - { label: Publié, value: publie }
+                  - { label: Deadline, name: deadline, widget: string, required: false, hint: "YYYY-MM-DD" }
+              - label: Jalons administratifs
+                name: milestones
+                widget: list
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Titre, name: title, widget: string }
+                  - { label: Date, name: date, widget: string, hint: "YYYY-MM-DD" }
+                  - label: Statut
+                    name: status
+                    widget: select
+                    options:
+                      - { label: À venir, value: upcoming }
+                      - { label: Fait, value: done }
+
+      - name: defense
+        label: "Checklist soutenance"
+        file: src/data/defense.yaml
+        fields:
+          - label: defense-data
+            name: defense-data
+            widget: object
+            fields:
+              - { label: Date cible, name: target_date, widget: string, hint: "YYYY-MM-DD" }
+              - label: Étapes
+                name: steps
+                widget: list
+                summary: "{{fields.label}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Étape, name: label, widget: string }
+                  - label: Catégorie
+                    name: category
+                    widget: select
+                    options:
+                      - { label: Administratif, value: admin }
+                      - { label: Jury, value: jury }
+                      - { label: Manuscrit, value: manuscrit }
+                  - label: Statut
+                    name: status
+                    widget: select
+                    options:
+                      - { label: Fait, value: done }
+                      - { label: À venir, value: upcoming }
+                      - { label: En attente, value: pending }
+                  - { label: Date, name: date, widget: string, required: false, hint: "YYYY-MM-DD" }
+                  - { label: Deadline, name: deadline, widget: string, required: false, hint: "YYYY-MM-DD" }
+
+      - name: figures
+        label: "Figures"
+        file: src/data/figures.yaml
+        fields:
+          - label: figures-data
+            name: figures-data
+            widget: object
+            fields:
+              - label: Figures
+                name: figures
+                widget: list
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Titre, name: title, widget: string }
+                  - label: Cible
+                    name: target
+                    widget: select
+                    options:
+                      - { label: "Article 1", value: article-1 }
+                      - { label: "Article 2", value: article-2 }
+                      - { label: "Scoping Review", value: article-scoping }
+                      - { label: "Thèse", value: thesis }
+                  - { label: Chapitre, name: chapter, widget: string, required: false }
+                  - label: Statut
+                    name: status
+                    widget: select
+                    options:
+                      - { label: Finalisée, value: finalisee }
+                      - { label: Brouillon, value: brouillon }
+                      - { label: À refaire, value: a-refaire }
+                  - { label: "Expérience source", name: source_experiment, widget: string, required: false }
+                  - { label: "Dernière mise à jour", name: last_updated, widget: string, hint: "YYYY-MM-DD" }
+                  - { label: Notes, name: notes, widget: text, required: false }
+                  - { label: Auto-généré, name: auto_generated, widget: boolean, default: false, required: false }
+
+      - name: collecte
+        label: "Collecte de données"
+        file: src/data/collecte.yaml
+        fields:
+          # ── Biologie ──
+          - &collecte-item
+            label: "Coloration"
+            name: coloration
+            widget: object
+            fields: &collecte-fields
+              - { label: Partie, name: partie, widget: select, options: [biologie, biomecanique, donnees-humaines] }
+              - { label: Label, name: label, widget: string }
+              - label: Statut
+                name: statut
+                widget: select
+                options:
+                  - { label: "Non démarré", value: non-demarre }
+                  - { label: "En cours", value: en-cours }
+                  - { label: "Terminé", value: termine }
+              - { label: "Avancement (%)", name: value, widget: number, value_type: int, min: 0, max: 100 }
+              - { label: Deadline, name: deadline, widget: string, required: false, hint: "YYYY-MM-DD" }
+              - { label: Notes, name: notes, widget: text, required: false }
+          - label: "RNAscope / IF"
+            name: rnascope-if
+            widget: object
+            fields: *collecte-fields
+          - label: "Light Sheet"
+            name: light-sheet
+            widget: object
+            fields: *collecte-fields
+          - label: "Analyse LS rat"
+            name: analyse-ls-rat
+            widget: object
+            fields: *collecte-fields
+          # ── Biomécanique ──
+          - label: "Conception système"
+            name: conception-systeme
+            widget: object
+            fields: *collecte-fields
+          - label: "Validation"
+            name: validation
+            widget: object
+            fields: *collecte-fields
+          - label: "Culture ex vivo"
+            name: culture-ex-vivo
+            widget: object
+            fields: *collecte-fields
+          - label: "Mesures morphocentriques"
+            name: mesures-morpho
+            widget: object
+            fields: *collecte-fields
+          - label: "RNA-seq"
+            name: rnaseq
+            widget: object
+            fields: *collecte-fields
+          # ── Données Humaines ──
+          - label: "Acquisition"
+            name: acquisition
+            widget: object
+            fields: *collecte-fields
+          - label: "Contrôle & aplasie post-natal"
+            name: controle-postnatal
+            widget: object
+            fields: *collecte-fields
+          - label: "Contrôle & aplasie anté-natal"
+            name: controle-antenatal
+            widget: object
+            fields: *collecte-fields
+          - label: "Validation landmarks"
+            name: validation-landmarks
+            widget: object
+            fields: *collecte-fields
+          - label: "Stats croissance"
+            name: stats-croissance
+            widget: object
+            fields: *collecte-fields
+          - label: "Patterns fermeture"
+            name: patterns-fermeture
+            widget: object
+            fields: *collecte-fields
+
+      - name: timeline
+        label: "Timeline"
+        file: src/data/timeline.yaml
+        fields:
+          - label: timeline
+            name: timeline
+            widget: object
+            fields:
+              - label: Événements
+                name: entries
+                widget: list
+                summary: "{{fields.date}} — {{fields.label}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Date, name: date, widget: string, hint: "YYYY-MM-DD" }
+                  - { label: Libellé, name: label, widget: string }
+                  - label: Type
+                    name: type
+                    widget: select
+                    options:
+                      - { label: Jalon, value: milestone }
+                      - { label: Expérience, value: experiment }
+                      - { label: Comité, value: committee }
+                      - { label: Publication, value: publication }
+                  - label: Statut
+                    name: status
+                    widget: select
+                    options:
+                      - { label: Fait, value: done }
+                      - { label: En cours, value: in-progress }
+                      - { label: À venir, value: upcoming }
 
       - name: labs
         label: "Labs"

@@ -288,5 +288,27 @@ export default {
         ABANDONED:  'Abandoned',
       },
     },
+    blockers: {
+      title:       'Blockers',
+      allClear:    'All clear',
+      allClearSub: 'All deadlines are on track.',
+      urgentLbl:   'Urgent',
+      warningLbl:  'Watch',
+      infoLbl:     'Info',
+      daysLeft:    'd left',
+      overdue:     'Overdue',
+      categories: {
+        deadline:   'Deadline',
+        experiment: 'Experiment',
+        figure:     'Figure',
+      },
+    },
+    actionItems: {
+      title:      'Action Items',
+      noActions:  'No open action items.',
+      from:       'from',
+      due:        'due',
+      noMeetings: 'No meetings recorded.',
+    },
   },
 } as const;

@@ -12,6 +12,8 @@ import DefenseChecklist from '../../components/DefenseChecklist.astro';
 import PipelineTracker from '../../components/PipelineTracker.astro';
 import DataSharingStatus from '../../components/DataSharingStatus.astro';
 import PubMedRadar from '../../components/PubMedRadar.astro';
+import BlockersWidget from '../../components/BlockersWidget.astro';
+import ActionItems from '../../components/ActionItems.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 import { t, getLocale } from '../../i18n';
@@ -43,6 +45,18 @@ const noindex = await shouldNoIndex(pageKey);
         <p class="dashboard-subtitle">{ui.subtitle}</p>
       </div>
       <PresentationToggle />
+    </div>
+
+    <!-- Blocages + Actions (EPIC 16.1 / 16.2) -->
+    <div class="dash-top-widgets">
+      <div class="dash-top-widget">
+        <h3 class="dash-widget-title">{ui.blockers.title}</h3>
+        <BlockersWidget />
+      </div>
+      <div class="dash-top-widget">
+        <h3 class="dash-widget-title">{ui.actionItems.title}</h3>
+        <ActionItems />
+      </div>
     </div>
 
     <!-- Vue d'ensemble collecte (EPIC 2.1) -->
@@ -196,6 +210,30 @@ const noindex = await shouldNoIndex(pageKey);
     color: var(--c-text-2);
     font-style: italic;
     margin-bottom: 0;
+  }
+
+  /* ── Widgets top (blocages + actions) ── */
+
+  .dash-top-widgets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .dash-widget-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--c-text-3);
+    margin-bottom: var(--space-sm);
+  }
+
+  @media (max-width: 768px) {
+    .dash-top-widgets {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* ── Sections repliables ── */

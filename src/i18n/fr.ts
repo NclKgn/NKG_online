@@ -289,5 +289,27 @@ export default {
         ABANDONED:  'Abandonnée',
       },
     },
+    blockers: {
+      title:       'Points bloquants',
+      allClear:    'Rien à signaler',
+      allClearSub: 'Toutes les deadlines sont respectées.',
+      urgentLbl:   'Urgent',
+      warningLbl:  'À surveiller',
+      infoLbl:     'Info',
+      daysLeft:    'j restants',
+      overdue:     'En retard',
+      categories: {
+        deadline:   'Deadline',
+        experiment: 'Expérience',
+        figure:     'Figure',
+      },
+    },
+    actionItems: {
+      title:      'Actions',
+      noActions:  'Aucune action en cours.',
+      from:       'depuis',
+      due:        'échéance',
+      noMeetings: 'Aucune réunion enregistrée.',
+    },
   },
 } as const;

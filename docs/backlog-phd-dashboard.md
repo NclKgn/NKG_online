@@ -5,9 +5,9 @@
 > - `PhD_Notebook` — App FastAPI + SQLite locale (saisie labo)
 >
 > **Scope :** Système intégré PhD = saisie labo (local) + dashboard (web)
-> **Date :** 14 avril 2026 (màj session 7)
+> **Date :** 14 avril 2026 (màj session 8)
 > **Statut :** Phase 3 partielle, Phase 4 en cours — Phases 1 & 2 terminées
-> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 18.1, 18.2, 18.3, 19, 20.1, 20.2, 21.1, 21.2, 22.3, 22.4, 22.5 (25 items)
+> **Complétés :** EPIC 1, 2, 3, 5, 6, 8.1, 8.2, 9, 10.1, 11, 12.1, 13.0, 14.1, 14.2, 14.3, 16.1, 16.2, 18.1, 18.2, 18.3, 19, 20.1, 20.2, 21.1, 21.2, 22.3, 22.4, 22.5 (28 items)
 
 ---
 
@@ -979,13 +979,14 @@ L'app locale existe déjà avec :
 
 ### 14.3 Lien planificateur → tracker
 - **Priorité :** P2 | **Complexité :** M
-- **Description :** Le planificateur d'expériences (EPIC 13)
-  interroge le tracker de spécimens :
-  - "Y a-t-il des animaux disponibles au bon stade pour cette date ?"
-  - Suggère des accouplements à planifier si rien n'est dispo
-  - Alloue automatiquement les animaux quand l'expérience est créée
-- **Fichiers :** Logique partagée entre `ExperimentPlanner.astro`
-  et `specimens.yaml`
+- **Statut :** ✅ Terminé (2026-04-14)
+- **Description :** Cross-référence bidirectionnelle entre expériences et spécimens :
+  - `ExperimentsLiveTracker` : colonne Spécimens enrichie avec chips stage+génotype
+    (lookup dans `specimens.yaml` par code)
+  - `SpecimenTracker` : colonne Exp. ajoutée avec chips des expériences liées,
+    colorées par statut (index inverse specimen code → experiments)
+- **Fichiers :** `src/components/ExperimentsLiveTracker.astro`,
+  `src/components/SpecimenTracker.astro`
 
 ### 14.4 Alertes spécimens
 - **Priorité :** P3 | **Complexité :** S
@@ -1030,25 +1031,19 @@ L'app locale existe déjà avec :
 > Fonctionnalités transverses qui améliorent le workflow quotidien.
 
 ### 16.1 Vue "Blocages" sur le dashboard
-- **Priorité :** P2 | **Complexité :** M
-- **Description :** Encart en haut du dashboard qui agrège
-  automatiquement tous les points bloquants :
-  - Expériences en attente de matériel/animaux
-  - Conflits Rayyan non résolus
-  - Deadlines < 7 jours
-  - Génotypages en retard
-  - Chapitres de thèse en retard sur la deadline
-  Lit les données de collecte, scoping, specimens, thesis.
+- **Priorité :** P2 | **Complexité :** M | **Statut :** ✅ Terminé (2026-04-14)
+- **Description :** `BlockersWidget.astro` — agrège deadline thesis < 60j (chapitres + publications),
+  expériences PLANNED avec date_start dépassée, figures "à refaire". Sévérité : urgent/warning/info
+  avec code couleur. État vide "Rien à signaler" en vert. Affiché en haut du dashboard.
 - **Fichiers :** `src/components/BlockersWidget.astro`
 
 ### 16.2 Actions items des réunions → dashboard
-- **Priorité :** P2 | **Complexité :** M
-- **Description :** Les champs `actions` des notes de réunion
-  (`src/content/meetings/`) remontent automatiquement sur le
-  dashboard comme une todo list. Quand une action est cochée
-  (champ `done: true` dans le YAML), elle disparaît.
-- **Fichiers :** `src/components/ActionItems.astro`,
-  mise à jour du schéma meetings dans `content.config.ts`
+- **Priorité :** P2 | **Complexité :** M | **Statut :** ✅ Terminé (2026-04-14)
+- **Description :** `ActionItems.astro` — liste les `actions` ouvertes (`done: false`) des réunions,
+  avec référence à la réunion d'origine et mise en évidence des échéances dépassées.
+  Schema `meetings` mis à jour : `actions` passe de `string[]` à `{text, done, due?}[]`.
+- **Fichiers :** `src/components/ActionItems.astro`, `src/content.config.ts`,
+  `src/content/meetings/*.md` (fichiers migrés)
 
 ### 16.3 Export PDF du dashboard
 - **Priorité :** P2 | **Complexité :** M
@@ -1488,7 +1483,7 @@ Phase 4 — Tracking avancé 🌐🔗                          🔄 EN COURS
   22.4 Widget soutenance dashboard               🌐 ✅  ← session 5
   4.3  GitHub Action rayyan-sync                 ⏸️ (attente API)
   4.4  PRISMA auto-généré                        🌐
-  14.3 Lien planificateur → tracker              🌐🔬
+  14.3 Lien planificateur → tracker              ✅ 🌐
   18.1 Données pipelines.yaml                    ✅ 🌐
   18.2 Composant PipelineTracker                 ✅ 🌐
   18.3 Lien pipeline → figures → expériences     ✅ 🌐
@@ -1502,8 +1497,8 @@ Phase 4 — Tracking avancé 🌐🔗                          🔄 EN COURS
 Phase 5 — Productivité et UX 🌐🔬                       ⬜ À VENIR
   9.7  Indicateur mode invité                    🌐
   10.2 URL directe mode présentation             🌐
-  16.1 Vue "Blocages" dashboard                  🌐
-  16.2 Actions items réunions → dashboard        🌐
+  16.1 Vue "Blocages" dashboard                  ✅ 🌐
+  16.2 Actions items réunions → dashboard        ✅ 🌐
   16.3 Export PDF du dashboard                   🌐
   16.4 Quick log mobile                          🌐 (ou 🔬)
   17.2 Affichage changelog protocoles            🌐
