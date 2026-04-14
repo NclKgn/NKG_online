@@ -475,6 +475,150 @@ collections:
                       - { label: En cours, value: in-progress }
                       - { label: À venir, value: upcoming }
 
+      - name: pipelines
+        label: "Pipelines d'analyse"
+        file: src/data/pipelines.yaml
+        fields:
+          - label: pipelines-data
+            name: pipelines-data
+            widget: object
+            fields:
+              - label: Pipelines
+                name: pipelines
+                widget: list
+                summary: "{{fields.name}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Nom, name: name, widget: string }
+                  - label: Statut
+                    name: status
+                    widget: select
+                    options:
+                      - { label: Planifié, value: PLANNED }
+                      - { label: "En cours", value: IN_PROGRESS }
+                      - { label: Terminé, value: COMPLETED }
+                      - { label: Archivé, value: ARCHIVED }
+                  - label: Axe
+                    name: axis
+                    widget: select
+                    options:
+                      - { label: Biologie, value: biologie }
+                      - { label: Biomécanique, value: biomecanique }
+                      - { label: "Données Humaines", value: donnees-humaines }
+                  - label: Étapes
+                    name: steps
+                    widget: list
+                    summary: "{{fields.label}}"
+                    fields:
+                      - { label: Libellé, name: label, widget: string }
+                      - label: Type
+                        name: type
+                        widget: select
+                        options:
+                          - { label: Acquisition, value: acquisition }
+                          - { label: Analyse, value: analysis }
+                          - { label: Figure, value: figure }
+                          - { label: Export, value: export }
+                          - { label: Autre, value: other }
+                      - label: Statut
+                        name: status
+                        widget: select
+                        options:
+                          - { label: Planifié, value: PLANNED }
+                          - { label: "En cours", value: IN_PROGRESS }
+                          - { label: Terminé, value: COMPLETED }
+                  - { label: "Expériences liées", name: experiments, widget: list, required: false }
+                  - { label: "Figures liées", name: figures, widget: list, required: false }
+                  - { label: Notes, name: notes, widget: text, required: false }
+
+      - name: datasets
+        label: "Partage données FAIR"
+        file: src/data/datasets.yaml
+        fields:
+          - label: datasets-data
+            name: datasets-data
+            widget: object
+            fields:
+              - label: Datasets
+                name: datasets
+                widget: list
+                summary: "{{fields.name}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Nom, name: name, widget: string }
+                  - label: Type
+                    name: type
+                    widget: select
+                    options:
+                      - { label: Imagerie, value: imaging }
+                      - { label: Génomique, value: genomics }
+                      - { label: Clinique, value: clinical }
+                      - { label: Autre, value: other }
+                  - { label: Taille, name: size, widget: string, required: false }
+                  - { label: "Article lié", name: linked_article, widget: string, required: false }
+                  - label: Sauvegarde
+                    name: backup
+                    widget: object
+                    fields:
+                      - { label: Local, name: local, widget: boolean, default: false }
+                      - { label: "Distant (NAS…)", name: remote, widget: string, required: false }
+                      - { label: Cloud, name: cloud, widget: boolean, default: false }
+                      - { label: "Dernière sauvegarde", name: last_backup_date, widget: string, required: false, hint: "YYYY-MM-DD" }
+                  - label: Partage
+                    name: sharing
+                    widget: object
+                    fields:
+                      - { label: "Dépôt (Zenodo…)", name: repository, widget: string, required: false }
+                      - { label: "Numéro accession", name: accession, widget: string, required: false }
+                      - label: Statut
+                        name: status
+                        widget: select
+                        options:
+                          - { label: "Non déposé", value: not-deposited }
+                          - { label: "En cours", value: in-progress }
+                          - { label: Déposé, value: deposited }
+                          - { label: Public, value: public }
+                  - label: FAIR
+                    name: fair
+                    widget: object
+                    fields:
+                      - { label: Findable, name: findable, widget: boolean, default: false }
+                      - { label: Accessible, name: accessible, widget: boolean, default: false }
+                      - { label: Interoperable, name: interoperable, widget: boolean, default: false }
+                      - { label: Reusable, name: reusable, widget: boolean, default: false }
+                  - { label: Notes, name: notes, widget: text, required: false }
+
+      - name: pubmed-alerts
+        label: "Radar PubMed"
+        file: src/data/pubmed-alerts.yaml
+        fields:
+          - label: pubmed-alerts
+            name: pubmed-alerts
+            widget: object
+            fields:
+              - { label: "Mis à jour le", name: fetched_at, widget: string, hint: "YYYY-MM-DD" }
+              - label: Requêtes
+                name: queries
+                widget: list
+                summary: "{{fields.label}}"
+                fields:
+                  - { label: ID, name: id, widget: string }
+                  - { label: Libellé, name: label, widget: string }
+                  - { label: "Requête PubMed", name: query, widget: string }
+              - label: Articles
+                name: articles
+                widget: list
+                summary: "{{fields.title}}"
+                fields:
+                  - { label: PMID, name: pmid, widget: string }
+                  - { label: Titre, name: title, widget: string }
+                  - { label: Auteurs, name: authors, widget: string }
+                  - { label: Journal, name: journal, widget: string }
+                  - { label: Date, name: date, widget: string, hint: "YYYY-MM-DD" }
+                  - { label: DOI, name: doi, widget: string, required: false }
+                  - { label: "ID requête", name: query_id, widget: string }
+                  - { label: Lu, name: read, widget: boolean, default: false }
+
       - name: labs
         label: "Labs"
         file: src/data/labs.yaml
