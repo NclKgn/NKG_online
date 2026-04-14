@@ -63,52 +63,10 @@ const noindex = await shouldNoIndex(pageKey);
       </div>
     </div>
 
-    <!-- Vue d'ensemble collecte (EPIC 2.1) -->
-    <details class="dash-section" open>
-      <summary class="dash-section-summary"><h2>{ui.collecte.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
-      <div class="dash-section-body"><CollecteDashboard /></div>
-    </details>
-
-    <!-- Checklist soutenance (EPIC 22.3/22.4) -->
-    <details class="dash-section" open>
-      <summary class="dash-section-summary"><h2>{ui.defense.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
-      <div class="dash-section-body"><DefenseChecklist /></div>
-    </details>
-
-    <!-- Tracker rédaction (EPIC 3) -->
-    <details class="dash-section" open>
-      <summary class="dash-section-summary"><h2>{ui.thesis.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
-      <div class="dash-section-body"><ThesisTracker /></div>
-    </details>
-
     <!-- Timeline (EPIC 5) -->
     <details class="dash-section" open>
       <summary class="dash-section-summary"><h2>{ui.timeline.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
       <div class="dash-section-body"><PhDTimeline /></div>
-    </details>
-
-    <!-- Tracker spécimens (EPIC 14) -->
-    <details class="dash-section" open>
-      <summary class="dash-section-summary"><h2>{ui.specimens.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
-      <div class="dash-section-body"><SpecimenTracker /></div>
-    </details>
-
-    <!-- Tracker expériences live (EPIC 13) -->
-    <details class="dash-section" open>
-      <summary class="dash-section-summary"><h2>{ui.experimentsLive.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
-      <div class="dash-section-body"><ExperimentsLiveTracker /></div>
-    </details>
-
-    <!-- Tracker pipelines d'analyse (EPIC 18) -->
-    <details class="dash-section" open>
-      <summary class="dash-section-summary"><h2>{ui.pipelines.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
-      <div class="dash-section-body"><PipelineTracker /></div>
-    </details>
-
-    <!-- Partage des données FAIR (EPIC 21) -->
-    <details class="dash-section" open>
-      <summary class="dash-section-summary"><h2>{ui.datasets.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
-      <div class="dash-section-body"><DataSharingStatus /></div>
     </details>
 
     <!-- Radar littérature PubMed (EPIC 20) -->
@@ -117,10 +75,52 @@ const noindex = await shouldNoIndex(pageKey);
       <div class="dash-section-body"><PubMedRadar /></div>
     </details>
 
+    <!-- Tracker expériences live (EPIC 13) -->
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.experimentsLive.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><ExperimentsLiveTracker /></div>
+    </details>
+
+    <!-- Vue d'ensemble collecte (EPIC 2.1) -->
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.collecte.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><CollecteDashboard /></div>
+    </details>
+
+    <!-- Tracker spécimens (EPIC 14) -->
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.specimens.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><SpecimenTracker /></div>
+    </details>
+
+    <!-- Tracker pipelines d'analyse (EPIC 18) -->
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.pipelines.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><PipelineTracker /></div>
+    </details>
+
     <!-- Tracker figures (EPIC 19) -->
     <details class="dash-section" open>
       <summary class="dash-section-summary"><h2>{ui.figures.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
       <div class="dash-section-body"><FigureTracker /></div>
+    </details>
+
+    <!-- Partage des données FAIR (EPIC 21) -->
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.datasets.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><DataSharingStatus /></div>
+    </details>
+
+    <!-- Tracker rédaction (EPIC 3) -->
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.thesis.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><ThesisTracker /></div>
+    </details>
+
+    <!-- Checklist soutenance (EPIC 22.3/22.4) -->
+    <details class="dash-section" open>
+      <summary class="dash-section-summary"><h2>{ui.defense.title}</h2><span class="dash-chevron" aria-hidden="true"></span></summary>
+      <div class="dash-section-body"><DefenseChecklist /></div>
     </details>
 
     <!-- Modules (liens) -->
