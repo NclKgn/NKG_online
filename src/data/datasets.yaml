@@ -1,0 +1,45 @@
+# src/data/datasets.yaml
+# EPIC 21 — Statut de partage des données (FAIR)
+# Registre manuel des datasets et leur conformité FAIR
+
+datasets-data:
+  datasets:
+    - id: "rnascope-e165-fgf"
+      name: "RNAscope E16.5 — FGF pathway"
+      type: "imaging"
+      size: "~8 GB"
+      linked_article: "article-1"
+      backup:
+        local: true
+        remote: "NAS labo"
+        cloud: false
+      sharing:
+        repository: null
+        accession: null
+        status: "not-deposited"
+      fair:
+        findable: false
+        accessible: false
+        interoperable: true
+        reusable: false
+      notes: "Déposer sur Zenodo avant soumission article 1."
+
+    - id: "specimens-micro-ct"
+      name: "Micro-CT — Cohorte synchondroses"
+      type: "imaging"
+      size: "~45 GB"
+      linked_article: "article-1"
+      backup:
+        local: true
+        remote: "NAS labo"
+        cloud: false
+      sharing:
+        repository: null
+        accession: null
+        status: "not-deposited"
+      fair:
+        findable: false
+        accessible: false
+        interoperable: true
+        reusable: false
+      notes: ""

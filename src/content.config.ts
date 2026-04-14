@@ -308,6 +308,36 @@ const pipelinesData = defineCollection({
   }),
 });
 
+const datasetsData = defineCollection({
+  loader: file('./src/data/datasets.yaml'),
+  schema: z.object({
+    datasets: z.array(z.object({
+      id: z.string(),
+      name: z.string(),
+      type: z.enum(['imaging', 'rna-seq', 'morphometrics', 'clinical', 'other']),
+      size: z.string().optional(),
+      linked_article: z.enum(['article-1', 'article-2', 'article-scoping', 'thesis']).optional(),
+      backup: z.object({
+        local: z.boolean(),
+        remote: z.string().nullable().optional(),
+        cloud: z.boolean(),
+      }),
+      sharing: z.object({
+        repository: z.string().nullable().optional(),
+        accession: z.string().nullable().optional(),
+        status: z.enum(['not-deposited', 'in-preparation', 'deposited', 'public']),
+      }),
+      fair: z.object({
+        findable:     z.boolean(),
+        accessible:   z.boolean(),
+        interoperable:z.boolean(),
+        reusable:     z.boolean(),
+      }),
+      notes: z.string().optional(),
+    })),
+  }),
+});
+
 export const collections = {
   newsletter,
   projects,
@@ -327,6 +357,7 @@ export const collections = {
   specimens,
   'experiments-live': experimentsLive,
   'pipelines-data': pipelinesData,
+  'datasets-data': datasetsData,
   defense,
   visibility,
 };

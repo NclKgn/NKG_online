@@ -10,6 +10,7 @@ import SpecimenTracker from '../../components/SpecimenTracker.astro';
 import ExperimentsLiveTracker from '../../components/ExperimentsLiveTracker.astro';
 import DefenseChecklist from '../../components/DefenseChecklist.astro';
 import PipelineTracker from '../../components/PipelineTracker.astro';
+import DataSharingStatus from '../../components/DataSharingStatus.astro';
 import { base } from '../../i18n';
 import { shouldBuild, shouldNoIndex } from '../../lib/visibility';
 import { t, getLocale } from '../../i18n';
@@ -83,6 +84,12 @@ const noindex = await shouldNoIndex(pageKey);
     <section class="dash-overview">
       <h2>{ui.pipelines.title}</h2>
       <PipelineTracker />
+    </section>
+
+    <!-- Partage des données FAIR (EPIC 21) -->
+    <section class="dash-overview">
+      <h2>{ui.datasets.title}</h2>
+      <DataSharingStatus />
     </section>
 
     <!-- Tracker figures (EPIC 19) -->

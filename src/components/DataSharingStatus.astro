@@ -1,0 +1,419 @@
+---
+// src/components/DataSharingStatus.astro
+// EPIC 21 — Statut de partage des données (FAIR)
+import { getEntry } from 'astro:content';
+import { t, getLocale } from '../i18n';
+
+const ui = t(getLocale()).dashboard.datasets;
+
+const entry = await getEntry('datasets-data', 'datasets-data');
+const data  = entry?.data;
+const datasets = data?.datasets ?? [];
+const hasData  = datasets.length > 0;
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+
+const total = datasets.length;
+
+const fullyFair = datasets.filter(
+  (d) => d.fair.findable && d.fair.accessible && d.fair.interoperable && d.fair.reusable
+).length;
+
+const deposited = datasets.filter(
+  (d) => d.sharing.status === 'deposited' || d.sharing.status === 'public'
+).length;
+
+const notDeposited = total - deposited;
+
+const backupOk = datasets.every(
+  (d) => d.backup.local && (d.backup.remote || d.backup.cloud)
+);
+
+// ── Config ──────────────────────────────────────────────────────────────────
+
+const SHARE_STATUS_CLS: Record<string, string> = {
+  'not-deposited':  'ds-share-none',
+  'in-preparation': 'ds-share-prep',
+  deposited:        'ds-share-done',
+  public:           'ds-share-public',
+};
+
+const FAIR_KEYS = ['F', 'A', 'I', 'R'] as const;
+const FAIR_FIELDS: Record<string, 'findable' | 'accessible' | 'interoperable' | 'reusable'> = {
+  F: 'findable',
+  A: 'accessible',
+  I: 'interoperable',
+  R: 'reusable',
+};
+---
+
+<div class="ds-root">
+
+  <!-- Stats -->
+  <div class="ds-stats">
+    <div class="ds-stat">
+      <span class="ds-stat-val">{total}</span>
+      <span class="ds-stat-lbl">{ui.total}</span>
+    </div>
+    <div class="ds-stat">
+      <span class="ds-stat-val ds-color-fair">{fullyFair}</span>
+      <span class="ds-stat-lbl">{ui.fullyFair}</span>
+    </div>
+    <div class="ds-stat">
+      <span class="ds-stat-val ds-color-deposited">{deposited}</span>
+      <span class="ds-stat-lbl">{ui.deposited}</span>
+    </div>
+    {notDeposited > 0 && (
+      <div class="ds-stat">
+        <span class="ds-stat-val ds-color-warn">{notDeposited}</span>
+        <span class="ds-stat-lbl">{ui.notDeposited}</span>
+      </div>
+    )}
+    <div class="ds-stat ds-stat-backup">
+      <span class={`ds-backup-indicator ${backupOk ? 'ds-backup-ok' : 'ds-backup-warn'}`}>
+        {backupOk ? '●' : '●'}
+      </span>
+      <span class="ds-stat-lbl">{backupOk ? ui.backupOk : ui.backupWarn}</span>
+    </div>
+  </div>
+
+  <!-- Table datasets -->
+  {hasData ? (
+    <div class="ds-table-wrap">
+      <table class="ds-table">
+        <thead>
+          <tr>
+            <th>{ui.type}</th>
+            <th>Dataset</th>
+            <th>{ui.size}</th>
+            <th>{ui.status}</th>
+            <th>{ui.fairLabel}</th>
+            <th>Backup</th>
+          </tr>
+        </thead>
+        <tbody>
+          {datasets.map((dataset) => {
+            const fairScore = FAIR_KEYS.filter((k) => dataset.fair[FAIR_FIELDS[k]]).length;
+
+            return (
+              <tr>
+                <td>
+                  <span class="ds-type-badge">
+                    {ui.typeLbls[dataset.type as keyof typeof ui.typeLbls]}
+                  </span>
+                </td>
+                <td class="ds-name-cell">
+                  <span class="ds-name">{dataset.name}</span>
+                  {dataset.linked_article && (
+                    <span class="ds-article mono">
+                      {ui.articleLbls[dataset.linked_article as keyof typeof ui.articleLbls]}
+                    </span>
+                  )}
+                  {dataset.notes && (
+                    <span class="ds-note">{dataset.notes}</span>
+                  )}
+                </td>
+                <td class="ds-size mono">{dataset.size ?? '—'}</td>
+                <td>
+                  <span class={`ds-share-badge ${SHARE_STATUS_CLS[dataset.sharing.status]}`}>
+                    {ui.sharingStatusLbls[dataset.sharing.status as keyof typeof ui.sharingStatusLbls]}
+                  </span>
+                  {dataset.sharing.accession && (
+                    <span class="ds-accession mono">{dataset.sharing.accession}</span>
+                  )}
+                </td>
+                <td>
+                  <div class="ds-fair-chips">
+                    {FAIR_KEYS.map((k) => {
+                      const ok = dataset.fair[FAIR_FIELDS[k]];
+                      return (
+                        <span
+                          class={`ds-fair-chip ${ok ? 'ds-fair-ok' : 'ds-fair-no'}`}
+                          title={ui.fairTooltips[k as keyof typeof ui.fairTooltips]}
+                        >
+                          {k}
+                        </span>
+                      );
+                    })}
+                    <span class="ds-fair-score mono">{fairScore}/4</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="ds-backup-chips">
+                    <span class={`ds-bchip ${dataset.backup.local ? 'ds-bchip-ok' : 'ds-bchip-no'}`} title="Local">L</span>
+                    <span class={`ds-bchip ${dataset.backup.remote ? 'ds-bchip-ok' : 'ds-bchip-no'}`} title={dataset.backup.remote ?? 'Remote'}>R</span>
+                    <span class={`ds-bchip ${dataset.backup.cloud ? 'ds-bchip-ok' : 'ds-bchip-no'}`} title="Cloud">C</span>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div class="ds-empty">
+      <p class="ds-empty-msg">{ui.empty}</p>
+    </div>
+  )}
+
+</div>
+
+<style>
+  /* ── Stats ── */
+
+  .ds-stats {
+    display: flex;
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+  }
+
+  .ds-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ds-stat-backup {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-xs, 6px);
+    margin-left: auto;
+  }
+
+  .ds-stat-val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: var(--font-mono, monospace);
+    line-height: 1;
+    color: var(--c-text);
+  }
+
+  .ds-stat-lbl {
+    font-size: 0.7rem;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .ds-color-fair      { color: var(--c-success); }
+  .ds-color-deposited { color: #6080a0; }
+  .ds-color-warn      { color: #c0392b; }
+
+  .ds-backup-indicator {
+    font-size: 0.85rem;
+  }
+
+  .ds-backup-ok   { color: var(--c-success); }
+  .ds-backup-warn { color: #c0392b; }
+
+  /* ── Table ── */
+
+  .ds-table-wrap {
+    overflow-x: auto;
+  }
+
+  .ds-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .ds-table th {
+    text-align: left;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--c-text-3);
+    padding: var(--space-xs, 4px) var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+    white-space: nowrap;
+  }
+
+  .ds-table td {
+    padding: var(--space-sm) var(--space-sm);
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: top;
+  }
+
+  /* ── Type badge ── */
+
+  .ds-type-badge {
+    font-size: 0.68rem;
+    color: var(--c-text-3);
+    background: var(--c-border);
+    padding: 2px 7px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  /* ── Name cell ── */
+
+  .ds-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ds-name {
+    font-weight: 600;
+    color: var(--c-text);
+    font-size: 0.85rem;
+  }
+
+  .ds-article {
+    font-size: 0.65rem;
+    color: var(--c-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .ds-note {
+    font-size: 0.72rem;
+    color: var(--c-text-3);
+    font-style: italic;
+  }
+
+  .ds-size {
+    font-size: 0.72rem;
+    color: var(--c-text-3);
+    white-space: nowrap;
+  }
+
+  .ds-accession {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--c-text-3);
+    margin-top: 2px;
+  }
+
+  /* ── Share badge ── */
+
+  .ds-share-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  .ds-share-none {
+    background: color-mix(in srgb, #c0392b 10%, transparent);
+    color: #c0392b;
+  }
+
+  .ds-share-prep {
+    background: color-mix(in srgb, #e07b2a 10%, transparent);
+    color: #e07b2a;
+  }
+
+  .ds-share-done {
+    background: color-mix(in srgb, #6080a0 12%, transparent);
+    color: #6080a0;
+  }
+
+  .ds-share-public {
+    background: color-mix(in srgb, var(--c-success) 12%, transparent);
+    color: var(--c-success);
+  }
+
+  /* ── FAIR chips ── */
+
+  .ds-fair-chips {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .ds-fair-chip {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+  }
+
+  .ds-fair-ok {
+    background: color-mix(in srgb, var(--c-success) 20%, transparent);
+    color: var(--c-success);
+  }
+
+  .ds-fair-no {
+    background: var(--c-border);
+    color: var(--c-text-3);
+  }
+
+  .ds-fair-score {
+    font-size: 0.62rem;
+    color: var(--c-text-3);
+    margin-left: 3px;
+  }
+
+  /* ── Backup chips ── */
+
+  .ds-backup-chips {
+    display: flex;
+    gap: 3px;
+  }
+
+  .ds-bchip {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+  }
+
+  .ds-bchip-ok {
+    background: color-mix(in srgb, var(--c-success) 20%, transparent);
+    color: var(--c-success);
+  }
+
+  .ds-bchip-no {
+    background: var(--c-border);
+    color: var(--c-text-3);
+  }
+
+  /* ── Empty state ── */
+
+  .ds-empty {
+    padding: var(--space-xl) 0;
+    text-align: center;
+  }
+
+  .ds-empty-msg {
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    font-style: italic;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 768px) {
+    .ds-stats {
+      gap: var(--space-lg);
+    }
+
+    .ds-stat-backup {
+      margin-left: 0;
+    }
+  }
+</style>
