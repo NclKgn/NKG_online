@@ -1,12 +1,12 @@
-phd: true
-projects: true
-cv: public
+phd: public
+projects: public
+cv: private
 stack: public
 labs: public
-misc: public
-admin: private
+misc: private
 phd-dashboard: guest
 phd-experiments: guest
 phd-lab: private
 phd-meetings: private
 phd-newsletter: public
+admin: private
